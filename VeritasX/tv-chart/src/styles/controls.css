@@ -1,0 +1,160 @@
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+  transition: all 0.3s ease;
+  z-index: 10;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.controls:hover {
+  border-color: rgba(0, 212, 170, 0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 212, 170, 0.08);
+  transform: translateY(-1px);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.control-group:hover {
+  transform: scale(1.01);
+}
+
+.control-group label {
+  font-weight: 600;
+  color: #00d4aa;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+.control-group:hover label {
+  color: #00cec9;
+  text-shadow: 0 0 8px rgba(0, 212, 170, 0.2);
+}
+
+.control-group input,
+.control-group select {
+  padding: 16px 20px;
+  font-size: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  color: #e0e6ed;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  position: relative;
+}
+
+.control-group input:hover,
+.control-group select:hover {
+  border-color: rgba(0, 212, 170, 0.25);
+  background: rgba(0, 212, 170, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 212, 170, 0.08);
+}
+
+.control-group input:focus,
+.control-group select:focus {
+  outline: none;
+  border-color: #00d4aa;
+  background: rgba(0, 212, 170, 0.08);
+  box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.12), 0 4px 16px rgba(0, 212, 170, 0.15);
+  transform: scale(1.01);
+}
+
+.control-group input::placeholder {
+  color: rgba(224, 230, 237, 0.5);
+  transition: color 0.2s ease;
+}
+
+.control-group input:hover::placeholder {
+  color: rgba(0, 212, 170, 0.6);
+}
+
+.fetch-button {
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: end;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(0, 212, 170, 0.25);
+}
+
+.fetch-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 212, 170, 0.3);
+}
+
+.fetch-button:active:not(:disabled) {
+  transform: translateY(0);
+  transition: transform 0.1s ease;
+}
+
+.fetch-button:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.error {
+  background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  animation: errorSlideIn 0.3s ease-out;
+}
+
+select option {
+  background: #1a1a1a;
+  color: #e0e6ed;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+input[type="date"]:hover::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .controls {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+  
+  .fetch-button {
+    align-self: stretch;
+  }
+} 

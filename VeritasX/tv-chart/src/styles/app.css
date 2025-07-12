@@ -1,0 +1,113 @@
+.app {
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 50%, #0f0f0f 100%);
+}
+
+header {
+  text-align: center;
+  margin-bottom: 60px;
+  position: relative;
+  padding: 40px 0;
+}
+
+header h1 {
+  font-size: 0;
+  margin-bottom: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.brand-container {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand-name {
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #00d4aa 0%, #00cec9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -2px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.brand-divider {
+  width: 2px;
+  height: 30px;
+  background: linear-gradient(180deg, transparent 0%, #00d4aa 50%, transparent 100%);
+  align-self: center;
+}
+
+.brand-subtitle {
+  font-size: 1.2rem;
+  color: rgba(224, 230, 237, 0.8);
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  position: relative;
+  top: 2px;
+}
+
+.brand-container:hover .brand-name {
+  transform: scale(1.02);
+  filter: drop-shadow(0 0 20px rgba(0, 212, 170, 0.3));
+}
+
+.brand-container:hover .brand-subtitle {
+  color: rgba(0, 212, 170, 0.9);
+  text-shadow: 0 0 10px rgba(0, 212, 170, 0.2);
+}
+
+header::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #00d4aa 50%, transparent 100%);
+}
+
+header::after {
+  content: '';
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #00d4aa 50%, transparent 100%);
+}
+
+@media (max-width: 768px) {
+  .app {
+    padding: 16px;
+  }
+  
+  .brand-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .brand-divider {
+    width: 40px;
+    height: 2px;
+  }
+  
+  .brand-name {
+    font-size: 2.5rem;
+  }
+  
+  .brand-subtitle {
+    font-size: 1rem;
+    letter-spacing: 2px;
+  }
+} 

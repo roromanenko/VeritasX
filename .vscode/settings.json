@@ -1,0 +1,30 @@
+{
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/Debug": true,
+        "**/Release": true,
+        "**/.vs": true,
+        "**/node_modules": true,
+        "**/*.user": true,
+        "**/*.suo": true,
+        "**/*.userosscache": true,
+        "**/*.sln.docstates": true,
+        "**/*.userprefs": true,
+        "**/Thumbs.db": true,
+        "**/ehthumbs.db": true,
+        "**/Desktop.ini": true,
+        "**/$RECYCLE.BIN/**": true,
+        "**/*.cab": true,
+        "**/*.msi": true,
+        "**/*.msm": true,
+        "**/*.msp": true,
+        "**/*.lnk": true
+    },
+    "search.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/node_modules": true,
+        "**/.vs": true
+    }
+} 

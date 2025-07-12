@@ -1,0 +1,360 @@
+.date-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.date-range-input {
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  color: #e0e6ed;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  cursor: pointer;
+  position: relative;
+}
+
+.date-range-input:hover {
+  border-color: rgba(0, 212, 170, 0.25);
+  background: rgba(0, 212, 170, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 212, 170, 0.08);
+}
+
+.date-range-input:focus {
+  outline: none;
+  border-color: #00d4aa;
+  background: rgba(0, 212, 170, 0.08);
+  box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.12), 0 4px 16px rgba(0, 212, 170, 0.15);
+}
+
+.date-input-wrapper::after {
+  display: none;
+}
+
+.date-range-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  margin-top: 8px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 212, 170, 0.08);
+  animation: fadeInDown 0.2s ease-out;
+  width: 100% !important;
+}
+
+.date-range-dropdown .rdrCalendarWrapper {
+  background: rgba(16, 20, 24, 0.98) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(0, 212, 170, 0.15) !important;
+  border-radius: 16px !important;
+  color: #e0e6ed !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 212, 170, 0.08) !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.date-range-dropdown .rdrMonth {
+  background: transparent !important;
+  color: #e0e6ed !important;
+  padding: 16px !important;
+  width: 100% !important;
+}
+
+.date-range-dropdown .rdrWeekDays {
+  background: transparent !important;
+}
+
+.date-range-dropdown .rdrWeekDay {
+  color: #00d4aa !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.date-range-dropdown .rdrDays {
+  background: transparent !important;
+}
+
+.date-range-dropdown .rdrDay {
+  transition: all 0.2s ease !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.date-range-dropdown .rdrDay:hover {
+  background: rgba(24, 28, 32, 0.8) !important;
+}
+
+.date-range-dropdown .rdrDayNumber {
+  background: transparent !important;
+  border: none !important;
+  color: #e0e6ed !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-family: inherit !important;
+}
+
+.date-range-dropdown .rdrDayNumber span {
+  color: #e0e6ed !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-family: inherit !important;
+}
+
+.date-range-dropdown .rdrDayToday .rdrDayNumber span {
+  color: #00d4aa !important;
+  font-weight: 700 !important;
+}
+
+.date-range-dropdown .rdrDay.rdrDayPassive .rdrDayNumber span {
+  color: rgba(224, 230, 237, 0.3) !important;
+}
+
+.date-range-dropdown .rdrDay.rdrDaySelected, 
+.date-range-dropdown .rdrDay.rdrDayInRange {
+  background: linear-gradient(135deg, #00d4aa 0%, #00cec9 100%) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 212, 170, 0.25) !important;
+  position: relative !important;
+}
+
+.date-range-dropdown .rdrDay.rdrDaySelected .rdrDayNumber span,
+.date-range-dropdown .rdrDay.rdrDayInRange .rdrDayNumber span {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.date-range-dropdown .rdrDay.rdrDayStartPreview, 
+.date-range-dropdown .rdrDay.rdrDayEndPreview {
+  background: rgba(0, 212, 170, 0.2) !important;
+  border-radius: 8px !important;
+}
+
+.date-range-dropdown .rdrDay.rdrDayStartPreview .rdrDayNumber span,
+.date-range-dropdown .rdrDay.rdrDayEndPreview .rdrDayNumber span {
+  color: #00d4aa !important;
+  font-weight: 700 !important;
+}
+
+.date-range-dropdown .rdrDefinedRangesWrapper {
+  display: none !important;
+}
+
+/* Убираем все белые фоны из стандартной темы react-date-range */
+.date-range-dropdown .rdrCalendarWrapper * {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Стили для селектов в календаре */
+.date-range-dropdown select,
+.date-range-dropdown select:focus,
+.date-range-dropdown select:active {
+  background-color: rgba(12, 16, 20, 0.8) !important;
+  color: #00d4aa !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: none !important;
+}
+
+.date-range-dropdown option {
+  background-color: rgba(16, 20, 24, 0.98) !important;
+  color: #e0e6ed !important;
+  border: none !important;
+  padding: 8px !important;
+}
+
+/* Дополнительные стили для кроссбраузерной совместимости */
+.date-range-dropdown select::-ms-expand {
+  display: none !important;
+}
+
+.date-range-dropdown select::after {
+  content: '▼' !important;
+  position: absolute !important;
+  top: 50% !important;
+  right: 10px !important;
+  transform: translateY(-50%) !important;
+  pointer-events: none !important;
+  color: #00d4aa !important;
+  font-size: 10px !important;
+}
+
+/* Возвращаем нужные фоны только для конкретных элементов */
+.date-range-dropdown .rdrCalendarWrapper {
+  background: rgba(16, 20, 24, 0.98) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 212, 170, 0.08) !important;
+}
+
+.date-range-dropdown .rdrDay.rdrDaySelected, 
+.date-range-dropdown .rdrDay.rdrDayInRange {
+  background: linear-gradient(135deg, #00d4aa 0%, #00cec9 100%) !important;
+  box-shadow: 0 2px 8px rgba(0, 212, 170, 0.25) !important;
+  border-radius: 8px !important;
+}
+
+.date-range-dropdown .rdrDay.rdrDayStartPreview, 
+.date-range-dropdown .rdrDay.rdrDayEndPreview {
+  background: rgba(0, 212, 170, 0.2) !important;
+}
+
+.date-range-dropdown .rdrMonthAndYearWrapper {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 16px !important;
+}
+
+.date-range-dropdown .rdrMonthAndYearPickers select {
+  background: rgba(12, 16, 20, 0.8) !important;
+  color: #00d4aa !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  padding: 8px 12px !important;
+  transition: all 0.2s ease !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: none !important;
+}
+
+.date-range-dropdown .rdrMonthAndYearPickers select:hover {
+  border-color: rgba(0, 212, 170, 0.3) !important;
+  background: rgba(0, 212, 170, 0.08) !important;
+  box-shadow: 0 2px 12px rgba(0, 212, 170, 0.08) !important;
+}
+
+.date-range-dropdown .rdrMonthAndYearPickers select:focus {
+  outline: none !important;
+  border-color: #00d4aa !important;
+  background: rgba(0, 212, 170, 0.12) !important;
+  box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.15) !important;
+}
+
+.date-range-dropdown .rdrMonthAndYearPickers select option {
+  background: rgba(16, 20, 24, 0.98) !important;
+  color: #e0e6ed !important;
+  border: none !important;
+  padding: 8px 12px !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.date-range-dropdown .rdrMonthAndYearPickers select option:hover {
+  background: rgba(0, 212, 170, 0.15) !important;
+  color: #00d4aa !important;
+}
+
+.date-range-dropdown .rdrMonthAndYearPickers select option:checked {
+  background: rgba(0, 212, 170, 0.2) !important;
+  color: #00d4aa !important;
+  font-weight: 600 !important;
+}
+
+.date-range-dropdown .rdrNextPrevButton {
+  background: rgba(12, 16, 20, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  width: 28px !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  cursor: pointer !important;
+}
+
+.date-range-dropdown .rdrNextPrevButton:hover {
+  background: rgba(0, 212, 170, 0.08) !important;
+  border-color: rgba(0, 212, 170, 0.3) !important;
+  box-shadow: 0 2px 12px rgba(0, 212, 170, 0.08) !important;
+  transform: scale(1.05) !important;
+}
+
+.date-range-dropdown .rdrNextPrevButton i {
+  border: none !important;
+  background: none !important;
+  font-style: normal !important;
+  color: #00d4aa !important;
+  font-weight: 600 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  font-size: 11px !important;
+  text-transform: lowercase !important;
+  letter-spacing: 0.3px !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+}
+
+.date-range-dropdown .rdrNextPrevButton:hover i {
+  color: #00cec9 !important;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .calendar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  .date-range-dropdown {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 400px;
+    border-radius: 16px;
+    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.4);
+    z-index: 9999;
+  }
+  
+  .date-range-dropdown .rdrCalendarWrapper {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .calendar-overlay {
+    display: none;
+  }
+  
+  .date-range-dropdown {
+    position: absolute;
+    width: 100% !important;
+  }
+  
+  .date-range-dropdown .rdrCalendarWrapper {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+} 

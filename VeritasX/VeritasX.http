@@ -1,0 +1,6 @@
+@VeritasX_HostAddress = http://localhost:5026
+
+GET {{VeritasX_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
