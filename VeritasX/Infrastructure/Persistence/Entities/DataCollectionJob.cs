@@ -1,10 +1,14 @@
 using VeritasX.Core.Domain;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace VeritasX.Infrastructure.Persistence.Entities;
 
 public record DataCollectionJob
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
+    [BsonId]
+    public ObjectId Id { get; init; } = ObjectId.GenerateNewId();
+    public ObjectId UserId { get; init; }
     public required string Symbol { get; init; }
     public required DateTime FromUtc { get; init; }
     public required DateTime ToUtc { get; init; }
@@ -31,8 +35,9 @@ public record DataChunk
 
 public record CandleChunk
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
-    public required Guid JobId { get; init; }
+    [BsonId]
+    public ObjectId Id { get; init; } = ObjectId.GenerateNewId();
+    public ObjectId JobId { get; init; }
     public required string Symbol { get; init; }
     public required DateTime FromUtc { get; init; }
     public required DateTime ToUtc { get; init; }

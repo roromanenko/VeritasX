@@ -7,6 +7,7 @@ using VeritasX.Core.Domain;
 using VeritasX.Core.Options;
 using VeritasX.Core.Interfaces;
 using VeritasX.Infrastructure.Persistence.Entities;
+using MongoDB.Bson;
 
 namespace VeritasX.Infrastructure.Jobs;
 
@@ -16,7 +17,7 @@ public class DataCollectorBackgroundService : BackgroundService
     private readonly ILogger<DataCollectorBackgroundService> _logger;
     private readonly DataCollectorOptions _options;
     private readonly SemaphoreSlim _rateLimitSemaphore;
-    private readonly ConcurrentDictionary<Guid, DataCollectionJob> _activeJobs = new();
+    private readonly ConcurrentDictionary<ObjectId, DataCollectionJob> _activeJobs = new();
 
     public DataCollectorBackgroundService(
         IServiceProvider serviceProvider,

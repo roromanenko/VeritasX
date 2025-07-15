@@ -16,9 +16,6 @@ public class MongoDbContext : IMongoDbContext
 
     static MongoDbContext()
     {
-        // Настройка GUID сериализации
-        BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-        
         // Конвенции для имен полей
         var pack = new ConventionPack
         {

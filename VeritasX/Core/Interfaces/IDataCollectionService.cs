@@ -1,14 +1,15 @@
 using VeritasX.Core.Domain;
 using VeritasX.Infrastructure.Persistence.Entities;
+using MongoDB.Bson;
 
 namespace VeritasX.Core.Interfaces;
 
 public interface IDataCollectionService
 {
-    Task<Guid> QueueDataCollectionAsync(string symbol, DateTime fromUtc, DateTime toUtc, TimeSpan interval, string? collectionName = null);
-    Task<DataCollectionJob?> GetJobAsync(Guid jobId);
+    Task<ObjectId> QueueDataCollectionAsync(string symbol, DateTime fromUtc, DateTime toUtc, TimeSpan interval, ObjectId userId, string? collectionName = null);
+    Task<DataCollectionJob?> GetJobAsync(ObjectId jobId);
     Task<IEnumerable<DataCollectionJob>> GetActiveJobsAsync();
     Task<DataCollectionJob?> GetNextPendingJobAsync();
-    Task CancelJobAsync(Guid jobId);
+    Task CancelJobAsync(ObjectId jobId);
     Task UpdateJobAsync(DataCollectionJob job);
 } 

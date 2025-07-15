@@ -5,6 +5,7 @@ using VeritasX.Core.Domain;
 using VeritasX.Core.Options;
 using VeritasX.Core.Interfaces;
 using VeritasX.Infrastructure.Persistence.Entities;
+using MongoDB.Bson;
 
 namespace VeritasX.Application.Services;
 
@@ -24,7 +25,7 @@ public class DataCollectionService : IDataCollectionService
         _options = options.Value;
     }
 
-    public async Task<Guid> QueueDataCollectionAsync(string symbol, DateTime fromUtc, DateTime toUtc, TimeSpan interval, string? collectionName = null)
+    public async Task<ObjectId> QueueDataCollectionAsync(string symbol, DateTime fromUtc, DateTime toUtc, TimeSpan interval, ObjectId userId, string? collectionName = null)
     {
         var job = new DataCollectionJob
         {
@@ -32,7 +33,8 @@ public class DataCollectionService : IDataCollectionService
             FromUtc = fromUtc,
             ToUtc = toUtc,
             Interval = interval,
-            CollectionName = collectionName ?? $"{symbol.ToLower()}_{interval.TotalMinutes}m"
+            CollectionName = collectionName ?? $"{symbol.ToLower()}_{interval.TotalMinutes}m",
+            UserId = userId
         };
 
         // Разбиваем на чанки
@@ -49,7 +51,7 @@ public class DataCollectionService : IDataCollectionService
         return job.Id;
     }
 
-    public async Task<DataCollectionJob?> GetJobAsync(Guid jobId)
+    public async Task<DataCollectionJob?> GetJobAsync(ObjectId jobId)
     {
         var collection = _context.GetCollection<DataCollectionJob>("data_collection_jobs");
         return await collection.Find(j => j.Id == jobId).FirstOrDefaultAsync();
@@ -70,7 +72,7 @@ public class DataCollectionService : IDataCollectionService
             .FirstOrDefaultAsync();
     }
 
-    public async Task CancelJobAsync(Guid jobId)
+    public async Task CancelJobAsync(ObjectId jobId)
     {
         var collection = _context.GetCollection<DataCollectionJob>("data_collection_jobs");
         var update = Builders<DataCollectionJob>.Update.Set(j => j.State, CollectionState.Cancelled);

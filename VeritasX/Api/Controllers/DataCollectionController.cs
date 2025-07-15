@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VeritasX.Core.Interfaces;
+using MongoDB.Bson;
+using System.Security.Claims;
+
 
 namespace VeritasX.Api.Controllers;
 
@@ -28,20 +31,25 @@ public class DataCollectionController : BaseController
         DateTime? toUtc = null,
         int intervalMinutes = 1)
     {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!ObjectId.TryParse(userIdStr, out var userId))
+            return Unauthorized();
+        
         fromUtc ??= DateTime.UtcNow.AddDays(-1);
         toUtc ??= DateTime.UtcNow;
         
         var jobId = await _dataCollectionService.QueueDataCollectionAsync(
-            symbol, fromUtc.Value, toUtc.Value, TimeSpan.FromMinutes(intervalMinutes));
+            symbol, fromUtc.Value, toUtc.Value, TimeSpan.FromMinutes(intervalMinutes), userId);
         
-        return Ok(new { JobId = jobId });
+        return Ok(new { JobId = jobId.ToString() });
     }
 
     [HttpGet("jobs/{jobId}")]
     [Authorize]
-    public async Task<IActionResult> GetJob(Guid jobId)
+    public async Task<IActionResult> GetJob(string jobId)
     {
-        var job = await _dataCollectionService.GetJobAsync(jobId);
+        if (!ObjectId.TryParse(jobId, out var id)) return BadRequest("Invalid job ID");
+        var job = await _dataCollectionService.GetJobAsync(id);
         return job != null ? Ok(job) : NotFound();
     }
 
@@ -55,17 +63,19 @@ public class DataCollectionController : BaseController
 
     [HttpGet("data/{jobId}")]
     [Authorize]
-    public async Task<IActionResult> GetJobData(Guid jobId)
+    public async Task<IActionResult> GetJobData(string jobId)
     {
-        var candles = await _candleChunkService.GetCandlesByJobIdAsync(jobId);
+        if (!ObjectId.TryParse(jobId, out var id)) return BadRequest("Invalid job ID");
+        var candles = await _candleChunkService.GetCandlesByJobIdAsync(id);
         return Ok(candles);
     }
 
     [HttpDelete("jobs/{jobId}")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> CancelJob(Guid jobId)
+    public async Task<IActionResult> CancelJob(string jobId)
     {
-        await _dataCollectionService.CancelJobAsync(jobId);
+        if (!ObjectId.TryParse(jobId, out var id)) return BadRequest("Invalid job ID");
+        await _dataCollectionService.CancelJobAsync(id);
         return Ok();
     }
 } 
