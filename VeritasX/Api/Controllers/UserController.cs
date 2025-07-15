@@ -63,23 +63,23 @@ public class UserController : BaseController
     
     [HttpPut("password")]
 	[Authorize]
-	public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+	public async Task<ActionResult<ApiResponse<string>>> ChangePassword([FromBody] ChangePasswordRequest request)
 	{
 		try
 		{
 			var user = await _userService.VerifyUserLogin(Username, request.CurrentPassword);
 			if (user == null)
-				return Ok(new ApiResponse<object>(false, "Current password is incorrect"));
+				return Ok(new ApiResponse<string>(false, "Current password is incorrect"));
 
 			if (request.NewPassword != request.ConfirmPassword)
-				return Ok(new ApiResponse<object>(false, "Passwords do not match"));
+				return Ok(new ApiResponse<string>(false, "Passwords do not match"));
 
 			await _userService.ChangePassword(UserId, request.NewPassword);
-			return Ok(new ApiResponse<object>(true, "Password changed successfully"));
+			return Ok(new ApiResponse<string>(true, "Password changed successfully"));
 		}
 		catch (Exception ex)
 		{
-			return Ok(new ApiResponse<object>(false, ex.Message));
+			return Ok(new ApiResponse<string>(false, ex.Message));
 		}
 	}
 

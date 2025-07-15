@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using VeritasX.Core.Interfaces;
 using MongoDB.Bson;
 using System.Security.Claims;
-
+using VeritasX.Infrastructure.Persistence.Entities;
+using VeritasX.Core.Domain;
+using VeritasX.Core.DTO;
+using VeritasX.Core.Constants;
 
 namespace VeritasX.Api.Controllers;
 
@@ -25,14 +28,14 @@ public class DataCollectionController : BaseController
 
     [HttpPost("queue")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> QueueDataCollection(
+    public async Task<ActionResult<QueueJobResponse>> QueueDataCollection(
         string symbol = "BTCUSDT",
         DateTime? fromUtc = null,
         DateTime? toUtc = null,
         int intervalMinutes = 1)
     {
-        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (!ObjectId.TryParse(userIdStr, out var userId))
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
             return Unauthorized();
         
         fromUtc ??= DateTime.UtcNow.AddDays(-1);
@@ -41,21 +44,22 @@ public class DataCollectionController : BaseController
         var jobId = await _dataCollectionService.QueueDataCollectionAsync(
             symbol, fromUtc.Value, toUtc.Value, TimeSpan.FromMinutes(intervalMinutes), userId);
         
-        return Ok(new { JobId = jobId.ToString() });
+        return Ok(new QueueJobResponse { JobId = jobId.ToString() });
     }
 
     [HttpGet("jobs/{jobId}")]
     [Authorize]
-    public async Task<IActionResult> GetJob(string jobId)
+    public async Task<ActionResult<IEnumerable<DataCollectionJob>>> GetJob(string jobId)
     {
-        if (!ObjectId.TryParse(jobId, out var id)) return BadRequest("Invalid job ID");
-        var job = await _dataCollectionService.GetJobAsync(id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var job = await _dataCollectionService.GetJobAsync(jobId, userId!);
         return job != null ? Ok(job) : NotFound();
     }
 
     [HttpGet("jobs/active")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> GetActiveJobs()
+    public async Task<ActionResult<IEnumerable<DataCollectionJob>>> GetActiveJobs()
     {
         var jobs = await _dataCollectionService.GetActiveJobsAsync();
         return Ok(jobs);
@@ -63,10 +67,12 @@ public class DataCollectionController : BaseController
 
     [HttpGet("data/{jobId}")]
     [Authorize]
-    public async Task<IActionResult> GetJobData(string jobId)
+    public async Task<ActionResult<IEnumerable<Candle>>> GetJobData(string jobId)
     {
-        if (!ObjectId.TryParse(jobId, out var id)) return BadRequest("Invalid job ID");
-        var candles = await _candleChunkService.GetCandlesByJobIdAsync(id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userRole = User.FindFirstValue(ClaimTypes.Role);
+
+        var candles = await _candleChunkService.GetCandlesByJobIdAsync(jobId, userId!, userRole!);
         return Ok(candles);
     }
 
@@ -74,8 +80,7 @@ public class DataCollectionController : BaseController
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> CancelJob(string jobId)
     {
-        if (!ObjectId.TryParse(jobId, out var id)) return BadRequest("Invalid job ID");
-        await _dataCollectionService.CancelJobAsync(id);
+        await _dataCollectionService.CancelJobAsync(jobId);
         return Ok();
     }
 } 

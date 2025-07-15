@@ -6,10 +6,10 @@ namespace VeritasX.Core.Interfaces;
 
 public interface IDataCollectionService
 {
-    Task<ObjectId> QueueDataCollectionAsync(string symbol, DateTime fromUtc, DateTime toUtc, TimeSpan interval, ObjectId userId, string? collectionName = null);
-    Task<DataCollectionJob?> GetJobAsync(ObjectId jobId);
+    Task<ObjectId> QueueDataCollectionAsync(string symbol, DateTime fromUtc, DateTime toUtc, TimeSpan interval, string userIdStr, string? collectionName = null);
+    Task<DataCollectionJob?> GetJobAsync(string jobIdStr, string userIdStr);
     Task<IEnumerable<DataCollectionJob>> GetActiveJobsAsync();
     Task<DataCollectionJob?> GetNextPendingJobAsync();
-    Task CancelJobAsync(ObjectId jobId);
+    Task CancelJobAsync(string jobIdStr);
     Task UpdateJobAsync(DataCollectionJob job);
 } 

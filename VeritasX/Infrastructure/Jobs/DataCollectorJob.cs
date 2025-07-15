@@ -97,8 +97,7 @@ public class DataCollectorBackgroundService : BackgroundService
                 if (cancellationToken.IsCancellationRequested || job.State == CollectionState.Cancelled)
                     break;
 
-                // Проверяем, не был ли этот чанк уже обработан
-                if (await chunkService.ChunkExistsAsync(job.Id, chunk.FromUtc, chunk.ToUtc))
+                if (await chunkService.ChunkExistsAsync(job.Id.ToString(), chunk.FromUtc, chunk.ToUtc))
                 {
                     chunk.State = ChunkState.Completed;
                     job.CompletedChunks++;

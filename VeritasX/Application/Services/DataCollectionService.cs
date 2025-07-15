@@ -25,8 +25,11 @@ public class DataCollectionService : IDataCollectionService
         _options = options.Value;
     }
 
-    public async Task<ObjectId> QueueDataCollectionAsync(string symbol, DateTime fromUtc, DateTime toUtc, TimeSpan interval, ObjectId userId, string? collectionName = null)
+    public async Task<ObjectId> QueueDataCollectionAsync(string symbol, DateTime fromUtc, DateTime toUtc, TimeSpan interval, string userIdStr, string? collectionName = null)
     {
+        if (!ObjectId.TryParse(userIdStr, out var userId))
+            throw new ArgumentException("Invalid user ID");
+
         var job = new DataCollectionJob
         {
             Symbol = symbol,
@@ -51,10 +54,17 @@ public class DataCollectionService : IDataCollectionService
         return job.Id;
     }
 
-    public async Task<DataCollectionJob?> GetJobAsync(ObjectId jobId)
+    public async Task<DataCollectionJob?> GetJobAsync(string jobIdStr, string userIdStr)
     {
         var collection = _context.GetCollection<DataCollectionJob>("data_collection_jobs");
-        return await collection.Find(j => j.Id == jobId).FirstOrDefaultAsync();
+
+        if (!ObjectId.TryParse(jobIdStr, out var jobId))
+            return null;
+
+        if (!ObjectId.TryParse(userIdStr, out var userId))
+            return null;
+
+        return await collection.Find(j => j.Id == jobId && j.UserId == userId).FirstOrDefaultAsync();
     }
 
     public async Task<IEnumerable<DataCollectionJob>> GetActiveJobsAsync()
@@ -72,8 +82,11 @@ public class DataCollectionService : IDataCollectionService
             .FirstOrDefaultAsync();
     }
 
-    public async Task CancelJobAsync(ObjectId jobId)
+    public async Task CancelJobAsync(string jobIdStr)
     {
+        if (!ObjectId.TryParse(jobIdStr, out var jobId))
+            throw new ArgumentException("Invalid job ID format");
+
         var collection = _context.GetCollection<DataCollectionJob>("data_collection_jobs");
         var update = Builders<DataCollectionJob>.Update.Set(j => j.State, CollectionState.Cancelled);
         await collection.UpdateOneAsync(j => j.Id == jobId, update);

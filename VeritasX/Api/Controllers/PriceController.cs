@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using VeritasX.Core.Interfaces;
 using VeritasX.Core.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using VeritasX.Core.Domain;
 
 namespace VeritasX.Api.Controllers;
 
@@ -18,7 +19,7 @@ public class PriceController : BaseController
 	}
 
 	[HttpGet("{symbol}")]
-	public async Task<IActionResult> Get(string symbol, DateTime from, DateTime to, string interval, CancellationToken ct = default)
+	public async Task<ActionResult<IEnumerable<Candle>>> Get(string symbol, DateTime from, DateTime to, string interval, CancellationToken ct = default)
 	{
 		TimeSpan intv = IntervalHelper.Parse(interval);
 
