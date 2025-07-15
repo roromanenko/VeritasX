@@ -13,11 +13,13 @@ public class UserController : BaseController
 {
     private readonly IUserService _userService;
 	private readonly ILogger<UserController> _logger;
+	private readonly IJwtService _jwtService;
 
-	public UserController(IUserService userService, ILogger<UserController> logger)
+	public UserController(IUserService userService, ILogger<UserController> logger, IJwtService jwtService)
 	{
 		_userService = userService;
 		_logger = logger;
+		_jwtService = jwtService;
 	}
     
     [HttpPost("register")]
@@ -51,12 +53,12 @@ public class UserController : BaseController
 		if (user == null)
 			return Ok(new ApiResponse<LoginResponse>(false, "Invalid credentials"));
 		
-		await LoginUser(user);
+		var token = _jwtService.GenerateToken(user);
 		
-		var response = new LoginResponse(
-			new UserResponse(user.Id.ToString(), user.Username, user.Roles)
-		);
-		return Ok(new ApiResponse<LoginResponse>(true, "Login successful", response));
+		var userResponse = new UserResponse(user.Id.ToString(), user.Username, user.Roles);
+		var loginResponse = new LoginResponse(userResponse, token);
+
+		return Ok(new ApiResponse<LoginResponse>(true, "Login successful", loginResponse));
 	}
     
     [HttpPut("password")]
@@ -85,29 +87,20 @@ public class UserController : BaseController
     [Authorize]
     public async Task<ActionResult<ApiResponse<UserResponse>>> GetCurrentUser()
     {
-        var user = await _userService.GetUserById(UserId);
-        if (user == null)
-            return Ok(new ApiResponse<UserResponse>(false, "User not found"));
-        
-        var response = new UserResponse(user.Id.ToString(), user.Username, user.Roles);
-        return Ok(new ApiResponse<UserResponse>(true, "User found", response));
-    }
+		try
+		{
+			if (string.IsNullOrEmpty(UserId))
+			{
+				return Unauthorized(new ApiResponse<UserResponse>(false, "Invalid token or user not authenticated"));
+			}
 
-    [HttpPost("logout")]
-    [Authorize]
-    public async Task<IActionResult> Logout()
-    {
-        await LogoutUser();
-        return Ok(new ApiResponse<object>(true, "Logged out successfully"));
-    }
-
-    [HttpGet("profile")]
-    [Authorize]
-    public IActionResult GetProfile()
-    { 
-        var currentUserId = UserId;
-        var currentUsername = Username;
-        
-        return Ok($"Hello {currentUsername}!");
+			var user = await _userService.GetUserById(UserId);
+			return Ok(new ApiResponse<UserResponse>(true, "User found", new UserResponse(user.Id.ToString(), user.Username, user.Roles)));
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Error getting current user");
+			return StatusCode(500, new ApiResponse<UserResponse>(false, "Internal server error"));
+		}
     }
 } 

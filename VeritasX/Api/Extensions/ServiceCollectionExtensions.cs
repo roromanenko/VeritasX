@@ -14,6 +14,9 @@ using VeritasX.Infrastructure.Jobs;
 using VeritasX.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
 using VeritasX.Infrastructure.Persistence.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace VeritasX.Api.Extensions;
 
@@ -26,7 +29,7 @@ public static class ServiceCollectionExtensions
         services.AddBusinessServices();
         services.AddApplicationServices(configuration);
         services.AddMongoDbServices(configuration);
-        services.AddAuthenticationServices();
+        services.AddJwtAuthentication(configuration);
         
         services.AddCors(options =>
         {
@@ -75,6 +78,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICandleChunkService, CandleChunkService>();
         services.AddHostedService<DataCollectorBackgroundService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<PasswordHasher<User>>();
 
         return services;
@@ -108,21 +112,32 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-        private static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
+    private static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAuthentication("Cookies")
-            .AddCookie("Cookies", options =>
+        // Регистрируем JWT опции
+        services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+        var jwtOptions = configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
+
+        // Настраиваем JWT аутентификацию
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                options.LoginPath = "/api/user/login";
-                options.LogoutPath = "/api/user/logout";
-                options.Events.OnRedirectToLogin = context =>
-                {
-                    context.Response.StatusCode = 401;
-                    return Task.CompletedTask;
-                };
-                options.SlidingExpiration = true;
-                options.ExpireTimeSpan = TimeSpan.FromDays(30);
-            });
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                ValidateIssuer = true,
+                ValidIssuer = jwtOptions.Issuer,
+                ValidateAudience = true,
+                ValidAudience = jwtOptions.Audience,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+        });
 
         return services;
     }

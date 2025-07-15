@@ -16,7 +16,7 @@ public record NewPasswordRequest(string NewPassword, string ConfirmPassword);
 public record UserResponse(string Id, string Username, List<string> Roles);
 
 // Successful authorization response
-public record LoginResponse(UserResponse User, string Token = ""); // Token for JWT if you add it
+public record LoginResponse(UserResponse User, string Token);
 
 // Base API response
 public record ApiResponse<T>(bool Success, string Message, T? Data = default);
