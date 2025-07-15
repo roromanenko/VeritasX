@@ -47,32 +47,4 @@ public class JwtService : IJwtService
 
 		return new JwtSecurityTokenHandler().WriteToken(token);
 	}
-
-	public ClaimsPrincipal? ValidateToken(string token)
-	{
-		try
-		{
-			var tokenHandler = new JwtSecurityTokenHandler();
-			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
-
-			var validationParameters = new TokenValidationParameters
-			{
-				ValidateIssuerSigningKey = true,
-				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey)),
-				ValidateIssuer = true,
-				ValidIssuer = _jwtOptions.Issuer,
-				ValidateAudience = true,
-				ValidAudience = _jwtOptions.Audience,
-				ValidateLifetime = true,
-				ClockSkew = TimeSpan.FromSeconds(1)
-			};
-
-			var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
-			return principal;
-		}
-		catch (Exception)
-		{
-			return null;
-		}
-	}
 }

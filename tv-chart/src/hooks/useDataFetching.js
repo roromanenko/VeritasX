@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import axios from 'axios'
+import { getPriceApi } from '../services/apiProvider'
 
 export const useDataFetching = () => {
   const [candles, setCandles] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const priceApi = getPriceApi();
 
   const fetchData = async (symbol, dateRange, interval) => {
     const fromDate = dateRange[0].startDate
@@ -19,15 +20,13 @@ export const useDataFetching = () => {
     setError('')
 
     try {
-      const response = await axios.get(`/api/price/${symbol}`, {
-        params: {
-          from: fromDate.toISOString(),
-          to: toDate.toISOString(),
-          interval: interval
-        }
-      })
+      const responseApi = await priceApi.apiPriceSymbolGet(
+        symbol,
+        fromDate.toISOString(),
+        toDate.toISOString(),
+        interval);
 
-      setCandles(response.data)
+      setCandles(responseApi.data)
     } catch (err) {
       setError('Failed to fetch data: ' + err.message)
     } finally {

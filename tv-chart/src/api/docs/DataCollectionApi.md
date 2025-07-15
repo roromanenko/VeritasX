@@ -1,0 +1,264 @@
+# DataCollectionApi
+
+All URIs are relative to *http://localhost*
+
+|Method | HTTP request | Description|
+|------------- | ------------- | -------------|
+|[**apiDataCollectionDataJobIdGet**](#apidatacollectiondatajobidget) | **GET** /api/DataCollection/data/{jobId} | |
+|[**apiDataCollectionJobsActiveGet**](#apidatacollectionjobsactiveget) | **GET** /api/DataCollection/jobs/active | |
+|[**apiDataCollectionJobsJobIdDelete**](#apidatacollectionjobsjobiddelete) | **DELETE** /api/DataCollection/jobs/{jobId} | |
+|[**apiDataCollectionJobsJobIdGet**](#apidatacollectionjobsjobidget) | **GET** /api/DataCollection/jobs/{jobId} | |
+|[**apiDataCollectionQueuePost**](#apidatacollectionqueuepost) | **POST** /api/DataCollection/queue | |
+
+# **apiDataCollectionDataJobIdGet**
+> Array<Candle> apiDataCollectionDataJobIdGet()
+
+
+### Example
+
+```typescript
+import {
+    DataCollectionApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DataCollectionApi(configuration);
+
+let jobId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.apiDataCollectionDataJobIdGet(
+    jobId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jobId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Array<Candle>**
+
+### Authorization
+
+[Bearer](../README.md#Bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: text/plain, application/json, text/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Success |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **apiDataCollectionJobsActiveGet**
+> Array<DataCollectionJob> apiDataCollectionJobsActiveGet()
+
+
+### Example
+
+```typescript
+import {
+    DataCollectionApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DataCollectionApi(configuration);
+
+const { status, data } = await apiInstance.apiDataCollectionJobsActiveGet();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<DataCollectionJob>**
+
+### Authorization
+
+[Bearer](../README.md#Bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: text/plain, application/json, text/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Success |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **apiDataCollectionJobsJobIdDelete**
+> apiDataCollectionJobsJobIdDelete()
+
+
+### Example
+
+```typescript
+import {
+    DataCollectionApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DataCollectionApi(configuration);
+
+let jobId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.apiDataCollectionJobsJobIdDelete(
+    jobId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jobId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[Bearer](../README.md#Bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Success |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **apiDataCollectionJobsJobIdGet**
+> Array<DataCollectionJob> apiDataCollectionJobsJobIdGet()
+
+
+### Example
+
+```typescript
+import {
+    DataCollectionApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DataCollectionApi(configuration);
+
+let jobId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.apiDataCollectionJobsJobIdGet(
+    jobId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jobId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Array<DataCollectionJob>**
+
+### Authorization
+
+[Bearer](../README.md#Bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: text/plain, application/json, text/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Success |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **apiDataCollectionQueuePost**
+> QueueJobResponse apiDataCollectionQueuePost()
+
+
+### Example
+
+```typescript
+import {
+    DataCollectionApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DataCollectionApi(configuration);
+
+let symbol: string; // (optional) (default to 'BTCUSDT')
+let fromUtc: string; // (optional) (default to undefined)
+let toUtc: string; // (optional) (default to undefined)
+let intervalMinutes: number; // (optional) (default to 1)
+
+const { status, data } = await apiInstance.apiDataCollectionQueuePost(
+    symbol,
+    fromUtc,
+    toUtc,
+    intervalMinutes
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **symbol** | [**string**] |  | (optional) defaults to 'BTCUSDT'|
+| **fromUtc** | [**string**] |  | (optional) defaults to undefined|
+| **toUtc** | [**string**] |  | (optional) defaults to undefined|
+| **intervalMinutes** | [**number**] |  | (optional) defaults to 1|
+
+
+### Return type
+
+**QueueJobResponse**
+
+### Authorization
+
+[Bearer](../README.md#Bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: text/plain, application/json, text/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Success |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
