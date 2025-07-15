@@ -151,10 +151,12 @@
   display: none !important;
 }
 
-/* Убираем все белые фоны из стандартной темы react-date-range */
-.date-range-dropdown .rdrCalendarWrapper * {
+.rdrDateDisplayWrapper {
   background-color: transparent !important;
-  box-shadow: none !important;
+}
+
+.rdrDateDisplayWrapper * {
+  background-color: transparent !important;
 }
 
 /* Стили для селектов в календаре */
@@ -271,15 +273,7 @@
 .date-range-dropdown .rdrNextPrevButton {
   background: rgba(12, 16, 20, 0.8) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 8px !important;
-  transition: all 0.2s ease !important;
-  width: 28px !important;
-  height: 28px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  position: relative !important;
-  cursor: pointer !important;
+
 }
 
 .date-range-dropdown .rdrNextPrevButton:hover {
@@ -290,21 +284,7 @@
 }
 
 .date-range-dropdown .rdrNextPrevButton i {
-  border: none !important;
-  background: none !important;
-  font-style: normal !important;
   color: #00d4aa !important;
-  font-weight: 600 !important;
-  width: 100% !important;
-  height: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  position: relative !important;
-  font-size: 11px !important;
-  text-transform: lowercase !important;
-  letter-spacing: 0.3px !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
 }
 
 .date-range-dropdown .rdrNextPrevButton:hover i {
@@ -357,4 +337,8 @@
     width: 100% !important;
     min-width: 100% !important;
   }
-} 
+}
+
+.rdrStartEdge, .rdrInRange, .rdrEndEdge{
+  color:#00d4aa !important;
+}

@@ -4,10 +4,10 @@ import { addDays, format } from 'date-fns'
 export const useDateRange = () => {
   const [dateRange, setDateRange] = useState([
     {
-      startDate: new Date(),
-      endDate: addDays(new Date(), 7),
+      startDate: addDays(new Date(), -7),
+      endDate: new Date(),
       key: 'selection',
-    },
+    }
   ])
   const [showCalendar, setShowCalendar] = useState(false)
   const calendarRef = useRef(null)
@@ -37,7 +37,6 @@ export const useDateRange = () => {
 
   const handleDateRangeChange = (item) => {
     setDateRange([item.selection])
-    setShowCalendar(false)
   }
 
   const formatDateRange = () => {

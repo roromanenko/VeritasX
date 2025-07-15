@@ -5,6 +5,9 @@ import { DateRange } from 'react-date-range'
 import { useDateRange } from './hooks/useDateRange'
 import { useDataFetching } from './hooks/useDataFetching'
 
+import 'react-date-range/dist/styles.css';         // Main style file
+import 'react-date-range/dist/theme/default.css';  // Theme CSS
+
 const INTERVALS = [
   { value: '1m', label: '1 Minute' },
   { value: '5m', label: '5 Minutes' },
@@ -82,20 +85,18 @@ function App() {
                 className="date-range-input"
                 placeholder="Select date range..."
               />
-              {showCalendar && (
-                <>
-                  <div className="calendar-overlay" onClick={toggleCalendar} />
-                  <div className="date-range-dropdown">
-                    <DateRange
-                      editableDateInputs={true}
-                      onChange={handleDateRangeChange}
-                      moveRangeOnFirstSelection={false}
-                      ranges={dateRange}
-                      maxDate={new Date()}
-                    />
-                  </div>
-                </>
-              )}
+              {showCalendar && 
+                <div className="date-range-dropdown">
+                  <DateRange
+                    editableDateInputs={true}
+                    onChange={handleDateRangeChange}
+                    moveRangeOnFirstSelection={true}
+                    months={1}
+                    direction="horizontal"
+                    ranges={dateRange}
+                    maxDate={new Date()}
+                  />
+                </div>}
             </div>
           </div>
           <button 
