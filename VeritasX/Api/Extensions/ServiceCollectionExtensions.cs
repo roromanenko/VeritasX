@@ -17,6 +17,8 @@ using VeritasX.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using AutoMapper;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace VeritasX.Api.Extensions;
 
@@ -74,12 +76,14 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<DataCollectorOptions>(configuration.GetSection(nameof(DataCollectorOptions)));
+        
         services.AddScoped<IDataCollectionService, DataCollectionService>();
         services.AddScoped<ICandleChunkService, CandleChunkService>();
         services.AddHostedService<DataCollectorBackgroundService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<PasswordHasher<User>>();
+        services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
 
         return services;
     }
