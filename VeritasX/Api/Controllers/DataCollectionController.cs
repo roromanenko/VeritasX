@@ -60,7 +60,7 @@ public class DataCollectionController : BaseController
         var job = await _dataCollectionService.GetJobAsync(jobId, userId!);
         var jobDto = _mapper.Map<DataCollectionJobDto>(job);
 
-        return job != null ? Ok(job) : NotFound();
+        return jobDto != null ? Ok(jobDto) : NotFound();
     }
 
     [HttpGet("jobs/active")]
