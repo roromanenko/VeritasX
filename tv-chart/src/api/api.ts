@@ -26,43 +26,43 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerM
 /**
  * 
  * @export
- * @interface Candle
+ * @interface CandleDto
  */
-export interface Candle {
+export interface CandleDto {
     /**
      * 
      * @type {string}
-     * @memberof Candle
+     * @memberof CandleDto
      */
     'openTime'?: string;
     /**
      * 
      * @type {number}
-     * @memberof Candle
+     * @memberof CandleDto
      */
     'open'?: number;
     /**
      * 
      * @type {number}
-     * @memberof Candle
+     * @memberof CandleDto
      */
     'high'?: number;
     /**
      * 
      * @type {number}
-     * @memberof Candle
+     * @memberof CandleDto
      */
     'low'?: number;
     /**
      * 
      * @type {number}
-     * @memberof Candle
+     * @memberof CandleDto
      */
     'close'?: number;
     /**
      * 
      * @type {number}
-     * @memberof Candle
+     * @memberof CandleDto
      */
     'volume'?: number;
 }
@@ -94,31 +94,15 @@ export interface ChangePasswordRequest {
 /**
  * 
  * @export
- * @enum {number}
- */
-
-export const ChunkState = {
-    NUMBER_0: 0,
-    NUMBER_1: 1,
-    NUMBER_2: 2,
-    NUMBER_3: 3
-} as const;
-
-export type ChunkState = typeof ChunkState[keyof typeof ChunkState];
-
-
-/**
- * 
- * @export
- * @enum {number}
+ * @enum {string}
  */
 
 export const CollectionState = {
-    NUMBER_0: 0,
-    NUMBER_1: 1,
-    NUMBER_2: 2,
-    NUMBER_3: 3,
-    NUMBER_4: 4
+    Pending: 'Pending',
+    InProgress: 'InProgress',
+    Completed: 'Completed',
+    Failed: 'Failed',
+    Cancelled: 'Cancelled'
 } as const;
 
 export type CollectionState = typeof CollectionState[keyof typeof CollectionState];
@@ -127,138 +111,81 @@ export type CollectionState = typeof CollectionState[keyof typeof CollectionStat
 /**
  * 
  * @export
- * @interface DataChunk
+ * @interface DataCollectionJobDto
  */
-export interface DataChunk {
+export interface DataCollectionJobDto {
     /**
      * 
      * @type {string}
-     * @memberof DataChunk
+     * @memberof DataCollectionJobDto
      */
-    'fromUtc'?: string;
+    'id'?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof DataChunk
-     */
-    'toUtc'?: string;
-    /**
-     * 
-     * @type {ChunkState}
-     * @memberof DataChunk
-     */
-    'state'?: ChunkState;
-    /**
-     * 
-     * @type {number}
-     * @memberof DataChunk
-     */
-    'retryCount'?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof DataChunk
-     */
-    'errorMessage'?: string | null;
-}
-
-
-/**
- * 
- * @export
- * @interface DataCollectionJob
- */
-export interface DataCollectionJob {
-    /**
-     * 
-     * @type {ObjectId}
-     * @memberof DataCollectionJob
-     */
-    'id'?: ObjectId;
-    /**
-     * 
-     * @type {ObjectId}
-     * @memberof DataCollectionJob
-     */
-    'userId'?: ObjectId;
-    /**
-     * 
-     * @type {string}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
     'symbol'?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
     'fromUtc'?: string;
     /**
      * 
      * @type {string}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
     'toUtc'?: string;
     /**
      * 
-     * @type {TimeSpan}
-     * @memberof DataCollectionJob
-     */
-    'interval'?: TimeSpan;
-    /**
-     * 
      * @type {string}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
-    'collectionName'?: string | null;
+    'interval'?: string;
     /**
      * 
      * @type {CollectionState}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
     'state'?: CollectionState;
     /**
      * 
      * @type {number}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
     'totalChunks'?: number;
     /**
      * 
      * @type {number}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
     'completedChunks'?: number;
     /**
      * 
      * @type {string}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
     'createdAt'?: string;
     /**
      * 
      * @type {string}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
     'startedAt'?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
     'completedAt'?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof DataCollectionJob
+     * @memberof DataCollectionJobDto
      */
     'errorMessage'?: string | null;
-    /**
-     * 
-     * @type {Array<DataChunk>}
-     * @memberof DataCollectionJob
-     */
-    'chunks'?: Array<DataChunk> | null;
 }
 
 
@@ -328,25 +255,6 @@ export interface LoginResponseApiResponse {
 /**
  * 
  * @export
- * @interface ObjectId
- */
-export interface ObjectId {
-    /**
-     * 
-     * @type {number}
-     * @memberof ObjectId
-     */
-    'timestamp'?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof ObjectId
-     */
-    'creationTime'?: string;
-}
-/**
- * 
- * @export
  * @interface QueueJobResponse
  */
 export interface QueueJobResponse {
@@ -406,103 +314,6 @@ export interface StringApiResponse {
      * @memberof StringApiResponse
      */
     'data'?: string | null;
-}
-/**
- * 
- * @export
- * @interface TimeSpan
- */
-export interface TimeSpan {
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'ticks'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'days'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'hours'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'milliseconds'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'microseconds'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'nanoseconds'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'minutes'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'seconds'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'totalDays'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'totalHours'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'totalMilliseconds'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'totalMicroseconds'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'totalNanoseconds'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'totalMinutes'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof TimeSpan
-     */
-    'totalSeconds'?: number;
 }
 /**
  * 
@@ -604,6 +415,38 @@ export const DataCollectionApiAxiosParamCreator = function (configuration?: Conf
          */
         apiDataCollectionJobsActiveGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/DataCollection/jobs/active`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiDataCollectionJobsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/DataCollection/jobs`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -773,7 +616,7 @@ export const DataCollectionApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiDataCollectionDataJobIdGet(jobId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Candle>>> {
+        async apiDataCollectionDataJobIdGet(jobId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CandleDto>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiDataCollectionDataJobIdGet(jobId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DataCollectionApi.apiDataCollectionDataJobIdGet']?.[localVarOperationServerIndex]?.url;
@@ -784,10 +627,21 @@ export const DataCollectionApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiDataCollectionJobsActiveGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DataCollectionJob>>> {
+        async apiDataCollectionJobsActiveGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DataCollectionJobDto>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiDataCollectionJobsActiveGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DataCollectionApi.apiDataCollectionJobsActiveGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiDataCollectionJobsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DataCollectionJobDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiDataCollectionJobsGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DataCollectionApi.apiDataCollectionJobsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -808,7 +662,7 @@ export const DataCollectionApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiDataCollectionJobsJobIdGet(jobId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DataCollectionJob>>> {
+        async apiDataCollectionJobsJobIdGet(jobId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DataCollectionJobDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiDataCollectionJobsJobIdGet(jobId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DataCollectionApi.apiDataCollectionJobsJobIdGet']?.[localVarOperationServerIndex]?.url;
@@ -845,7 +699,7 @@ export const DataCollectionApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiDataCollectionDataJobIdGet(jobId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Candle>> {
+        apiDataCollectionDataJobIdGet(jobId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<CandleDto>> {
             return localVarFp.apiDataCollectionDataJobIdGet(jobId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -853,8 +707,16 @@ export const DataCollectionApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiDataCollectionJobsActiveGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<DataCollectionJob>> {
+        apiDataCollectionJobsActiveGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<DataCollectionJobDto>> {
             return localVarFp.apiDataCollectionJobsActiveGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiDataCollectionJobsGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<DataCollectionJobDto>> {
+            return localVarFp.apiDataCollectionJobsGet(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -871,7 +733,7 @@ export const DataCollectionApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiDataCollectionJobsJobIdGet(jobId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<DataCollectionJob>> {
+        apiDataCollectionJobsJobIdGet(jobId: string, options?: RawAxiosRequestConfig): AxiosPromise<DataCollectionJobDto> {
             return localVarFp.apiDataCollectionJobsJobIdGet(jobId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -919,6 +781,16 @@ export class DataCollectionApi extends BaseAPI {
 
     /**
      * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DataCollectionApi
+     */
+    public apiDataCollectionJobsGet(options?: RawAxiosRequestConfig) {
+        return DataCollectionApiFp(this.configuration).apiDataCollectionJobsGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @param {string} jobId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -951,141 +823,6 @@ export class DataCollectionApi extends BaseAPI {
      */
     public apiDataCollectionQueuePost(symbol?: string, fromUtc?: string, toUtc?: string, intervalMinutes?: number, options?: RawAxiosRequestConfig) {
         return DataCollectionApiFp(this.configuration).apiDataCollectionQueuePost(symbol, fromUtc, toUtc, intervalMinutes, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * PriceApi - axios parameter creator
- * @export
- */
-export const PriceApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @param {string} symbol 
-         * @param {string} [from] 
-         * @param {string} [to] 
-         * @param {string} [interval] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiPriceSymbolGet: async (symbol: string, from?: string, to?: string, interval?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'symbol' is not null or undefined
-            assertParamExists('apiPriceSymbolGet', 'symbol', symbol)
-            const localVarPath = `/api/Price/{symbol}`
-                .replace(`{${"symbol"}}`, encodeURIComponent(String(symbol)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
-
-            if (from !== undefined) {
-                localVarQueryParameter['from'] = (from as any instanceof Date) ?
-                    (from as any).toISOString() :
-                    from;
-            }
-
-            if (to !== undefined) {
-                localVarQueryParameter['to'] = (to as any instanceof Date) ?
-                    (to as any).toISOString() :
-                    to;
-            }
-
-            if (interval !== undefined) {
-                localVarQueryParameter['interval'] = interval;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * PriceApi - functional programming interface
- * @export
- */
-export const PriceApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = PriceApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @param {string} symbol 
-         * @param {string} [from] 
-         * @param {string} [to] 
-         * @param {string} [interval] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiPriceSymbolGet(symbol: string, from?: string, to?: string, interval?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Candle>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiPriceSymbolGet(symbol, from, to, interval, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PriceApi.apiPriceSymbolGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * PriceApi - factory interface
- * @export
- */
-export const PriceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = PriceApiFp(configuration)
-    return {
-        /**
-         * 
-         * @param {string} symbol 
-         * @param {string} [from] 
-         * @param {string} [to] 
-         * @param {string} [interval] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiPriceSymbolGet(symbol: string, from?: string, to?: string, interval?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Candle>> {
-            return localVarFp.apiPriceSymbolGet(symbol, from, to, interval, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * PriceApi - object-oriented interface
- * @export
- * @class PriceApi
- * @extends {BaseAPI}
- */
-export class PriceApi extends BaseAPI {
-    /**
-     * 
-     * @param {string} symbol 
-     * @param {string} [from] 
-     * @param {string} [to] 
-     * @param {string} [interval] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PriceApi
-     */
-    public apiPriceSymbolGet(symbol: string, from?: string, to?: string, interval?: string, options?: RawAxiosRequestConfig) {
-        return PriceApiFp(this.configuration).apiPriceSymbolGet(symbol, from, to, interval, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

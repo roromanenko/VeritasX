@@ -6,12 +6,13 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 |[**apiDataCollectionDataJobIdGet**](#apidatacollectiondatajobidget) | **GET** /api/DataCollection/data/{jobId} | |
 |[**apiDataCollectionJobsActiveGet**](#apidatacollectionjobsactiveget) | **GET** /api/DataCollection/jobs/active | |
+|[**apiDataCollectionJobsGet**](#apidatacollectionjobsget) | **GET** /api/DataCollection/jobs | |
 |[**apiDataCollectionJobsJobIdDelete**](#apidatacollectionjobsjobiddelete) | **DELETE** /api/DataCollection/jobs/{jobId} | |
 |[**apiDataCollectionJobsJobIdGet**](#apidatacollectionjobsjobidget) | **GET** /api/DataCollection/jobs/{jobId} | |
 |[**apiDataCollectionQueuePost**](#apidatacollectionqueuepost) | **POST** /api/DataCollection/queue | |
 
 # **apiDataCollectionDataJobIdGet**
-> Array<Candle> apiDataCollectionDataJobIdGet()
+> Array<CandleDto> apiDataCollectionDataJobIdGet()
 
 
 ### Example
@@ -41,7 +42,7 @@ const { status, data } = await apiInstance.apiDataCollectionDataJobIdGet(
 
 ### Return type
 
-**Array<Candle>**
+**Array<CandleDto>**
 
 ### Authorization
 
@@ -61,7 +62,7 @@ const { status, data } = await apiInstance.apiDataCollectionDataJobIdGet(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **apiDataCollectionJobsActiveGet**
-> Array<DataCollectionJob> apiDataCollectionJobsActiveGet()
+> Array<DataCollectionJobDto> apiDataCollectionJobsActiveGet()
 
 
 ### Example
@@ -84,7 +85,50 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**Array<DataCollectionJob>**
+**Array<DataCollectionJobDto>**
+
+### Authorization
+
+[Bearer](../README.md#Bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: text/plain, application/json, text/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Success |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **apiDataCollectionJobsGet**
+> Array<DataCollectionJobDto> apiDataCollectionJobsGet()
+
+
+### Example
+
+```typescript
+import {
+    DataCollectionApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DataCollectionApi(configuration);
+
+const { status, data } = await apiInstance.apiDataCollectionJobsGet();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<DataCollectionJobDto>**
 
 ### Authorization
 
@@ -154,7 +198,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **apiDataCollectionJobsJobIdGet**
-> Array<DataCollectionJob> apiDataCollectionJobsJobIdGet()
+> DataCollectionJobDto apiDataCollectionJobsJobIdGet()
 
 
 ### Example
@@ -184,7 +228,7 @@ const { status, data } = await apiInstance.apiDataCollectionJobsJobIdGet(
 
 ### Return type
 
-**Array<DataCollectionJob>**
+**DataCollectionJobDto**
 
 ### Authorization
 

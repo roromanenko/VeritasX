@@ -11,12 +11,14 @@
     "generate-api": "openapi-generator-cli generate -i http://localhost:21105/swagger/v1/swagger.json -g typescript-axios -o src/api"
   },
   "dependencies": {
+    "@types/react-router-dom": "^5.3.3",
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "lightweight-charts": "^4.1.0",
     "react": "^19.1.0",
     "react-date-range": "^2.0.1",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.7.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
