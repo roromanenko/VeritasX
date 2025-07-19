@@ -37,38 +37,28 @@ public class DataCollectionController : BaseController
         DateTime? toUtc = null,
         int intervalMinutes = 1)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null)
-            return Unauthorized();
-        
         fromUtc ??= DateTime.UtcNow.AddDays(-1);
         toUtc ??= DateTime.UtcNow;
         
         var jobId = await _dataCollectionService.QueueDataCollectionAsync(
-            symbol, fromUtc.Value, toUtc.Value, TimeSpan.FromMinutes(intervalMinutes), userId);
+            symbol, fromUtc.Value, toUtc.Value, TimeSpan.FromMinutes(intervalMinutes), UserId!);
         
         return Ok(new QueueJobResponse { JobId = jobId.ToString() });
     }
 
 	[HttpGet("jobs")]
-	[Authorize]
 	public async Task<ActionResult<IEnumerable<DataCollectionJobDto>>> GetJobs()
 	{
-		var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-		var jobs = await _dataCollectionService.GetJobsAsync(userId!);
+		var jobs = await _dataCollectionService.GetJobsAsync(UserId!);
 		var jobsDto = _mapper.Map<IEnumerable<DataCollectionJobDto>>(jobs);
 
 		return jobsDto != null ? Ok(jobsDto) : NotFound();
 	}
 
 	[HttpGet("jobs/{jobId}")]
-    [Authorize]
     public async Task<ActionResult<DataCollectionJobDto>> GetJob(string jobId)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        var job = await _dataCollectionService.GetJobAsync(jobId, userId!);
+        var job = await _dataCollectionService.GetJobAsync(jobId, UserId!);
         var jobDto = _mapper.Map<DataCollectionJobDto>(job);
 
         return jobDto != null ? Ok(jobDto) : NotFound();
@@ -85,13 +75,11 @@ public class DataCollectionController : BaseController
     }
 
     [HttpGet("data/{jobId}")]
-    [Authorize]
     public async Task<ActionResult<IEnumerable<CandleDto>>> GetJobData(string jobId)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var userRole = User.FindFirstValue(ClaimTypes.Role);
 
-        var candles = await _candleChunkService.GetCandlesByJobIdAsync(jobId, userId!, userRole!);
+        var candles = await _candleChunkService.GetCandlesByJobIdAsync(jobId, UserId!, userRole!);
         var candlesDto = _mapper.Map<IEnumerable<CandleDto>>(candles);
 
         return Ok(candlesDto);
