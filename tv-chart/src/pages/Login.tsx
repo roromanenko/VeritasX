@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
+import { useLocation } from "react-router-dom";
 
 function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const { onLogin } = useAuth();
+    const location = useLocation();
 
     async function handleLogin () {
-        await onLogin(username, password);
+        await onLogin(username, password, location.state?.from?.pathname);
     }
 
     return (

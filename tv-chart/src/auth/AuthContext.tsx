@@ -6,7 +6,7 @@ const TOKEN_KEY = "auth-token"
 
 type AuthProviderType = {
   token: string | null | undefined;
-  onLogin: (username: string, password: string) => void;
+  onLogin: (username: string, password: string, redirectUrl: string | null) => void;
   onLogout: () => void;
 }
 
@@ -23,7 +23,6 @@ type AuthProviderProps = {
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [token, setToken] = useState<string | null | undefined>();
   const navigate = useNavigate();
-  const location = useLocation();
   const userApi = useApiProvider().getUserApi();
 
   useEffect(() => {
@@ -33,12 +32,12 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   })
 
-  const handleLogin = async (username: string, password: string) => {
+  const handleLogin = async (username: string, password: string, redirectUrl: string | null) => {
     let response = await userApi.apiUserLoginPost({username, password})
     if (response.data.data?.token){
       sessionStorage.setItem(TOKEN_KEY, response.data.data?.token);
       setToken(response.data.data?.token);
-      const origin = location.state?.from?.pathname || '/';
+      const origin = redirectUrl || '/';
       navigate(origin);
     }
   };
