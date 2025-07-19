@@ -1,23 +1,28 @@
 import { DateRange } from 'react-date-range'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import 'react-date-range/dist/styles.css';         // Main style file
 import 'react-date-range/dist/theme/default.css';  // Theme CSS
 import { useDateRange } from '../hooks/useDateRange';
+import { useApiProvider } from '../services/apiProvider';
+
+import type { DataCollectionJobDto } from '../api';
+import { RequestItem } from '../components/RequestItem';
 
 const INTERVALS = [
-    { value: '1m', label: '1 Minute' },
-    { value: '5m', label: '5 Minutes' },
-    { value: '15m', label: '15 Minutes' },
-    { value: '30m', label: '30 Minutes' },
-    { value: '1h', label: '1 Hour' },
-    { value: '4h', label: '4 Hours' },
-    { value: '1d', label: '1 Day' }
+    { value: 1, label: '1 Minute' },
+    { value: 5, label: '5 Minutes' },
+    { value: 15, label: '15 Minutes' },
+    { value: 30, label: '30 Minutes' },
+    { value: 60, label: '1 Hour' },
+    { value: 240, label: '4 Hours' },
+    { value: 1440, label: '1 Day' }
 ]
 
 function Requests() {
     const [symbol, setSymbol] = useState('BTCUSDT')
-    const [interval, setInterval] = useState('1h')
+    const [interval, setInterval] = useState(60)
+    const [loadingRquests, setLoadingRquests] = useState(false);
 
     const {
         dateRange,
@@ -28,6 +33,31 @@ function Requests() {
         toggleCalendar,
     } = useDateRange()
 
+    const dataCollectionApi = useApiProvider().getDataCollectionApi();
+    const [requests, setRequests] = useState<DataCollectionJobDto[]>([]);
+
+    useEffect(() => {
+        fetchRequestsData();
+    }, []);
+
+    async function fetchRequestsData(){
+        setLoadingRquests(true);
+        const response = await dataCollectionApi.apiDataCollectionJobsGet();
+        const fetchRequests = response.data;
+        setRequests(fetchRequests);
+        setLoadingRquests(false);
+    }
+
+    async function handleFetchData(){
+        const fromDate = dateRange[0].startDate.toISOString()
+        const toDate = dateRange[0].endDate.toISOString()
+        const postResponse = await dataCollectionApi.apiDataCollectionQueuePost(symbol, fromDate, toDate, interval)
+        const newJobId = postResponse.data.jobId;
+        if (newJobId){
+            const newJobResponse = await dataCollectionApi.apiDataCollectionJobsJobIdGet(newJobId)
+            setRequests(prev => [...prev, newJobResponse.data])
+        }
+    }
 
     return (
         <div className="app">
@@ -53,7 +83,7 @@ function Requests() {
                     </div>
                     <div className="control-group">
                         <label>Interval:</label>
-                        <select value={interval} onChange={(e) => setInterval(e.target.value)}>
+                        <select value={interval} onChange={(e) => setInterval(Number(e.target.value))}>
                             {INTERVALS.map(int => (
                                 <option key={int.value} value={int.value}>
                                     {int.label}
@@ -87,16 +117,18 @@ function Requests() {
                         </div>
                     </div>
                     <button
-                        // onClick={handleFetchData} 
-                        // disabled={loading}
+                        onClick={handleFetchData} 
+                        disabled={loadingRquests}
                         className="fetch-button"
                     >Create Request</button>
                 </div>
-                {/* {error && (
-          <div className="error">
-            {error}
-          </div>
-        )} */}
+                <div className="requests-list">
+                    {requests.map((item, index) => (
+                        <div className='request-container'>
+                            <RequestItem request={item} />
+                        </div>
+                    ))}
+                </div>
             </main>
         </div>
     );
