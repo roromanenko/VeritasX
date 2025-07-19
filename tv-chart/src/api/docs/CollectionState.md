@@ -3,14 +3,14 @@
 
 ## Enum
 
-* `NUMBER_0` (value: `0`)
+* `Pending` (value: `'Pending'`)
 
-* `NUMBER_1` (value: `1`)
+* `InProgress` (value: `'InProgress'`)
 
-* `NUMBER_2` (value: `2`)
+* `Completed` (value: `'Completed'`)
 
-* `NUMBER_3` (value: `3`)
+* `Failed` (value: `'Failed'`)
 
-* `NUMBER_4` (value: `4`)
+* `Cancelled` (value: `'Cancelled'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

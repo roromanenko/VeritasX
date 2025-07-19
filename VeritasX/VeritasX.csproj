@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Api\Extensions\" />
     <Folder Include="Application\Mapping\" />
     <Folder Include="Application\Validators\" />
     <Folder Include="Application\Services\" />

@@ -54,7 +54,17 @@ public class DataCollectionService : IDataCollectionService
         return job.Id;
     }
 
-    public async Task<DataCollectionJob?> GetJobAsync(string jobIdStr, string userIdStr)
+	public async Task<IEnumerable<DataCollectionJob>> GetJobsAsync(string userIdStr)
+	{
+		var collection = _context.GetCollection<DataCollectionJob>("data_collection_jobs");
+
+		if (!ObjectId.TryParse(userIdStr, out var userId))
+			return [];
+
+		return await collection.Find(j => j.UserId == userId).ToListAsync();
+	}
+
+	public async Task<DataCollectionJob?> GetJobAsync(string jobIdStr, string userIdStr)
     {
         var collection = _context.GetCollection<DataCollectionJob>("data_collection_jobs");
 

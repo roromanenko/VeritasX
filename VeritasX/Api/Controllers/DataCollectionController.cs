@@ -31,7 +31,6 @@ public class DataCollectionController : BaseController
     }
 
     [HttpPost("queue")]
-    [Authorize(Roles = "admin")]
     public async Task<ActionResult<QueueJobResponse>> QueueDataCollection(
         string symbol = "BTCUSDT",
         DateTime? fromUtc = null,
@@ -51,7 +50,19 @@ public class DataCollectionController : BaseController
         return Ok(new QueueJobResponse { JobId = jobId.ToString() });
     }
 
-    [HttpGet("jobs/{jobId}")]
+	[HttpGet("jobs")]
+	[Authorize]
+	public async Task<ActionResult<IEnumerable<DataCollectionJobDto>>> GetJobs()
+	{
+		var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+		var jobs = await _dataCollectionService.GetJobsAsync(userId!);
+		var jobsDto = _mapper.Map<IEnumerable<DataCollectionJobDto>>(jobs);
+
+		return jobsDto != null ? Ok(jobsDto) : NotFound();
+	}
+
+	[HttpGet("jobs/{jobId}")]
     [Authorize]
     public async Task<ActionResult<DataCollectionJobDto>> GetJob(string jobId)
     {
