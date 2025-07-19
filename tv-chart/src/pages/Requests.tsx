@@ -60,16 +60,7 @@ function Requests() {
     }
 
     return (
-        <div className="app">
-            <header>
-                <h1>
-                    <div className="brand-container">
-                        <span className="brand-name">VeritasX</span>
-                        <div className="brand-divider"></div>
-                        <span className="brand-subtitle">Crypto Charts</span>
-                    </div>
-                </h1>
-            </header>
+        <>
             <main>
                 <div className="controls">
                     <div className="control-group">
@@ -117,7 +108,7 @@ function Requests() {
                         </div>
                     </div>
                     <button
-                        onClick={handleFetchData} 
+                        onClick={handleFetchData}
                         disabled={loadingRquests}
                         className="fetch-button"
                     >Create Request</button>
@@ -130,7 +121,7 @@ function Requests() {
                     ))}
                 </div>
             </main>
-        </div>
+        </>
     );
 }
 
