@@ -1,0 +1,25 @@
+.request-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+}
+
+.request-card {
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    color: #e0e6ed;
+    font-size: 0.95rem;
+}
+
+.request-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.request-card:hover {
+    cursor: pointer;
+}

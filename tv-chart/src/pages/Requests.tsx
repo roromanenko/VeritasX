@@ -90,7 +90,7 @@ export const Requests = () => {
                             Create Request
                     </button>
                 </div>
-                <div className="requests-list">
+                <div className="request-list">
                     {requests.map((item, index) => (
                         <div className='request-container'>
                             <RequestItem request={item} />
