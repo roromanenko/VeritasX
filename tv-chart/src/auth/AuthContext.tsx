@@ -21,16 +21,9 @@ type AuthProviderProps = {
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [token, setToken] = useState<string | null | undefined>();
+  const [token, setToken] = useState<string | null>(sessionStorage.getItem(TOKEN_KEY));
   const navigate = useNavigate();
   const userApi = useApiProvider().getUserApi();
-
-  useEffect(() => {
-    let savedToken = sessionStorage.getItem(TOKEN_KEY);
-    if (savedToken){
-      setToken(savedToken);
-    }
-  })
 
   const handleLogin = async (username: string, password: string, redirectUrl: string | null) => {
     let response = await userApi.apiUserLoginPost({username, password})

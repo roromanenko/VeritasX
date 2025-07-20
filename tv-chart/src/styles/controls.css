@@ -99,8 +99,8 @@
   box-shadow: 0 4px 16px rgba(0, 212, 170, 0.25);
 }
 
-.primary-button {
-  padding: 16px 32px;
+.fetch-button {
+  padding: 16px 20px;
   font-size: 16px;
   font-weight: 600;
 }

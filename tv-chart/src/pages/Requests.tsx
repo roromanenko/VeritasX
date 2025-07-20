@@ -23,10 +23,10 @@ export const Requests = () => {
     const [symbol, setSymbol] = useState('BTCUSDT')
     const [interval, setInterval] = useState(60)
     const [loadingRequests, setLoadingRequests] = useState(false);
-
-    const dataCollectionApi = useApiProvider().getDataCollectionApi();
     const [requests, setRequests] = useState<DataCollectionJobDto[]>([]);
     const {dateRange, onDateRangeChange} = useCustomDateRange();
+
+    const dataCollectionApi = useApiProvider().getDataCollectionApi();
 
     useEffect(() => {
         fetchRequestsData();
@@ -86,8 +86,9 @@ export const Requests = () => {
                     <button
                         onClick={handleFetchData}
                         disabled={loadingRequests}
-                        className="primary-button fetch-button"
-                    >Create Request</button>
+                        className="primary-button fetch-button">
+                            Create Request
+                    </button>
                 </div>
                 <div className="requests-list">
                     {requests.map((item, index) => (
