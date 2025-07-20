@@ -6,7 +6,7 @@ type ProtectedRouteProps = {
     children: React.ReactNode;
 };
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
+export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     const location = useLocation();
     const { token } = useAuth();
 

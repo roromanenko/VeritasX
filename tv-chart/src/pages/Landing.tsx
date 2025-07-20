@@ -1,4 +1,4 @@
-function Landing() {
+export const Landing = () => {
     return (
         <>
             <header>
@@ -14,5 +14,3 @@ function Landing() {
         </>
     )
 }
-
-export default Landing

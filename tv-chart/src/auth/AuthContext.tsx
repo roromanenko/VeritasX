@@ -20,7 +20,7 @@ type AuthProviderProps = {
   children: React.ReactNode;
 };
 
-const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [token, setToken] = useState<string | null | undefined>();
   const navigate = useNavigate();
   const userApi = useApiProvider().getUserApi();
@@ -59,5 +59,3 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
-
-export default AuthProvider;

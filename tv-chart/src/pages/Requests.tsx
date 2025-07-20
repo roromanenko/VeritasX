@@ -19,7 +19,7 @@ const INTERVALS = [
     { value: 1440, label: '1 Day' }
 ]
 
-function Requests() {
+export const Requests = () => {
     const [symbol, setSymbol] = useState('BTCUSDT')
     const [interval, setInterval] = useState(60)
     const [loadingRquests, setLoadingRquests] = useState(false);
@@ -124,5 +124,3 @@ function Requests() {
         </>
     );
 }
-
-export default Requests
