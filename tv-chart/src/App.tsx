@@ -41,12 +41,28 @@ const Navigation = () => {
 
   return (
     <nav className="navbar">
-      <ul className="nav-links">
-        <li><Link to="/">Landing</Link></li>
-        <li><Link to="/requests">Requests</Link></li>
-        {!token && <li><Link to="/login">Login</Link></li>}
-        {token && <li><Link to='/' onClick={(e) => { e.preventDefault(); handleLogout() }}>Logout</Link></li>}
-      </ul>
+      <div className="nav-group">
+        <Link to="/">Landing</Link>
+      </div>
+
+      <div className="nav-group">
+        <Link to="/requests">Requests</Link>
+      </div>
+
+      <div className="nav-group">
+        {!token && <Link to="/login">Login</Link>}
+        {token && (
+          <Link
+            to="/"
+            onClick={(e) => {
+              e.preventDefault();
+              handleLogout();
+            }}
+          >
+            Logout
+          </Link>
+        )}
+      </div>
     </nav>
   )
 };
