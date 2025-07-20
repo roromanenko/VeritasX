@@ -21,7 +21,7 @@ export const Login = () => {
                     <form onSubmit={handleLogin}>
                         <input placeholder="Username" required value={username} onChange={(e) => setUsername(e.target.value)} />
                         <input type="password" placeholder="Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-                        <button type="submit">Sign In</button>
+                        <button className="primary-button" type="submit">Sign In</button>
                     </form>
                 </div>
             </div>

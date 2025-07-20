@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react'
 
 import 'react-date-range/dist/styles.css';         // Main style file
 import 'react-date-range/dist/theme/default.css';  // Theme CSS
-import { useDateRange } from '../hooks/useDateRange';
 import { useApiProvider } from '../services/apiProvider';
 
 import type { DataCollectionJobDto } from '../api';
 import { RequestItem } from '../components/RequestItem';
+import { CustomDateRange, useCustomDateRange } from '../components/CustomDateRange';
 
 const INTERVALS = [
     { value: 1, label: '1 Minute' },
@@ -22,41 +22,35 @@ const INTERVALS = [
 export const Requests = () => {
     const [symbol, setSymbol] = useState('BTCUSDT')
     const [interval, setInterval] = useState(60)
-    const [loadingRquests, setLoadingRquests] = useState(false);
-
-    const {
-        dateRange,
-        showCalendar,
-        calendarRef,
-        handleDateRangeChange,
-        formatDateRange,
-        toggleCalendar,
-    } = useDateRange()
+    const [loadingRequests, setLoadingRequests] = useState(false);
 
     const dataCollectionApi = useApiProvider().getDataCollectionApi();
     const [requests, setRequests] = useState<DataCollectionJobDto[]>([]);
+    const {dateRange, onDateRangeChange} = useCustomDateRange();
 
     useEffect(() => {
         fetchRequestsData();
     }, []);
 
     async function fetchRequestsData(){
-        setLoadingRquests(true);
+        setLoadingRequests(true);
         const response = await dataCollectionApi.apiDataCollectionJobsGet();
         const fetchRequests = response.data;
         setRequests(fetchRequests);
-        setLoadingRquests(false);
+        setLoadingRequests(false);
     }
 
     async function handleFetchData(){
-        const fromDate = dateRange[0].startDate.toISOString()
-        const toDate = dateRange[0].endDate.toISOString()
+        setLoadingRequests(true);
+        const fromDate = dateRange.startDate.toISOString()
+        const toDate = dateRange.endDate.toISOString()
         const postResponse = await dataCollectionApi.apiDataCollectionQueuePost(symbol, fromDate, toDate, interval)
         const newJobId = postResponse.data.jobId;
         if (newJobId){
             const newJobResponse = await dataCollectionApi.apiDataCollectionJobsJobIdGet(newJobId)
             setRequests(prev => [...prev, newJobResponse.data])
         }
+        setLoadingRequests(false);
     }
 
     return (
@@ -84,33 +78,15 @@ export const Requests = () => {
                     </div>
                     <div className="control-group">
                         <label>Date Range:</label>
-                        <div className="date-input-wrapper" ref={calendarRef}>
-                            <input
-                                type="text"
-                                value={formatDateRange()}
-                                onClick={toggleCalendar}
-                                readOnly
-                                className="date-range-input"
-                                placeholder="Select date range..."
-                            />
-                            {showCalendar &&
-                                <div className="date-range-dropdown">
-                                    <DateRange
-                                        editableDateInputs={true}
-                                        onChange={handleDateRangeChange}
-                                        moveRangeOnFirstSelection={true}
-                                        months={1}
-                                        direction="horizontal"
-                                        ranges={dateRange}
-                                        maxDate={new Date()}
-                                    />
-                                </div>}
-                        </div>
+                        <CustomDateRange 
+                            dateRange={dateRange}
+                            onDateRangeChange={onDateRangeChange}
+                        />
                     </div>
                     <button
                         onClick={handleFetchData}
-                        disabled={loadingRquests}
-                        className="fetch-button"
+                        disabled={loadingRequests}
+                        className="primary-button fetch-button"
                     >Create Request</button>
                 </div>
                 <div className="requests-list">
