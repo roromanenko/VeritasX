@@ -1,5 +1,4 @@
-import { DateRange } from 'react-date-range'
-import { useEffect, useState } from 'react'
+import { MouseEventHandler, useEffect, useState } from 'react'
 
 import 'react-date-range/dist/styles.css';         // Main style file
 import 'react-date-range/dist/theme/default.css';  // Theme CSS
@@ -8,6 +7,7 @@ import { useApiProvider } from '../services/apiProvider';
 import type { DataCollectionJobDto } from '../api';
 import { RequestItem } from '../components/RequestItem';
 import { CustomDateRange, useCustomDateRange } from '../components/CustomDateRange';
+import { useNavigate } from 'react-router-dom';
 
 const INTERVALS = [
     { value: 1, label: '1 Minute' },
@@ -26,6 +26,7 @@ export const Requests = () => {
     const [requests, setRequests] = useState<DataCollectionJobDto[]>([]);
     const {dateRange, onDateRangeChange} = useCustomDateRange();
 
+    const navigate = useNavigate();
     const dataCollectionApi = useApiProvider().getDataCollectionApi();
 
     useEffect(() => {
@@ -51,6 +52,10 @@ export const Requests = () => {
             setRequests(prev => [...prev, newJobResponse.data])
         }
         setLoadingRequests(false);
+    }
+
+    function handleRequestClick(requestId: string) {
+        navigate(`/requests/${requestId}`);
     }
 
     return (
@@ -92,7 +97,8 @@ export const Requests = () => {
                 </div>
                 <div className="request-list">
                     {requests.map((item, index) => (
-                        <div className='request-container'>
+                        <div className='request-container'
+                            onClick={() => handleRequestClick(item.id!)}>
                             <RequestItem request={item} />
                         </div>
                     ))}

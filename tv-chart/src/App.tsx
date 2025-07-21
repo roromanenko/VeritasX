@@ -7,6 +7,7 @@ import { Requests } from './pages/Requests';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { Login } from './pages/Login';
 import { Link } from 'react-router-dom';
+import { Chart } from './pages/Chart';
 
 function App() {
 
@@ -21,6 +22,12 @@ function App() {
             element={
               <ProtectedRoute>
                 <Requests />
+              </ProtectedRoute>
+            } />
+          <Route path='requests/:id'
+            element={
+              <ProtectedRoute>
+                <Chart />
               </ProtectedRoute>
             } />
           <Route path='login' element={<Login />} />

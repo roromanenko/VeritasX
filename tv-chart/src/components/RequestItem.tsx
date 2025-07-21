@@ -14,6 +14,8 @@ export const RequestItem = ({ request }: RequestItemProps) => {
     const {
         symbol,
         interval,
+        createdAt,
+        startedAt,
         fromUtc,
         toUtc,
         state,
@@ -42,23 +44,24 @@ export const RequestItem = ({ request }: RequestItemProps) => {
             case CollectionState.InProgress:
                 return 'yellow'
             default:
-                return 'transparent'
+                return 'inherit'
         }
     }
 
     return (
         <>
-            <SpotlightCard className="request-card" spotlightColor="rgba(0, 58, 47, 1)">
+            <SpotlightCard className="request-card" spotlightColor="rgba(0, 212, 170, 0.33)">
                 <div className="request-row">
                     <div><strong>Symbol:</strong> {symbol}</div>
                     <div><strong>Interval:</strong> {interval}</div>
                     <div><strong>State:</strong> <span style={{ color: resolveStateColor(state) }}>{state}</span></div>
                 </div>
                 <div className="request-row">
+                    <div><strong>Created:</strong> {formatDate(createdAt)}</div>
                     <div><strong>Date Range:</strong> {formatDate(fromUtc)} — {formatDate(toUtc)}</div>
                     <div><strong>Chunks:</strong> {completedChunks}/{totalChunks}</div>
-                    {errorMessage && <div className="error">Error: {errorMessage}</div>}
                 </div>
+                {errorMessage && <div><div className="error request-error">Error: {errorMessage}</div></div>}
             </SpotlightCard>
         </>
     )
