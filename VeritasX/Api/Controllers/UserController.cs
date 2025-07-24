@@ -11,7 +11,7 @@ namespace VeritasX.Api.Controllers;
 [Route("api/[controller]")]
 public class UserController : BaseController
 {
-    private readonly IUserService _userService;
+	private readonly IUserService _userService;
 	private readonly ILogger<UserController> _logger;
 	private readonly IJwtService _jwtService;
 
@@ -21,8 +21,8 @@ public class UserController : BaseController
 		_logger = logger;
 		_jwtService = jwtService;
 	}
-    
-    [HttpPost("register")]
+
+	[HttpPost("register")]
 	public async Task<ActionResult<ApiResponse<UserResponse>>> Register(RegisterRequest request)
 	{
 		try
@@ -46,7 +46,7 @@ public class UserController : BaseController
 		}
 	}
 
-    [HttpPost("login")]
+	[HttpPost("login")]
 	public async Task<ActionResult<ApiResponse<LoginResponse>>> Login(LoginRequest request)
 	{
 		var user = await _userService.VerifyUserLogin(request.Username, request.Password);
@@ -60,21 +60,21 @@ public class UserController : BaseController
 
 		return Ok(new ApiResponse<LoginResponse>(true, "Login successful", loginResponse));
 	}
-    
-    [HttpPut("password")]
+
+	[HttpPut("password")]
 	[Authorize]
 	public async Task<ActionResult<ApiResponse<string>>> ChangePassword([FromBody] ChangePasswordRequest request)
 	{
 		try
 		{
-			var user = await _userService.VerifyUserLogin(Username, request.CurrentPassword);
+			var user = await _userService.VerifyUserLogin(Username!, request.CurrentPassword);
 			if (user == null)
 				return Ok(new ApiResponse<string>(false, "Current password is incorrect"));
 
 			if (request.NewPassword != request.ConfirmPassword)
 				return Ok(new ApiResponse<string>(false, "Passwords do not match"));
 
-			await _userService.ChangePassword(UserId, request.NewPassword);
+			await _userService.ChangePassword(UserId!, request.NewPassword);
 			return Ok(new ApiResponse<string>(true, "Password changed successfully"));
 		}
 		catch (Exception ex)
@@ -83,10 +83,10 @@ public class UserController : BaseController
 		}
 	}
 
-    [HttpGet("me")]
-    [Authorize]
-    public async Task<ActionResult<ApiResponse<UserResponse>>> GetCurrentUser()
-    {
+	[HttpGet("me")]
+	[Authorize]
+	public async Task<ActionResult<ApiResponse<UserResponse>>> GetCurrentUser()
+	{
 		try
 		{
 			if (string.IsNullOrEmpty(UserId))
@@ -102,5 +102,5 @@ public class UserController : BaseController
 			_logger.LogError(ex, "Error getting current user");
 			return StatusCode(500, new ApiResponse<UserResponse>(false, "Internal server error"));
 		}
-    }
-} 
+	}
+}

@@ -6,8 +6,8 @@ namespace VeritasX.Application.Mapping;
 
 public class DataCollectionJobProfile : Profile
 {
-    public DataCollectionJobProfile()
-    {
-        CreateMap<DataCollectionJob, DataCollectionJobDto>();
-    }
+	public DataCollectionJobProfile()
+	{
+		CreateMap<DataCollectionJob, DataCollectionJobDto>();
+	}
 }

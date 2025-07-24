@@ -7,9 +7,9 @@ public interface IPriceProvider
 	Task<IEnumerable<Candle>> GetHistoryAsync
 	(
 		string symbol,
-        DateTime fromUtc,
-        DateTime toUtc,
-        TimeSpan interval,
-        CancellationToken ct = default
+		DateTime fromUtc,
+		DateTime toUtc,
+		TimeSpan interval,
+		CancellationToken ct = default
 	);
 }

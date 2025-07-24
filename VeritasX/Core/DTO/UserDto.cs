@@ -22,4 +22,4 @@ public record LoginResponse(UserResponse User, string Token);
 public record ApiResponse<T>(bool Success, string Message, T? Data = default);
 
 // Error response
-public record ErrorResponse(string Message, Dictionary<string, string[]>? Errors = null); 
+public record ErrorResponse(string Message, Dictionary<string, string[]>? Errors = null);

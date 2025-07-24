@@ -16,35 +16,30 @@ namespace VeritasX.Api.Controllers;
 [Route("api/[controller]")]
 public class DataCollectionController : BaseController
 {
-    private readonly IDataCollectionService _dataCollectionService;
-    private readonly ICandleChunkService _candleChunkService;
-    private readonly IMapper _mapper;
+	private readonly IDataCollectionService _dataCollectionService;
+	private readonly ICandleChunkService _candleChunkService;
+	private readonly IMapper _mapper;
 
-    public DataCollectionController(
-        IDataCollectionService dataCollectionService,
-        ICandleChunkService candleChunkService,
-        IMapper mapper)
-    {
-        _dataCollectionService = dataCollectionService;
-        _candleChunkService = candleChunkService;
-        _mapper = mapper;
-    }
+	public DataCollectionController(
+		IDataCollectionService dataCollectionService,
+		ICandleChunkService candleChunkService,
+		IMapper mapper)
+	{
+		_dataCollectionService = dataCollectionService;
+		_candleChunkService = candleChunkService;
+		_mapper = mapper;
+	}
 
-    [HttpPost("queue")]
-    public async Task<ActionResult<QueueJobResponse>> QueueDataCollection(
-        string symbol = "BTCUSDT",
-        DateTime? fromUtc = null,
-        DateTime? toUtc = null,
-        int intervalMinutes = 1)
-    {
-        fromUtc ??= DateTime.UtcNow.AddDays(-1);
-        toUtc ??= DateTime.UtcNow;
-        
-        var jobId = await _dataCollectionService.QueueDataCollectionAsync(
-            symbol, fromUtc.Value, toUtc.Value, TimeSpan.FromMinutes(intervalMinutes), UserId!);
-        
-        return Ok(new QueueJobResponse { JobId = jobId.ToString() });
-    }
+	[HttpPost("queue")]
+	public async Task<ActionResult<QueueJobResponse>> QueueDataCollection([FromBody] QueueDataCollectionRequest request)
+	{
+		var fromUtc = request.FromUtc ?? DateTime.UtcNow.AddDays(-1);
+		var toUtc = request.ToUtc ?? DateTime.UtcNow;
+
+		var jobId = await _dataCollectionService.QueueDataCollectionAsync(request.Symbol, fromUtc, toUtc,TimeSpan.FromMinutes(request.IntervalMinutes), UserId!);
+
+		return Ok(new QueueJobResponse { JobId = jobId.ToString() });
+	}
 
 	[HttpGet("jobs")]
 	public async Task<ActionResult<IEnumerable<DataCollectionJobDto>>> GetJobs()
@@ -56,40 +51,39 @@ public class DataCollectionController : BaseController
 	}
 
 	[HttpGet("jobs/{jobId}")]
-    public async Task<ActionResult<DataCollectionJobDto>> GetJob(string jobId)
-    {
-        var job = await _dataCollectionService.GetJobAsync(jobId, UserId!);
-        var jobDto = _mapper.Map<DataCollectionJobDto>(job);
+	public async Task<ActionResult<DataCollectionJobDto>> GetJob(string jobId)
+	{
+		var job = await _dataCollectionService.GetJobAsync(jobId, UserId!);
+		var jobDto = _mapper.Map<DataCollectionJobDto>(job);
 
-        return jobDto != null ? Ok(jobDto) : NotFound();
-    }
+		return jobDto != null ? Ok(jobDto) : NotFound();
+	}
 
-    [HttpGet("jobs/active")]
-    [Authorize(Roles = "admin")]
-    public async Task<ActionResult<IEnumerable<DataCollectionJobDto>>> GetActiveJobs()
-    {
-        var jobs = await _dataCollectionService.GetActiveJobsAsync();
-        var jobsDto = _mapper.Map<IEnumerable<DataCollectionJobDto>>(jobs);
+	[HttpGet("jobs/active")]
+	[Authorize(Roles = "admin")]
+	public async Task<ActionResult<IEnumerable<DataCollectionJobDto>>> GetActiveJobs()
+	{
+		var jobs = await _dataCollectionService.GetActiveJobsAsync();
+		var jobsDto = _mapper.Map<IEnumerable<DataCollectionJobDto>>(jobs);
 
-        return Ok(jobsDto);
-    }
+		return Ok(jobsDto);
+	}
 
-    [HttpGet("data/{jobId}")]
-    public async Task<ActionResult<IEnumerable<CandleDto>>> GetJobData(string jobId)
-    {
-        var userRole = User.FindFirstValue(ClaimTypes.Role);
+	[HttpGet("data/{jobId}")]
+	public async Task<ActionResult<IEnumerable<CandleDto>>> GetJobData(string jobId)
+	{
 
-        var candles = await _candleChunkService.GetCandlesByJobIdAsync(jobId, UserId!, userRole!);
-        var candlesDto = _mapper.Map<IEnumerable<CandleDto>>(candles);
+		var candles = await _candleChunkService.GetCandlesByJobIdAsync(jobId, UserId!, "admin");
+		var candlesDto = _mapper.Map<IEnumerable<CandleDto>>(candles);
 
-        return Ok(candlesDto);
-    }
+		return Ok(candlesDto);
+	}
 
-    [HttpDelete("jobs/{jobId}")]
-    [Authorize(Roles = "admin")]
-    public async Task<IActionResult> CancelJob(string jobId)
-    {
-        await _dataCollectionService.CancelJobAsync(jobId);
-        return Ok();
-    }
-} 
+	[HttpDelete("jobs/{jobId}")]
+	[Authorize(Roles = "admin")]
+	public async Task<IActionResult> CancelJob(string jobId)
+	{
+		await _dataCollectionService.CancelJobAsync(jobId);
+		return Ok();
+	}
+}

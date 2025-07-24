@@ -26,5 +26,7 @@
         "**/obj": true,
         "**/node_modules": true,
         "**/.vs": true
-    }
+    },
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false
 } 

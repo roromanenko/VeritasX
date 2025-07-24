@@ -255,6 +255,37 @@ export interface LoginResponseApiResponse {
 /**
  * 
  * @export
+ * @interface QueueDataCollectionRequest
+ */
+export interface QueueDataCollectionRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof QueueDataCollectionRequest
+     */
+    'symbol'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof QueueDataCollectionRequest
+     */
+    'fromUtc'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof QueueDataCollectionRequest
+     */
+    'toUtc'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof QueueDataCollectionRequest
+     */
+    'intervalMinutes'?: number;
+}
+/**
+ * 
+ * @export
  * @interface QueueJobResponse
  */
 export interface QueueJobResponse {
@@ -546,14 +577,11 @@ export const DataCollectionApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
-         * @param {string} [symbol] 
-         * @param {string} [fromUtc] 
-         * @param {string} [toUtc] 
-         * @param {number} [intervalMinutes] 
+         * @param {QueueDataCollectionRequest} [queueDataCollectionRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiDataCollectionQueuePost: async (symbol?: string, fromUtc?: string, toUtc?: string, intervalMinutes?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiDataCollectionQueuePost: async (queueDataCollectionRequest?: QueueDataCollectionRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/DataCollection/queue`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -569,31 +597,14 @@ export const DataCollectionApiAxiosParamCreator = function (configuration?: Conf
             // authentication Bearer required
             await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
 
-            if (symbol !== undefined) {
-                localVarQueryParameter['symbol'] = symbol;
-            }
-
-            if (fromUtc !== undefined) {
-                localVarQueryParameter['fromUtc'] = (fromUtc as any instanceof Date) ?
-                    (fromUtc as any).toISOString() :
-                    fromUtc;
-            }
-
-            if (toUtc !== undefined) {
-                localVarQueryParameter['toUtc'] = (toUtc as any instanceof Date) ?
-                    (toUtc as any).toISOString() :
-                    toUtc;
-            }
-
-            if (intervalMinutes !== undefined) {
-                localVarQueryParameter['intervalMinutes'] = intervalMinutes;
-            }
-
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queueDataCollectionRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -670,15 +681,12 @@ export const DataCollectionApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} [symbol] 
-         * @param {string} [fromUtc] 
-         * @param {string} [toUtc] 
-         * @param {number} [intervalMinutes] 
+         * @param {QueueDataCollectionRequest} [queueDataCollectionRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiDataCollectionQueuePost(symbol?: string, fromUtc?: string, toUtc?: string, intervalMinutes?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueueJobResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiDataCollectionQueuePost(symbol, fromUtc, toUtc, intervalMinutes, options);
+        async apiDataCollectionQueuePost(queueDataCollectionRequest?: QueueDataCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueueJobResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiDataCollectionQueuePost(queueDataCollectionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DataCollectionApi.apiDataCollectionQueuePost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -738,15 +746,12 @@ export const DataCollectionApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
-         * @param {string} [symbol] 
-         * @param {string} [fromUtc] 
-         * @param {string} [toUtc] 
-         * @param {number} [intervalMinutes] 
+         * @param {QueueDataCollectionRequest} [queueDataCollectionRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiDataCollectionQueuePost(symbol?: string, fromUtc?: string, toUtc?: string, intervalMinutes?: number, options?: RawAxiosRequestConfig): AxiosPromise<QueueJobResponse> {
-            return localVarFp.apiDataCollectionQueuePost(symbol, fromUtc, toUtc, intervalMinutes, options).then((request) => request(axios, basePath));
+        apiDataCollectionQueuePost(queueDataCollectionRequest?: QueueDataCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<QueueJobResponse> {
+            return localVarFp.apiDataCollectionQueuePost(queueDataCollectionRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -813,16 +818,13 @@ export class DataCollectionApi extends BaseAPI {
 
     /**
      * 
-     * @param {string} [symbol] 
-     * @param {string} [fromUtc] 
-     * @param {string} [toUtc] 
-     * @param {number} [intervalMinutes] 
+     * @param {QueueDataCollectionRequest} [queueDataCollectionRequest] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DataCollectionApi
      */
-    public apiDataCollectionQueuePost(symbol?: string, fromUtc?: string, toUtc?: string, intervalMinutes?: number, options?: RawAxiosRequestConfig) {
-        return DataCollectionApiFp(this.configuration).apiDataCollectionQueuePost(symbol, fromUtc, toUtc, intervalMinutes, options).then((request) => request(this.axios, this.basePath));
+    public apiDataCollectionQueuePost(queueDataCollectionRequest?: QueueDataCollectionRequest, options?: RawAxiosRequestConfig) {
+        return DataCollectionApiFp(this.configuration).apiDataCollectionQueuePost(queueDataCollectionRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

@@ -256,22 +256,17 @@ const { status, data } = await apiInstance.apiDataCollectionJobsJobIdGet(
 ```typescript
 import {
     DataCollectionApi,
-    Configuration
+    Configuration,
+    QueueDataCollectionRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new DataCollectionApi(configuration);
 
-let symbol: string; // (optional) (default to 'BTCUSDT')
-let fromUtc: string; // (optional) (default to undefined)
-let toUtc: string; // (optional) (default to undefined)
-let intervalMinutes: number; // (optional) (default to 1)
+let queueDataCollectionRequest: QueueDataCollectionRequest; // (optional)
 
 const { status, data } = await apiInstance.apiDataCollectionQueuePost(
-    symbol,
-    fromUtc,
-    toUtc,
-    intervalMinutes
+    queueDataCollectionRequest
 );
 ```
 
@@ -279,10 +274,7 @@ const { status, data } = await apiInstance.apiDataCollectionQueuePost(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **symbol** | [**string**] |  | (optional) defaults to 'BTCUSDT'|
-| **fromUtc** | [**string**] |  | (optional) defaults to undefined|
-| **toUtc** | [**string**] |  | (optional) defaults to undefined|
-| **intervalMinutes** | [**number**] |  | (optional) defaults to 1|
+| **queueDataCollectionRequest** | **QueueDataCollectionRequest**|  | |
 
 
 ### Return type
@@ -295,7 +287,7 @@ const { status, data } = await apiInstance.apiDataCollectionQueuePost(
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json, text/json, application/*+json
  - **Accept**: text/plain, application/json, text/json
 
 

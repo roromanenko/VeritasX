@@ -45,7 +45,12 @@ export const Requests = () => {
         setLoadingRequests(true);
         const fromDate = dateRange.startDate.toISOString()
         const toDate = dateRange.endDate.toISOString()
-        const postResponse = await dataCollectionApi.apiDataCollectionQueuePost(symbol, fromDate, toDate, interval)
+        const postResponse = await dataCollectionApi.apiDataCollectionQueuePost({
+            symbol,
+            fromUtc: fromDate,
+            toUtc: toDate,
+            intervalMinutes: interval
+        })
         const newJobId = postResponse.data.jobId;
         if (newJobId){
             const newJobResponse = await dataCollectionApi.apiDataCollectionJobsJobIdGet(newJobId)

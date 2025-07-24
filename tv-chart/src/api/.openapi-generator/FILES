@@ -12,6 +12,7 @@ docs/DataCollectionJobDto.md
 docs/LoginRequest.md
 docs/LoginResponse.md
 docs/LoginResponseApiResponse.md
+docs/QueueDataCollectionRequest.md
 docs/QueueJobResponse.md
 docs/RegisterRequest.md
 docs/StringApiResponse.md
