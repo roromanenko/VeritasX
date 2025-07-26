@@ -68,7 +68,7 @@ public class DatabaseCleanupJob : BackgroundService
 		await foreach (var batch in GetJobIdBatchesAsync(mongoDbContext, cutoffDate, _options.JobBatchSize, cancellationToken))
 		{
 			batchNum++;
-			_logger.LogInformation("Processing batch {BatchNum} with {BatchSize} jobs", batchNum, batch.Count);
+			_logger.LogInformation("Processing batch {BatchNum} with {BatchSize} jobs", batchNum, batch.Count());
 
 			totalDeletedChunks += await CleanupCandleChunksByJobIdsAsync(mongoDbContext, batch, cancellationToken);
 			totalDeletedJobs += await CleanupDataCollectionJobsByIdsAsync(mongoDbContext, batch, cancellationToken);
@@ -78,17 +78,17 @@ public class DatabaseCleanupJob : BackgroundService
 			totalDeletedJobs, totalDeletedChunks);
 	}
 
-	private async IAsyncEnumerable<List<ObjectId>> GetJobIdBatchesAsync(IMongoDbContext mongoDbContext, DateTime cutoffDate,
+	private async IAsyncEnumerable<IEnumerable<ObjectId>> GetJobIdBatchesAsync(IMongoDbContext mongoDbContext, DateTime cutoffDate,
 		int batchSize, [EnumeratorCancellation] CancellationToken cancellationToken)
 	{
 		var collection = mongoDbContext.GetCollection<DataCollectionJob>("data_collection_jobs");
 		
 		var filter = Builders<DataCollectionJob>.Filter.And(
-			Builders<DataCollectionJob>.Filter.Eq(job => job.State, CollectionState.Completed),
 			Builders<DataCollectionJob>.Filter.Lt(job => job.CompletedAt, cutoffDate)
 		);
 
 		var totalCount = await collection.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
+
 		_logger.LogInformation("Found {TotalCount} completed jobs older than {CutoffDate}", totalCount, cutoffDate);
 
 		if (totalCount == 0)
@@ -96,31 +96,19 @@ public class DatabaseCleanupJob : BackgroundService
 			yield break;
 		}
 
-		using var cursor = await collection.Find(filter).Project(job => job.Id).ToCursorAsync(cancellationToken);
-
-		var batch = new List<ObjectId>(batchSize);
+		using var cursor = await collection
+			.Find(filter, new() { BatchSize = batchSize })
+			.Project(job => job.Id)
+			.ToCursorAsync(cancellationToken);
 
 		while (await cursor.MoveNextAsync(cancellationToken))
 		{
-			foreach (var id in cursor.Current)
-			{
-				batch.Add(id);
-
-				if (batch.Count == batchSize)
-				{
-					yield return batch;
-					batch = new List<ObjectId>(batchSize);
-				}
-			}
-		}
-		if (batch.Count > 0)
-		{
-			yield return batch;
+			yield return cursor.Current;
 		}
 	}
 	
 
-	private async Task<long> CleanupDataCollectionJobsByIdsAsync(IMongoDbContext mongoDbContext, List<ObjectId> jobIds, CancellationToken cancellationToken)
+	private async Task<long> CleanupDataCollectionJobsByIdsAsync(IMongoDbContext mongoDbContext, IEnumerable<ObjectId> jobIds, CancellationToken cancellationToken)
 	{
 		if (!jobIds.Any())
 		{
@@ -137,7 +125,7 @@ public class DatabaseCleanupJob : BackgroundService
 		return deleteResult.DeletedCount;
 	}
 
-	private async Task<long> CleanupCandleChunksByJobIdsAsync(IMongoDbContext mongoDbContext, List<ObjectId> jobIds, CancellationToken cancellationToken)
+	private async Task<long> CleanupCandleChunksByJobIdsAsync(IMongoDbContext mongoDbContext, IEnumerable<ObjectId> jobIds, CancellationToken cancellationToken)
 	{
 		if (!jobIds.Any())
 		{
@@ -149,7 +137,7 @@ public class DatabaseCleanupJob : BackgroundService
 
 		var deleteResult = await collection.DeleteManyAsync(filter, cancellationToken: cancellationToken);
 
-		_logger.LogDebug("Deleted {Count} CandleChunk records for {JobCount} jobs", deleteResult.DeletedCount, jobIds.Count);
+		_logger.LogDebug("Deleted {Count} CandleChunk records for {JobCount} jobs", deleteResult.DeletedCount, jobIds.Count());
 
 		return deleteResult.DeletedCount;
 	}
