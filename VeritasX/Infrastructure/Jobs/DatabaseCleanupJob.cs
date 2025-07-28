@@ -2,13 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using VeritasX.Core.Interfaces;
 using VeritasX.Core.Options;
-using VeritasX.Infrastructure.Persistence.Entities;
-using MongoDB.Bson;
-using System.Runtime.CompilerServices;
-using VeritasX.Core.Domain;
 
 namespace VeritasX.Infrastructure.Jobs;
 
@@ -57,7 +52,7 @@ public class DatabaseCleanupJob : BackgroundService
 	private async Task CleanupDatabaseAsync(CancellationToken cancellationToken)
 	{
 		using var scope = _serviceProvider.CreateScope();
-		var mongoDbContext = scope.ServiceProvider.GetRequiredService<IMongoDbContext>();
+		var cleanupRepository = scope.ServiceProvider.GetRequiredService<IDatabaseCleanupRepository>();
 
 		var cutoffDate = DateTime.UtcNow - _options.MaxRecordAge;
 
@@ -65,80 +60,24 @@ public class DatabaseCleanupJob : BackgroundService
 		long totalDeletedJobs = 0;
 		int batchNum = 0;
 
-		await foreach (var batch in GetJobIdBatchesAsync(mongoDbContext, cutoffDate, _options.JobBatchSize, cancellationToken))
-		{
-			batchNum++;
-			_logger.LogInformation("Processing batch {BatchNum} with {BatchSize} jobs", batchNum, batch.Count());
-
-			totalDeletedChunks += await CleanupCandleChunksByJobIdsAsync(mongoDbContext, batch, cancellationToken);
-			totalDeletedJobs += await CleanupDataCollectionJobsByIdsAsync(mongoDbContext, batch, cancellationToken);
-		}
-
-		_logger.LogInformation("Database cleanup completed. Deleted {JobCount} jobs and {ChunkCount} chunks", 
-			totalDeletedJobs, totalDeletedChunks);
-	}
-
-	private async IAsyncEnumerable<IEnumerable<ObjectId>> GetJobIdBatchesAsync(IMongoDbContext mongoDbContext, DateTime cutoffDate,
-		int batchSize, [EnumeratorCancellation] CancellationToken cancellationToken)
-	{
-		var collection = mongoDbContext.GetCollection<DataCollectionJob>("data_collection_jobs");
-		
-		var filter = Builders<DataCollectionJob>.Filter.And(
-			Builders<DataCollectionJob>.Filter.Lt(job => job.CompletedAt, cutoffDate)
-		);
-
-		var totalCount = await collection.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
-
+		var totalCount = await cleanupRepository.GetCompletedJobCountAsync(cutoffDate, cancellationToken);
 		_logger.LogInformation("Found {TotalCount} completed jobs older than {CutoffDate}", totalCount, cutoffDate);
 
 		if (totalCount == 0)
 		{
-			yield break;
+			return;
 		}
 
-		using var cursor = await collection
-			.Find(filter, new() { BatchSize = batchSize })
-			.Project(job => job.Id)
-			.ToCursorAsync(cancellationToken);
-
-		while (await cursor.MoveNextAsync(cancellationToken))
+		await foreach (var batch in cleanupRepository.GetJobIdBatchesAsync(cutoffDate, _options.JobBatchSize, cancellationToken))
 		{
-			yield return cursor.Current;
-		}
-	}
-	
+			batchNum++;
+			_logger.LogInformation("Processing batch {BatchNum} with {BatchSize} jobs", batchNum, batch.Count());
 
-	private async Task<long> CleanupDataCollectionJobsByIdsAsync(IMongoDbContext mongoDbContext, IEnumerable<ObjectId> jobIds, CancellationToken cancellationToken)
-	{
-		if (!jobIds.Any())
-		{
-			return 0;
+			totalDeletedChunks += await cleanupRepository.CleanupCandleChunksByJobIdsAsync(batch, cancellationToken);
+			totalDeletedJobs += await cleanupRepository.CleanupDataCollectionJobsByIdsAsync(batch, cancellationToken);
 		}
 
-		var collection = mongoDbContext.GetCollection<DataCollectionJob>("data_collection_jobs");
-		var filter = Builders<DataCollectionJob>.Filter.In(job => job.Id, jobIds);
-
-		var deleteResult = await collection.DeleteManyAsync(filter, cancellationToken: cancellationToken);
-
-		_logger.LogDebug("Deleted {DeletedCount} data collection jobs", deleteResult.DeletedCount);
-
-		return deleteResult.DeletedCount;
-	}
-
-	private async Task<long> CleanupCandleChunksByJobIdsAsync(IMongoDbContext mongoDbContext, IEnumerable<ObjectId> jobIds, CancellationToken cancellationToken)
-	{
-		if (!jobIds.Any())
-		{
-			return 0;
-		}
-
-		var collection = mongoDbContext.GetCollection<CandleChunk>("candle_chunks");
-		var filter = Builders<CandleChunk>.Filter.In(chunk => chunk.JobId, jobIds);
-
-		var deleteResult = await collection.DeleteManyAsync(filter, cancellationToken: cancellationToken);
-
-		_logger.LogDebug("Deleted {Count} CandleChunk records for {JobCount} jobs", deleteResult.DeletedCount, jobIds.Count());
-
-		return deleteResult.DeletedCount;
+		_logger.LogInformation("Database cleanup completed. Deleted {JobCount} jobs and {ChunkCount} chunks", 
+			totalDeletedJobs, totalDeletedChunks);
 	}
 }
