@@ -1,9 +1,9 @@
-namespace VeritasX.Core.DTO;
+namespace Api.DTO;
 
-public class QueueDataCollectionRequest
-{
-	public string Symbol { get; set; } = string.Empty;
-	public DateTime? FromUtc { get; set; }
-	public DateTime? ToUtc { get; set; }
-	public int IntervalMinutes { get; set; }
-}
+public record QueueDataCollectionRequest
+(
+	string Symbol,
+	DateTime? FromUtc,
+	DateTime? ToUtc,
+	int IntervalMinutes
+);

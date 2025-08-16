@@ -1,11 +1,11 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
-using Microsoft.Extensions.Options;
 using Core.Interfaces;
 using Core.Options;
+using Microsoft.Extensions.Options;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Driver;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 
 namespace Infrastructure.Persistence.MongoDb;
 
@@ -37,8 +37,9 @@ public class MongoDbContext : IMongoDbContext
 
 	public IMongoCollection<T> GetCollection<T>()
 	{
-		var collectionName = typeof(T).Name.ToLowerInvariant();
-		return GetCollection<T>(collectionName);
+		var className = typeof(T).Name.ToLowerInvariant();
+		var tableAttribute = (TableAttribute?)typeof(T).GetCustomAttribute(typeof(TableAttribute));
+		return GetCollection<T>(tableAttribute?.Name ?? className);
 	}
 
 	public async Task<bool> CollectionExistsAsync(string collectionName)

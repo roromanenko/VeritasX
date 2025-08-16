@@ -1,8 +1,10 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Persistence.Entities;
 
+[Table("user")]
 public class UserEntity
 {
 	[BsonId]

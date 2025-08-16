@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using Infrastructure.Services;
+using Api.DTO;
+using AutoMapper;
 using Core.Interfaces;
-using Infrastructure.Persistence.Entities;
-using VeritasX.Core.DTO;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using VeritasX.Api.Controllers;
 
 namespace Api.Controllers;
@@ -15,35 +14,37 @@ public class UserController : BaseController
 	private readonly IUserService _userService;
 	private readonly ILogger<UserController> _logger;
 	private readonly IJwtService _jwtService;
+	private readonly IMapper _mapper;
 
-	public UserController(IUserService userService, ILogger<UserController> logger, IJwtService jwtService)
+	public UserController(IUserService userService, ILogger<UserController> logger, IJwtService jwtService, IMapper mapper)
 	{
 		_userService = userService;
 		_logger = logger;
 		_jwtService = jwtService;
+		_mapper = mapper;
 	}
 
 	[HttpPost("register")]
-	public async Task<ActionResult<ApiResponse<UserResponse>>> Register(RegisterRequest request)
+	public async Task<ActionResult<ApiResponse<UserDto>>> Register(RegisterRequest request)
 	{
 		try
 		{
 			// Password validation
 			if (request.Password != request.ConfirmPassword)
-				return Ok(new ApiResponse<UserResponse>(false, "Passwords do not match"));
+				return Ok(new ApiResponse<UserDto>(false, "Passwords do not match"));
 
 			var user = await _userService.RegisterUser(request.Username, request.Password);
 
-			var response = new UserResponse(user.Id.ToString(), user.Username, user.Roles);
-			return Ok(new ApiResponse<UserResponse>(true, "User registered successfully", response));
+			var response = _mapper.Map<UserDto>(user);
+			return Ok(new ApiResponse<UserDto>(true, "User registered successfully", response));
 		}
 		catch (ArgumentException ex)
 		{
-			return Ok(new ApiResponse<UserResponse>(false, ex.Message));
+			return Ok(new ApiResponse<UserDto>(false, ex.Message));
 		}
 		catch (Exception)
 		{
-			return Ok(new ApiResponse<UserResponse>(false, "Registration failed"));
+			return Ok(new ApiResponse<UserDto>(false, "Registration failed"));
 		}
 	}
 
@@ -56,7 +57,7 @@ public class UserController : BaseController
 
 		var token = _jwtService.GenerateToken(user);
 
-		var userResponse = new UserResponse(user.Id.ToString(), user.Username, user.Roles);
+		var userResponse = _mapper.Map<UserDto>(user);
 		var loginResponse = new LoginResponse(userResponse, token);
 
 		return Ok(new ApiResponse<LoginResponse>(true, "Login successful", loginResponse));
@@ -86,22 +87,23 @@ public class UserController : BaseController
 
 	[HttpGet("me")]
 	[Authorize]
-	public async Task<ActionResult<ApiResponse<UserResponse>>> GetCurrentUser()
+	public async Task<ActionResult<ApiResponse<UserDto>>> GetCurrentUser()
 	{
 		try
 		{
 			if (string.IsNullOrEmpty(UserId))
 			{
-				return Unauthorized(new ApiResponse<UserResponse>(false, "Invalid token or user not authenticated"));
+				return Unauthorized(new ApiResponse<UserDto>(false, "Invalid token or user not authenticated"));
 			}
 
 			var user = await _userService.GetUserById(UserId);
-			return Ok(new ApiResponse<UserResponse>(true, "User found", new UserResponse(user.Id.ToString(), user.Username, user.Roles)));
+			var userDto = _mapper.Map<UserDto>(user);
+			return Ok(new ApiResponse<UserDto>(true, "User found", userDto));
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, "Error getting current user");
-			return StatusCode(500, new ApiResponse<UserResponse>(false, "Internal server error"));
+			return StatusCode(500, new ApiResponse<UserDto>(false, "Internal server error"));
 		}
 	}
 }

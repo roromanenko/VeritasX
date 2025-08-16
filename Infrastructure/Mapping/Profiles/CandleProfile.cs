@@ -9,15 +9,23 @@ public class CandleProfile : Profile
 	public CandleProfile()
 	{
 		CreateMap<Candle, CandleDocument>()
-			.ConstructUsing(c => new CandleDocument(
-				c.OpenTimeUtc.UtcDateTime,
-				c.Open, c.High, c.Low, c.Close, c.Volume
+				.ConstructUsing(s => new CandleDocument(
+					s.OpenTimeUtc,
+					s.Open,
+					s.High,
+					s.Low,
+					s.Close,
+					s.Volume
 				));
 
 		CreateMap<CandleDocument, Candle>()
-			.ConstructUsing(d => new Candle(
-				new DateTimeOffset(DateTime.SpecifyKind(d.OpenTime, DateTimeKind.Utc)),
-				d.Open, d.High, d.Low, d.Close, d.Volume
-				));
+			.ConstructUsing(s => new Candle(
+				s.OpenTime,
+				s.Open,
+				s.High,
+				s.Low,
+				s.Close,
+				s.Volume
+			));
 	}
 }

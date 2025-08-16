@@ -10,16 +10,10 @@ public record CandleChunkDocument
 	public ObjectId Id { get; init; } = ObjectId.GenerateNewId();
 	public ObjectId JobId { get; init; }
 	public required string Symbol { get; init; }
-
-	[BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-	public required DateTime FromUtc { get; init; }
-
-	[BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-	public required DateTime ToUtc { get; init; }
+	public required DateTimeOffset FromUtc { get; init; }
+	public required DateTimeOffset ToUtc { get; init; }
 	public required TimeSpan Interval { get; init; }
 	public required List<CandleDocument> Candles { get; init; } = [];
-
-	[BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-	public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+	public DateTimeOffset CreatedAt { get; init; } = DateTime.UtcNow;
 	public int CandleCount => Candles.Count;
 }

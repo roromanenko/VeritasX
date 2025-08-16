@@ -80,7 +80,7 @@ public class DataCollectorBackgroundService : BackgroundService
 		try
 		{
 			job.State = CollectionState.InProgress;
-			job.StartedAt = DateTime.UtcNow;
+			job.StartedAt = DateTimeOffset.UtcNow;
 
 			using var scope = _serviceProvider.CreateScope();
 			var dataService = scope.ServiceProvider.GetRequiredService<IDataCollectionService>();
@@ -128,7 +128,7 @@ public class DataCollectorBackgroundService : BackgroundService
 			}
 
 			job.State = CollectionState.Completed;
-			job.CompletedAt = DateTime.UtcNow;
+			job.CompletedAt = DateTimeOffset.UtcNow;
 
 			_logger.LogInformation("Completed job {JobId} for {Symbol}. Collected {CandleCount} candles in {ChunkCount} chunks",
 				job.Id, job.Symbol, totalCandles, job.CompletedChunks);

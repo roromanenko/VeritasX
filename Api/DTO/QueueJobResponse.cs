@@ -1,6 +1,6 @@
-namespace VeritasX.Core.DTO;
+namespace Api.DTO;
 
-public class QueueJobResponse
-{
-	public string JobId { get; set; } = string.Empty;
+public class QueueJobResponse 
+{ 
+	public string JobId { get; set; } = string.Empty; 
 }

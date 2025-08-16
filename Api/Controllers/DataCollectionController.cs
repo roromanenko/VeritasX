@@ -1,15 +1,9 @@
+using Api.DTO;
+using AutoMapper;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Core.Interfaces;
-using MongoDB.Bson;
-using System.Security.Claims;
-using Infrastructure.Persistence.Entities;
-using Core.Domain;
-using VeritasX.Core.DTO;
-using Core.Constants;
-using AutoMapper;
 using VeritasX.Api.Controllers;
-using Api.DTO;
 
 namespace Api.Controllers;
 

@@ -1,3 +1,4 @@
+using Api.Mapping;
 using Core.Interfaces;
 using Core.Options;
 using Infrastructure.Interfaces;
@@ -86,6 +87,9 @@ public static class ServiceCollectionExtensions
 			cfg.AddProfile<DataChunkProfile>();
 			cfg.AddProfile<DataCollectionJobProfile>();
 			cfg.AddProfile<UserProfile>();
+			cfg.AddProfile<CandleDtoProfile>();
+			cfg.AddProfile<UserDtoProfile>();
+			cfg.AddProfile<DataCollectionJobDtoProfile>();
 		});
 
 		return services;

@@ -8,7 +8,7 @@ namespace Infrastructure.Persistence.Entities;
 
 public record CandleDocument
 (
-	DateTime OpenTime,
+	DateTimeOffset OpenTime,
 	decimal Open,
 	decimal High,
 	decimal Low,

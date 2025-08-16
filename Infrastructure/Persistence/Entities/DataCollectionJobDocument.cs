@@ -10,26 +10,16 @@ public record DataCollectionJobDocument
 	public ObjectId Id { get; init; } = ObjectId.GenerateNewId();
 	public ObjectId UserId { get; init; }
 	public required string Symbol { get; init; }
-
-	[BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-	public required DateTime FromUtc { get; init; }
-
-	[BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-	public required DateTime ToUtc { get; init; }
+	public required DateTimeOffset FromUtc { get; init; }
+	public required DateTimeOffset ToUtc { get; init; }
 	public required TimeSpan Interval { get; init; }
 	public string? CollectionName { get; init; }
 	public CollectionState State { get; set; } = CollectionState.Pending;
 	public int TotalChunks { get; set; }
 	public int CompletedChunks { get; set; }
-
-	[BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-	public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-
-	[BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-	public DateTime? StartedAt { get; set; }
-
-	[BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-	public DateTime? CompletedAt { get; set; }
+	public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+	public DateTimeOffset? StartedAt { get; set; }
+	public DateTimeOffset? CompletedAt { get; set; }
 	public string? ErrorMessage { get; set; }
 	public List<DataChunkDocument> Chunks { get; init; } = [];
 }

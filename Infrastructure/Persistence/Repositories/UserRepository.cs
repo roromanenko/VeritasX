@@ -30,6 +30,7 @@ public class UserRepository : IUserRepository
 	{
 		var filter = Builders<UserEntity>.Filter.Eq(u => u.Username, username);
 		var user = await _dbContext.GetCollection<UserEntity>().Find(filter).FirstOrDefaultAsync();
+
 		return user;
 	}
 
