@@ -33,21 +33,8 @@ public class CandleChunkService(IMongoDbContext context, IMapper mapper) : ICand
 		return _mapper.Map<IEnumerable<CandleChunk>>(docs);
 	}
 
-	public async Task<IEnumerable<Candle>> GetCandlesByJobIdAsync(string jobIdStr, string userIdStr, string userRole)
+	public async Task<IEnumerable<Candle>> GetCandlesByJobIdAsync(string jobIdStr)
 	{
-		if (!ObjectId.TryParse(jobIdStr, out var jobId))
-			return [];
-		if (!ObjectId.TryParse(userIdStr, out var userId))
-			return [];
-
-		if (userRole != AppRoles.Admin)
-		{
-			var jobs = _context.GetCollection<DataCollectionJobDocument>("data_collection_jobs");
-			var job = await jobs.Find(j => j.Id == jobId && j.UserId == userId).FirstOrDefaultAsync();
-			if (job is null)
-				return [];
-		}
-
 		var chunks = await GetChunksByJobIdAsync(jobIdStr);
 		return chunks.SelectMany(c => c.Candles).OrderBy(c => c.OpenTimeUtc);
 	}

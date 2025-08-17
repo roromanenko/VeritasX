@@ -76,6 +76,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IDataCollectionService, DataCollectionService>();
 		services.AddScoped<ICandleChunkService, CandleChunkService>();
 		services.AddHostedService<DataCollectorBackgroundService>();
+		services.AddHostedService<TradingBotsJob>();
 		services.AddHostedService<DatabaseCleanupJob>();
 		services.AddScoped<IUserService, UserService>();
 		services.AddScoped<IJwtService, JwtService>();

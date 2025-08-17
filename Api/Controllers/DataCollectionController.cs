@@ -69,7 +69,7 @@ public class DataCollectionController : BaseController
 	public async Task<ActionResult<IEnumerable<CandleDto>>> GetJobData(string jobId)
 	{
 
-		var candles = await _candleChunkService.GetCandlesByJobIdAsync(jobId, UserId!, "admin");
+		var candles = await _candleChunkService.GetCandlesByJobIdAsync(jobId);
 		var candlesDto = _mapper.Map<IEnumerable<CandleDto>>(candles);
 
 		return Ok(candlesDto);
