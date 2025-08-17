@@ -1,21 +1,23 @@
-# LoginResponse
+# UserDto
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**user** | [**UserDto**](UserDto.md) |  | [optional] [default to undefined]
-**accessToken** | **string** |  | [optional] [default to undefined]
+**id** | **string** |  | [optional] [default to undefined]
+**username** | **string** |  | [optional] [default to undefined]
+**roles** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { LoginResponse } from './api';
+import { UserDto } from './api';
 
-const instance: LoginResponse = {
-    user,
-    accessToken,
+const instance: UserDto = {
+    id,
+    username,
+    roles,
 };
 ```
 

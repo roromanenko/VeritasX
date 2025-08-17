@@ -216,16 +216,16 @@ export interface LoginRequest {
 export interface LoginResponse {
     /**
      * 
-     * @type {UserResponse}
+     * @type {UserDto}
      * @memberof LoginResponse
      */
-    'user'?: UserResponse;
+    'user'?: UserDto;
     /**
      * 
      * @type {string}
      * @memberof LoginResponse
      */
-    'token'?: string | null;
+    'accessToken'?: string | null;
 }
 /**
  * 
@@ -349,52 +349,52 @@ export interface StringApiResponse {
 /**
  * 
  * @export
- * @interface UserResponse
+ * @interface UserDto
  */
-export interface UserResponse {
+export interface UserDto {
     /**
      * 
      * @type {string}
-     * @memberof UserResponse
+     * @memberof UserDto
      */
     'id'?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof UserResponse
+     * @memberof UserDto
      */
     'username'?: string | null;
     /**
      * 
      * @type {Array<string>}
-     * @memberof UserResponse
+     * @memberof UserDto
      */
     'roles'?: Array<string> | null;
 }
 /**
  * 
  * @export
- * @interface UserResponseApiResponse
+ * @interface UserDtoApiResponse
  */
-export interface UserResponseApiResponse {
+export interface UserDtoApiResponse {
     /**
      * 
      * @type {boolean}
-     * @memberof UserResponseApiResponse
+     * @memberof UserDtoApiResponse
      */
     'success'?: boolean;
     /**
      * 
      * @type {string}
-     * @memberof UserResponseApiResponse
+     * @memberof UserDtoApiResponse
      */
     'message'?: string | null;
     /**
      * 
-     * @type {UserResponse}
-     * @memberof UserResponseApiResponse
+     * @type {UserDto}
+     * @memberof UserDtoApiResponse
      */
-    'data'?: UserResponse;
+    'data'?: UserDto;
 }
 
 /**
@@ -1003,7 +1003,7 @@ export const UserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiUserMeGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserResponseApiResponse>> {
+        async apiUserMeGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDtoApiResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserMeGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserApi.apiUserMeGet']?.[localVarOperationServerIndex]?.url;
@@ -1027,7 +1027,7 @@ export const UserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiUserRegisterPost(registerRequest?: RegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserResponseApiResponse>> {
+        async apiUserRegisterPost(registerRequest?: RegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDtoApiResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserRegisterPost(registerRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UserApi.apiUserRegisterPost']?.[localVarOperationServerIndex]?.url;
@@ -1057,7 +1057,7 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserMeGet(options?: RawAxiosRequestConfig): AxiosPromise<UserResponseApiResponse> {
+        apiUserMeGet(options?: RawAxiosRequestConfig): AxiosPromise<UserDtoApiResponse> {
             return localVarFp.apiUserMeGet(options).then((request) => request(axios, basePath));
         },
         /**
@@ -1075,7 +1075,7 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiUserRegisterPost(registerRequest?: RegisterRequest, options?: RawAxiosRequestConfig): AxiosPromise<UserResponseApiResponse> {
+        apiUserRegisterPost(registerRequest?: RegisterRequest, options?: RawAxiosRequestConfig): AxiosPromise<UserDtoApiResponse> {
             return localVarFp.apiUserRegisterPost(registerRequest, options).then((request) => request(axios, basePath));
         },
     };

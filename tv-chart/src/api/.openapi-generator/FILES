@@ -17,7 +17,7 @@ docs/QueueJobResponse.md
 docs/RegisterRequest.md
 docs/StringApiResponse.md
 docs/UserApi.md
-docs/UserResponse.md
-docs/UserResponseApiResponse.md
+docs/UserDto.md
+docs/UserDtoApiResponse.md
 git_push.sh
 index.ts
