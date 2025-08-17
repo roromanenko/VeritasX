@@ -1,3 +1,5 @@
+using Core.Domain;
+
 namespace Api.DTO;
 
 public record DataCollectionJobDto
@@ -7,7 +9,7 @@ public record DataCollectionJobDto
 	public DateTime FromUtc { get; init; }
 	public DateTime ToUtc { get; init; }
 	public TimeSpan Interval { get; init; }
-	public string State { get; init; } = default!;
+	public CollectionState State { get; init; }
 	public int TotalChunks { get; init; }
 	public int CompletedChunks { get; init; }
 	public DateTime CreatedAt { get; init; }

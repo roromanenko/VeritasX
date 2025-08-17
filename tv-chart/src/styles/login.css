@@ -4,6 +4,7 @@
     align-items: center;
     justify-content: flex-start;
     padding-top: 40px;
+    gap: 20px;
 }
 
 .login-form {
@@ -11,10 +12,28 @@
     padding: 32px;
     border-radius: 16px;
     box-shadow: 0 0 20px rgba(0, 212, 170, 0.05);
-    max-width: 400px;
+    max-width: 30vw;
     width: 100%;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(0, 212, 170, 0.1);
+}
+
+.login-error-form {
+    background: rgb(136 34 34);
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgb(212 0 205 / 5%);
+    max-width: 30vw;
+    width: 100%;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgb(212 0 0 / 41%);
+    display: flex;
+    justify-content: center;
+}
+.login-error-form span {
+    color: rgba(234, 234, 234, 0.993);
+    font-weight: 600;
+    font-size: 1.1em;
 }
 
 .login-form h2 {

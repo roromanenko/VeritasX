@@ -9,7 +9,6 @@ public class DataCollectionJobDtoProfile : Profile
 	public DataCollectionJobDtoProfile()
 	{
 		CreateMap<DataCollectionJob, DataCollectionJobDto>()
-		.ForMember(d => d.State, o => o.MapFrom(s => s.State.ToString()))
 		.ForMember(d => d.FromUtc, o => o.MapFrom(s => s.FromUtc.UtcDateTime))
 		.ForMember(d => d.ToUtc, o => o.MapFrom(s => s.ToUtc.UtcDateTime))
 		.ForMember(d => d.CreatedAt, o => o.MapFrom(s => s.CreatedAt.UtcDateTime))

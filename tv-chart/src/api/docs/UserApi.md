@@ -56,12 +56,12 @@ const { status, data } = await apiInstance.apiUserLoginPost(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Success |  -  |
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **apiUserMeGet**
-> UserResponseApiResponse apiUserMeGet()
+> UserDtoApiResponse apiUserMeGet()
 
 
 ### Example
@@ -84,7 +84,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**UserResponseApiResponse**
+**UserDtoApiResponse**
 
 ### Authorization
 
@@ -99,7 +99,7 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Success |  -  |
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -150,12 +150,12 @@ const { status, data } = await apiInstance.apiUserPasswordPut(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Success |  -  |
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **apiUserRegisterPost**
-> UserResponseApiResponse apiUserRegisterPost()
+> UserDtoApiResponse apiUserRegisterPost()
 
 
 ### Example
@@ -186,7 +186,7 @@ const { status, data } = await apiInstance.apiUserRegisterPost(
 
 ### Return type
 
-**UserResponseApiResponse**
+**UserDtoApiResponse**
 
 ### Authorization
 
@@ -201,7 +201,7 @@ const { status, data } = await apiInstance.apiUserRegisterPost(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Success |  -  |
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-api": "openapi-generator-cli generate -i http://localhost:5026/swagger/v1/swagger.json -g typescript-axios -o src/api"
+    "generate-api": "openapi-generator-cli generate -i http://localhost:21105/swagger/v1/swagger.json -g typescript-axios -o src/api"
   },
   "dependencies": {
     "@types/react-router-dom": "^5.3.3",
