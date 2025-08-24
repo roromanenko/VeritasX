@@ -23,8 +23,8 @@ public class JwtService : IJwtService
 	public string GenerateToken(User user)
 	{
 		ArgumentNullException.ThrowIfNull(user);
-		if (string.IsNullOrWhiteSpace(user.Id)) throw new ArgumentException("User.Id is required.", nameof(user));
-		if (string.IsNullOrWhiteSpace(user.Username)) throw new ArgumentException("User.Username is required.", nameof(user));
+		if (string.IsNullOrWhiteSpace(user.Id)) throw new ArgumentNullException("User.Id is required.", nameof(user));
+		if (string.IsNullOrWhiteSpace(user.Username)) throw new ArgumentNullException("User.Username is required.", nameof(user));
 
 		var claims = new List<Claim>
 		{
