@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using Core.Interfaces;
+using System.Collections.Concurrent;
 
 namespace Trading;
 

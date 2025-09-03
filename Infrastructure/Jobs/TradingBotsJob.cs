@@ -27,17 +27,7 @@ public class TradingBotsJob : BackgroundService
 			"BTC",
 			1000m);
 
-		var context = new TradingContext(new AccountContext("tess"), new TestPriceProvider());
-
-		await processor.Start(new RebalanceToTargetStrategy(),
-			"""
-			{
-				"Asset": "BTC",
-				"Threshold": 0.02
-			}
-			""",
-			context,
-			stoppingToken);
+		await processor.Start(stoppingToken);
 
 	}
 

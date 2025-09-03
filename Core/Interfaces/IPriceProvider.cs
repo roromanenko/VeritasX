@@ -12,4 +12,6 @@ public interface IPriceProvider
 		TimeSpan interval,
 		CancellationToken ct = default
 	);
+
+	Task<decimal> GetPriceAsync(string asset, string baseline, CancellationToken ct = default);
 }

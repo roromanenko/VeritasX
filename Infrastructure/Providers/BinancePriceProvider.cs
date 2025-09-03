@@ -77,4 +77,9 @@ public class BinancePriceProvider : IPriceProvider
 
 		return list;
 	}
+
+	public Task<decimal> GetPriceAsync(string asset, string baseline, CancellationToken ct = default)
+	{
+		return Task.FromResult(0m);
+	}
 }

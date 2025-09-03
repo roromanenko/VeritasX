@@ -4,21 +4,27 @@ namespace Trading.Strategies;
 
 public class RebalanceToTargetStrategy : ITradingStrategy
 {
-	public async Task<TradingSolution> CalculateNextStep(
-	string strategyConfigurationJson,
-	TradingContext context,
-	CancellationToken cancellationToken = default)
-	{
-		var cfg = RebalanceConfig.FromJson(strategyConfigurationJson);
-		var asset = cfg.Asset.ToUpperInvariant();
-		var baseline = context.Account.Baseline;
+	private readonly RebalanceConfig _config;
+	private readonly TradingContext _context;
 
-		var balances = context.Account.GetBalances();
+	public RebalanceToTargetStrategy(string strategyConfigurationJson,
+		TradingContext context)
+	{
+		_config = RebalanceConfig.FromJson(strategyConfigurationJson);
+		_context = context;
+	}
+
+	public async Task<TradingSolution> CalculateNextStep(CancellationToken cancellationToken = default)
+	{
+		var asset = _config.Asset.ToUpperInvariant();
+		var baseline = _context.Account.Baseline;
+
+		var balances = _context.Account.GetBalances();
 		balances.TryGetValue(asset, out var assetQty);
 		balances.TryGetValue(baseline, out var baselineQty);
 
-		var price = await context.GetPriceInBaselineAsync(asset, cancellationToken).ConfigureAwait(false);
-		var total = await context.GetTotalInBaseline(cancellationToken).ConfigureAwait(false);
+		var price = await _context.GetPriceInBaselineAsync(asset, cancellationToken).ConfigureAwait(false);
+		var total = await _context.GetTotalInBaseline(cancellationToken).ConfigureAwait(false);
 
 		// Nothing to do if portfolio is empty or price unavailable
 		if (total <= 0m || price <= 0m)
@@ -27,15 +33,15 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 		var currentValue = assetQty * price;
 		var currentWeight = currentValue / total;
 
-		var lower = cfg.TargetWeight - cfg.Threshold;
-		var upper = cfg.TargetWeight + cfg.Threshold;
+		var lower = _config.TargetWeight - _config.Threshold;
+		var upper = _config.TargetWeight + _config.Threshold;
 
 		// Inside band → do nothing
 		if (currentWeight >= lower && currentWeight <= upper)
 			return Noop(asset);
 
 		// Rebalance back to target exactly
-		var desiredValue = cfg.TargetWeight * total;
+		var desiredValue = _config.TargetWeight * total;
 		var deltaValue = desiredValue - currentValue; // >0 buy, <0 sell
 
 		if (deltaValue > 0m)
@@ -46,10 +52,10 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 			// Cap by available baseline (can't spend more than you have)
 			var maxBuyQty = baselineQty / price;
 			qtyToBuy = Math.Min(qtyToBuy, maxBuyQty);
-			if (!PassesGuards(qtyToBuy, price, cfg.MinQty, cfg.MinNotional))
+			if (!PassesGuards(qtyToBuy, price, _config.MinQty, _config.MinNotional))
 				return Noop(asset);
 
-			return new TradingSolution { Asset = asset, Quantity = qtyToBuy, Type = SolutionType.Buy };
+			return Buy(asset, qtyToBuy);
 		}
 		else
 		{
@@ -58,15 +64,19 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 
 			// Cap by current holdings
 			qtyToSell = Math.Min(qtyToSell, assetQty);
-			if (!PassesGuards(qtyToSell, price, cfg.MinQty, cfg.MinNotional))
+			if (!PassesGuards(qtyToSell, price, _config.MinQty, _config.MinNotional))
 				return Noop(asset);
 
-			return new TradingSolution { Asset = asset, Quantity = qtyToSell, Type = SolutionType.Sell };
+			return Sell(asset, qtyToSell);
 		}
 	}
 
 	private static TradingSolution Noop(string asset) =>
 		new TradingSolution { Asset = asset, Quantity = 0m, Type = SolutionType.Hold };
+	private static TradingSolution Buy(string asset, decimal quantity) =>
+		new TradingSolution { Asset = asset, Quantity = quantity, Type = SolutionType.Buy };
+	private static TradingSolution Sell(string asset, decimal quantity) =>
+		new TradingSolution { Asset = asset, Quantity = quantity, Type = SolutionType.Sell };
 
 	private static bool PassesGuards(decimal qty, decimal price, decimal? minQty, decimal? minNotional)
 	{
