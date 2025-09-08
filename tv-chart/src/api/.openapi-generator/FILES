@@ -16,6 +16,9 @@ docs/QueueDataCollectionRequest.md
 docs/QueueJobResponse.md
 docs/RegisterRequest.md
 docs/StringApiResponse.md
+docs/TradeOnHistoryDataRequest.md
+docs/TradingApi.md
+docs/TradingResultDto.md
 docs/UserApi.md
 docs/UserDto.md
 docs/UserDtoApiResponse.md

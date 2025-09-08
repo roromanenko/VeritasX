@@ -6,63 +6,70 @@ namespace Trading.Processors;
 
 public class TestTradingProcessor : ITradingProcessor
 {
-	private TradingContext _context;
-	private readonly ICandleChunkService _candleChunkService;
 	private readonly ITradingStrategy _strategy;
-	private readonly string _jobId;
-	private readonly string _baseline;
-	private readonly string _targetAsset;
+	private readonly IEnumerable<Candle> _candles;
+	private readonly DataCollectionJob _jobInfo;
 	private readonly decimal _initBaselineQuantity;
 
 	public TestTradingProcessor(
-		TradingContext context,
 		ITradingStrategy strategy,
-		ICandleChunkService candleChunkService,
-		string jobId,
-		string baseline,
-		string targetAsset,
+		IEnumerable<Candle> candels,
+		DataCollectionJob jobInfo,
 		decimal initBaselineQuantity)
 	{
-		_context = context;
-		_candleChunkService = candleChunkService;
 		_strategy = strategy;
-		_jobId = jobId;
-		_baseline = baseline;
-		_targetAsset = targetAsset;
+		_candles = candels;
+		_jobInfo = jobInfo;
 		_initBaselineQuantity = initBaselineQuantity;
 	}
 
-	public async Task Start(CancellationToken cancellationToken)
+	public async Task<TradingResult> Start(CancellationToken cancellationToken)
 	{
-		var candles = await _candleChunkService.GetCandlesByJobIdAsync(_jobId);
 		var testPriceProvider = new TestPriceProvider();
-		_context = new TradingContext(new AccountContext(_baseline), testPriceProvider);
-		_context.Account.SetBalance(_baseline, _initBaselineQuantity);
-		var startTotal = await _context.GetTotalInBaseline(cancellationToken);
+		var context = new TradingContext(new AccountContext(_jobInfo.QuoteAsset), testPriceProvider);
+		context.Account.SetBalance(_jobInfo.QuoteAsset, _initBaselineQuantity);
+		var startTotal = await context.GetTotalInBaseline(cancellationToken);
+		bool tradingStarted = false;
 
-		foreach (var candle in candles)
+		(decimal baselineQty, decimal targetQty) = (0, 0);
+		decimal currentPrice = 0;
+
+		foreach (var candle in _candles)
 		{
-			var currentPrice = candle.Close;
+			currentPrice = candle.Close;
 			testPriceProvider.SetPrice(currentPrice);
-			var solution = await _strategy.CalculateNextStep(cancellationToken);
+			var solution = await _strategy.CalculateNextStep(context, cancellationToken);
 
 			switch (solution.Type)
 			{
 				case SolutionType.Buy:
-					_context.Account.AdjustBalance(_baseline, -solution.Quantity * currentPrice);
-					_context.Account.AdjustBalance(_targetAsset, solution.Quantity);
+					context.Account.AdjustBalance(_jobInfo.QuoteAsset, -solution.Quantity * currentPrice);
+					context.Account.AdjustBalance(_jobInfo.BaseAsset, solution.Quantity);
 					break;
 				case SolutionType.Sell:
-					_context.Account.AdjustBalance(_baseline, solution.Quantity * currentPrice);
-					_context.Account.AdjustBalance(_targetAsset, -solution.Quantity);
+					context.Account.AdjustBalance(_jobInfo.QuoteAsset, solution.Quantity * currentPrice);
+					context.Account.AdjustBalance(_jobInfo.BaseAsset, -solution.Quantity);
 					break;
 				case SolutionType.Hold:
 					break;
 			}
+
+			if (!tradingStarted)
+			{
+				var balances = context.Account.GetBalances();
+				(baselineQty, targetQty) = (balances[_jobInfo.QuoteAsset], balances[_jobInfo.BaseAsset]);
+				tradingStarted = true;
+			}
 		}
 		
-		var endTotal = await _context.GetTotalInBaseline(cancellationToken);
-		Console.WriteLine($"Test completed. Start total: {startTotal}, End total: {endTotal}");
+		var endTotal = await context.GetTotalInBaseline(cancellationToken);
+		return new TradingResult
+		{
+			StartTotalInBaseline = startTotal,
+			EndTotalInBaseline = endTotal,
+			JustHoldTotalInBaseline = baselineQty + targetQty * currentPrice,
+			ProfitInBaseline = endTotal - startTotal,
+		};
 	}
 
 	public Task Stop(CancellationToken cancellationToken)

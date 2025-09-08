@@ -20,8 +20,8 @@ public class BinancePriceProvider : IPriceProvider
 	{
 		Console.WriteLine("Binance cache test");
 
-		long startMs = ((DateTimeOffset)fromUtc).ToUnixTimeMilliseconds();
-		long endMs = ((DateTimeOffset)toUtc).ToUnixTimeMilliseconds();
+		long startMs = fromUtc.ToUnixTimeMilliseconds();
+		long endMs = toUtc.ToUnixTimeMilliseconds();
 
 		string unit;
 		int value;

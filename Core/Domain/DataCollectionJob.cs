@@ -5,6 +5,8 @@ public sealed class DataCollectionJob
 	public required string Id { get; init; }
 	public required string UserId { get; init; }
 	public required string Symbol { get; init; }
+	public required string BaseAsset { get; set; }
+	public required string QuoteAsset { get; set; }
 	public required DateTimeOffset FromUtc { get; init; }
 	public required DateTimeOffset ToUtc { get; init; }
 	public required TimeSpan Interval { get; init; }

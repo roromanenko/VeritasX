@@ -349,6 +349,80 @@ export interface StringApiResponse {
 /**
  * 
  * @export
+ * @interface TradeOnHistoryDataRequest
+ */
+export interface TradeOnHistoryDataRequest {
+    /**
+     * 
+     * @type {number}
+     * @memberof TradeOnHistoryDataRequest
+     */
+    'targetWeight'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradeOnHistoryDataRequest
+     */
+    'threshold'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradeOnHistoryDataRequest
+     */
+    'minQty'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradeOnHistoryDataRequest
+     */
+    'minNotional'?: number | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TradeOnHistoryDataRequest
+     */
+    'jobId': string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradeOnHistoryDataRequest
+     */
+    'initBaselineQuantity'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface TradingResultDto
+ */
+export interface TradingResultDto {
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingResultDto
+     */
+    'startTotalInBaseline'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingResultDto
+     */
+    'endTotalInBaseline'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingResultDto
+     */
+    'profitInBaseline'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingResultDto
+     */
+    'justHoldTotalInBaseline'?: number;
+}
+/**
+ * 
+ * @export
  * @interface UserDto
  */
 export interface UserDto {
@@ -825,6 +899,113 @@ export class DataCollectionApi extends BaseAPI {
      */
     public apiDataCollectionQueuePost(queueDataCollectionRequest?: QueueDataCollectionRequest, options?: RawAxiosRequestConfig) {
         return DataCollectionApiFp(this.configuration).apiDataCollectionQueuePost(queueDataCollectionRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * TradingApi - axios parameter creator
+ * @export
+ */
+export const TradingApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {TradeOnHistoryDataRequest} [tradeOnHistoryDataRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTradingStartHistoryCheckPost: async (tradeOnHistoryDataRequest?: TradeOnHistoryDataRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/Trading/startHistoryCheck`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(tradeOnHistoryDataRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * TradingApi - functional programming interface
+ * @export
+ */
+export const TradingApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = TradingApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {TradeOnHistoryDataRequest} [tradeOnHistoryDataRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiTradingStartHistoryCheckPost(tradeOnHistoryDataRequest?: TradeOnHistoryDataRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TradingResultDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiTradingStartHistoryCheckPost(tradeOnHistoryDataRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TradingApi.apiTradingStartHistoryCheckPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * TradingApi - factory interface
+ * @export
+ */
+export const TradingApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = TradingApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {TradeOnHistoryDataRequest} [tradeOnHistoryDataRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTradingStartHistoryCheckPost(tradeOnHistoryDataRequest?: TradeOnHistoryDataRequest, options?: RawAxiosRequestConfig): AxiosPromise<TradingResultDto> {
+            return localVarFp.apiTradingStartHistoryCheckPost(tradeOnHistoryDataRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * TradingApi - object-oriented interface
+ * @export
+ * @class TradingApi
+ * @extends {BaseAPI}
+ */
+export class TradingApi extends BaseAPI {
+    /**
+     * 
+     * @param {TradeOnHistoryDataRequest} [tradeOnHistoryDataRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TradingApi
+     */
+    public apiTradingStartHistoryCheckPost(tradeOnHistoryDataRequest?: TradeOnHistoryDataRequest, options?: RawAxiosRequestConfig) {
+        return TradingApiFp(this.configuration).apiTradingStartHistoryCheckPost(tradeOnHistoryDataRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

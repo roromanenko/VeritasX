@@ -15,17 +15,20 @@ public class DataCollectionService : IDataCollectionService
 	private readonly IMongoDbContext _context;
 	private readonly ILogger<DataCollectionService> _logger;
 	private readonly IMapper _mapper;
+	private readonly ISymbolResolver _symbolResolver;
 	private readonly DataCollectorOptions _options;
 
 	public DataCollectionService(
 		IMongoDbContext context,
 		ILogger<DataCollectionService> logger,
 		IOptions<DataCollectorOptions> options,
-		IMapper mapper)
+		IMapper mapper,
+		ISymbolResolver symbolResolver)
 	{
 		_context = context;
 		_logger = logger;
 		_mapper = mapper;
+		_symbolResolver = symbolResolver;
 		_options = options.Value;
 	}
 
@@ -41,10 +44,13 @@ public class DataCollectionService : IDataCollectionService
 
 		fromUtc = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
 		toUtc = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
+		var symbolInfo = await _symbolResolver.ParseSymbolAsync(symbol);
 
 		var job = new DataCollectionJobDocument
 		{
 			Symbol = symbol,
+			BaseAsset = symbolInfo.BaseAsset,
+			QuoteAsset = symbolInfo.QuoteAsset,
 			FromUtc = fromUtc,
 			ToUtc = toUtc,
 			Interval = interval,

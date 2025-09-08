@@ -18,16 +18,20 @@ public class TradingBotsJob : BackgroundService
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-		using var scope = _serviceProvider.CreateScope();
+		//using var scope = _serviceProvider.CreateScope();
 
-		ITradingProcessor processor = new TestTradingProcessor(
-			scope.ServiceProvider.GetRequiredService<ICandleChunkService>(),
-			"68a1f2b636456817db50afd2",
-			"USD",
-			"BTC",
-			1000m);
+		//var tradingContext = new TradingContext(
+		//	new AccountContext("USDT"),
+		//	scope.ServiceProvider.GetRequiredService<IPriceProvider>());
 
-		await processor.Start(stoppingToken);
+		//ITradingProcessor processor = new TestTradingProcessor(
+		//	scope.ServiceProvider.GetRequiredService<ICandleChunkService>(),
+		//	"68a1f2b636456817db50afd2",
+		//	"USD",
+		//	"BTC",
+		//	1000m);
+
+		//await processor.Start(stoppingToken);
 
 	}
 

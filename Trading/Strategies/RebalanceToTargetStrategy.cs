@@ -5,26 +5,23 @@ namespace Trading.Strategies;
 public class RebalanceToTargetStrategy : ITradingStrategy
 {
 	private readonly RebalanceConfig _config;
-	private readonly TradingContext _context;
 
-	public RebalanceToTargetStrategy(string strategyConfigurationJson,
-		TradingContext context)
+	public RebalanceToTargetStrategy(RebalanceConfig config)
 	{
-		_config = RebalanceConfig.FromJson(strategyConfigurationJson);
-		_context = context;
+		_config = config;
 	}
 
-	public async Task<TradingSolution> CalculateNextStep(CancellationToken cancellationToken = default)
+	public async Task<TradingSolution> CalculateNextStep(TradingContext context, CancellationToken cancellationToken = default)
 	{
 		var asset = _config.Asset.ToUpperInvariant();
-		var baseline = _context.Account.Baseline;
+		var baseline = context.Account.Baseline;
 
-		var balances = _context.Account.GetBalances();
+		var balances = context.Account.GetBalances();
 		balances.TryGetValue(asset, out var assetQty);
 		balances.TryGetValue(baseline, out var baselineQty);
 
-		var price = await _context.GetPriceInBaselineAsync(asset, cancellationToken).ConfigureAwait(false);
-		var total = await _context.GetTotalInBaseline(cancellationToken).ConfigureAwait(false);
+		var price = await context.GetPriceInBaselineAsync(asset, cancellationToken).ConfigureAwait(false);
+		var total = await context.GetTotalInBaseline(cancellationToken).ConfigureAwait(false);
 
 		// Nothing to do if portfolio is empty or price unavailable
 		if (total <= 0m || price <= 0m)

@@ -2,7 +2,7 @@
 
 public interface ITradingStrategy
 {
-	Task<TradingSolution> CalculateNextStep(CancellationToken cancellationToken = default);
+	Task<TradingSolution> CalculateNextStep(TradingContext context, CancellationToken cancellationToken = default);
 }
 
 public class TradingSolution

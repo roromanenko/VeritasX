@@ -60,11 +60,7 @@ public static class ServiceCollectionExtensions
 
 	private static IServiceCollection AddHttpServices(this IServiceCollection services)
 	{
-		services.AddHttpClient<BinancePriceProvider>(client =>
-		{
-			client.BaseAddress = new Uri("https://api.binance.com/");
-			client.Timeout = TimeSpan.FromSeconds(30);
-		});
+		services.AddHttpClient();
 
 		return services;
 	}
@@ -120,7 +116,7 @@ public static class ServiceCollectionExtensions
 	private static IServiceCollection AddBusinessServices(this IServiceCollection services)
 	{
 		services.AddScoped<IPriceProvider, BinancePriceProvider>();
-		services.AddScoped<ICachedPriceProvider, CachedPriceProvider>();
+		services.AddScoped<ISymbolResolver, BinanceSymbolResolver>();
 
 		return services;
 	}

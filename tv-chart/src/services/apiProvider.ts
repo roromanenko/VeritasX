@@ -1,12 +1,13 @@
 import { AxiosInstance } from 'axios';
 import axios from 'axios';
-import { Configuration, DataCollectionApi, UserApi } from '../api';
+import { Configuration, DataCollectionApi, TradingApi, UserApi } from '../api';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 type ApiProvider = {
   getUserApi: () => UserApi;
   getDataCollectionApi: () => DataCollectionApi;
+  getTradingApi: () => TradingApi;
 };
 
 const ApiProvider = (): ApiProvider => {
@@ -28,6 +29,10 @@ const ApiProvider = (): ApiProvider => {
 
     function getDataCollectionApi(){
         return new DataCollectionApi(config, config.basePath, getAxiosInstance(config.basePath!));
+    }
+
+    function getTradingApi(){
+        return new TradingApi(config, config.basePath, getAxiosInstance(config.basePath!));
     }
 
     function getAxiosInstance(basePath: string): AxiosInstance {
@@ -56,7 +61,8 @@ const ApiProvider = (): ApiProvider => {
 
     return {
         getUserApi,
-        getDataCollectionApi
+        getDataCollectionApi,
+        getTradingApi
     }
 }
 
