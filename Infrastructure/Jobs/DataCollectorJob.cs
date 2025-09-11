@@ -1,19 +1,23 @@
+using Core.Domain;
+using Core.Interfaces;
+using Core.Options;
+using Infrastructure.Hubs;
+using Infrastructure.Persistence.Entities;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
-using Core.Domain;
-using Core.Options;
-using Core.Interfaces;
-using Infrastructure.Persistence.Entities;
 using MongoDB.Bson;
+using System.Collections.Concurrent;
 
 namespace Infrastructure.Jobs;
 
 public class DataCollectorBackgroundService : BackgroundService
 {
 	private readonly IServiceProvider _serviceProvider;
+	private readonly IHubContext<JobProgressHub> _hubContext;
+
 	private readonly ILogger<DataCollectorBackgroundService> _logger;
 	private readonly DataCollectorOptions _options;
 	private readonly SemaphoreSlim _rateLimitSemaphore;
@@ -21,10 +25,13 @@ public class DataCollectorBackgroundService : BackgroundService
 
 	public DataCollectorBackgroundService(
 		IServiceProvider serviceProvider,
+		IHubContext<JobProgressHub> hubContext,
 		ILogger<DataCollectorBackgroundService> logger,
 		IOptions<DataCollectorOptions> options)
 	{
 		_serviceProvider = serviceProvider;
+		_hubContext = hubContext;
+
 		_logger = logger;
 		_options = options.Value;
 		_rateLimitSemaphore = new SemaphoreSlim(_options.RequestsPerMinute, _options.RequestsPerMinute);
@@ -57,8 +64,8 @@ public class DataCollectorBackgroundService : BackgroundService
 			{
 				using var scope = _serviceProvider.CreateScope();
 				var dataService = scope.ServiceProvider.GetRequiredService<IDataCollectionService>();
-
-				var job = await dataService.GetNextPendingJobAsync();
+				var interruptedJob = await dataService.GetInterruptedJobAsync(_activeJobs.Keys.ToList());
+				var job = interruptedJob ?? await dataService.GetNextPendingJobAsync();
 				if (job != null)
 				{
 					_activeJobs[job.Id] = job;
@@ -105,7 +112,7 @@ public class DataCollectorBackgroundService : BackgroundService
 				}
 
 				var candles = await ProcessChunkAsync(chunk, job, priceProvider, dataService, cancellationToken);
-
+				await NotifyProgressAsync(job);
 				if (candles.Any())
 				{
 					// Создаем и сохраняем чанк с данными
@@ -129,6 +136,7 @@ public class DataCollectorBackgroundService : BackgroundService
 
 			job.State = CollectionState.Completed;
 			job.CompletedAt = DateTimeOffset.UtcNow;
+			await NotifyProgressAsync(job);
 
 			_logger.LogInformation("Completed job {JobId} for {Symbol}. Collected {CandleCount} candles in {ChunkCount} chunks",
 				job.Id, job.Symbol, totalCandles, job.CompletedChunks);
@@ -205,5 +213,11 @@ public class DataCollectorBackgroundService : BackgroundService
 		}
 
 		return [];
+	}
+
+	private async Task NotifyProgressAsync(DataCollectionJob job)
+	{
+		await _hubContext.Clients.Group($"job-{job.Id}")
+			.SendAsync("JobProgress", job);
 	}
 }

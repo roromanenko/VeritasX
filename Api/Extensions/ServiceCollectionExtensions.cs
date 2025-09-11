@@ -15,6 +15,9 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using VeritasX.Api.Extensions;
 
 namespace Api.Extensions;
 
@@ -88,6 +91,13 @@ public static class ServiceCollectionExtensions
 			cfg.AddProfile<UserDtoProfile>();
 			cfg.AddProfile<DataCollectionJobDtoProfile>();
 		});
+
+		services.AddSignalR()
+			.AddJsonProtocol(options =>
+			{
+				options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+				options.PayloadSerializerOptions.Converters.Add(new TimeSpanConverter());
+			});
 
 		return services;
 	}

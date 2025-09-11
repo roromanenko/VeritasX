@@ -111,6 +111,17 @@ public class DataCollectionService : IDataCollectionService
 		return doc is null ? null : _mapper.Map<DataCollectionJob>(doc);
 	}
 
+	public async Task<DataCollectionJob?> GetInterruptedJobAsync(List<string> activeJobIds)
+	{
+		var parsedIds = activeJobIds.Select(x => ObjectId.Parse(x));
+		var doc = await _context.GetCollection<DataCollectionJobDocument>("data_collection_jobs")
+								.Find(j => j.State == CollectionState.InProgress
+									&& !parsedIds.Contains(j.Id))
+								.SortBy(j => j.CreatedAt)
+								.FirstOrDefaultAsync();
+		return doc is null ? null : _mapper.Map<DataCollectionJob>(doc);
+	}
+
 	public async Task CancelJobAsync(string jobIdStr)
 	{
 		if (!ObjectId.TryParse(jobIdStr, out var jobId))

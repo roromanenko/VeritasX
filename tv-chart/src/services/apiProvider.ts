@@ -3,11 +3,13 @@ import axios from 'axios';
 import { Configuration, DataCollectionApi, TradingApi, UserApi } from '../api';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 
 type ApiProvider = {
   getUserApi: () => UserApi;
   getDataCollectionApi: () => DataCollectionApi;
   getTradingApi: () => TradingApi;
+  getJobProgressHub: () => HubConnection;
 };
 
 const ApiProvider = (): ApiProvider => {
@@ -59,10 +61,21 @@ const ApiProvider = (): ApiProvider => {
         return instance;
     }
 
+    function getJobProgressHub(): HubConnection {
+        const connection = new HubConnectionBuilder()
+            .withUrl(`${config.basePath}/jobProgressHub`, { accessTokenFactory: () => authToken || '' })
+            .configureLogging(LogLevel.Information)
+            .withAutomaticReconnect()
+            .build();
+
+        return connection;
+    }
+
     return {
         getUserApi,
         getDataCollectionApi,
-        getTradingApi
+        getTradingApi,
+        getJobProgressHub
     }
 }
 

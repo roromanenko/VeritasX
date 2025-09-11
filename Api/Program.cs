@@ -1,4 +1,5 @@
 using Api.Extensions;
+using Infrastructure.Hubs;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
@@ -79,5 +80,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapHub<JobProgressHub>("/jobProgressHub");
 
 app.Run();

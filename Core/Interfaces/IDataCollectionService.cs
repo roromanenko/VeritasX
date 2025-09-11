@@ -10,6 +10,7 @@ public interface IDataCollectionService
 	Task<DataCollectionJob?> GetJobAsync(string jobIdStr, string userIdStr);
 	Task<IEnumerable<DataCollectionJob>> GetActiveJobsAsync();
 	Task<DataCollectionJob?> GetNextPendingJobAsync();
+	Task<DataCollectionJob?> GetInterruptedJobAsync(List<string> activeJobIds);
 	Task CancelJobAsync(string jobIdStr);
 	Task UpdateJobAsync(DataCollectionJob job);
 }
