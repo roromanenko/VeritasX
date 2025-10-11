@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Infrastructure.Tests
+namespace Infrastructure.Tests.ServicesTests
 
 {
 	public class JwtServiceTests
@@ -63,7 +63,7 @@ namespace Infrastructure.Tests
 			var user = new User { Id = badId, Username = "euhene", PasswordHash = "some_password_hash" };
 			var exeption = Assert.Throws<ArgumentNullException>(() => sut.GenerateToken(user));
 
-			Assert.Equal("User.Id is required.", exeption.ParamName);
+			Assert.Contains("User.Id is required.", exeption.Message);
 		}
 
 		[Theory]
@@ -76,7 +76,7 @@ namespace Infrastructure.Tests
 			var user = new User { Id = "GoodId", Username = badUsername, PasswordHash = "some_password_hash" };
 			var exeption = Assert.Throws<ArgumentNullException>(() => sut.GenerateToken(user));
 
-			Assert.Equal("User.Username is required.", exeption.ParamName);
+			Assert.Contains("User.Username is required.", exeption.Message);
 		}
 
 		[Fact]

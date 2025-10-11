@@ -60,7 +60,10 @@ public class UserService : IUserService
 	public async Task<User> GetUserById(string userId)
 	{
 		UserEntity userEntity = await _userRepository.GetUserById(ObjectId.Parse(userId));
-		return _mapper.Map<User>(userEntity);
+
+		return userEntity is null
+			? throw new KeyNotFoundException($"User with ID '{userId}' was not found.")
+			: _mapper.Map<User>(userEntity);
 	}
 
 	public async Task UpdateUser(User user)
