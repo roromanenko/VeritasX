@@ -1,18 +1,19 @@
-namespace Core.Domain;
-
-public enum CollectionState
+namespace Core.Domain
 {
-	Pending,
-	InProgress,
-	Completed,
-	Failed,
-	Cancelled
-}
+	public enum CollectionState
+	{
+		Pending,
+		InProgress,
+		Completed,
+		Failed,
+		Cancelled
+	}
 
-public enum ChunkState
-{
-	Pending,
-	InProgress,
-	Completed,
-	Failed
+	public enum ChunkState
+	{
+		Pending,
+		InProgress,
+		Completed,
+		Failed
+	}
 }
