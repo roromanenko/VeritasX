@@ -118,6 +118,7 @@ public static class ServiceCollectionExtensions
 
 		services.AddScoped<IMongoDbContext, MongoDbContext>();
 		services.AddScoped<IUserRepository, UserRepository>();
+		services.AddScoped<ITradeRepository, TradeRepository>();
 		services.AddScoped<IDatabaseCleanupRepository, DatabaseCleanupRepository>();
 
 		return services;

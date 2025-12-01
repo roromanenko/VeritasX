@@ -13,8 +13,12 @@ namespace Core.Domain
 	/// </summary>
 	public sealed class Trade
 	{
-		public required string OrderId { get; set; }
+		public required string Id { get; init; }
+		public string? UserId { get; init; }
+		public required ExchangeName Exchange { get; init; }
+		public required string ExchangeOrderId { get; set; }
 		public required string ExchangeTradeId { get; set; }
+		public bool IsTestnet { get; init; }
 
 		public required string Symbol { get; set; }
 		public OrderSide Side { get; set; }

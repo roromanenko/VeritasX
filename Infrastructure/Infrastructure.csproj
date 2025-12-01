@@ -24,8 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Exchanges\Binance\Api\" />
-    <Folder Include="Exchanges\Binance\Internal\" />
+    <Folder Include="Exchanges\Binance\Models\Api\" />
+    <Folder Include="Exchanges\Binance\Models\Internal\" />
+    <Folder Include="Exchanges\Binance\Models\" />
   </ItemGroup>
 
 </Project>

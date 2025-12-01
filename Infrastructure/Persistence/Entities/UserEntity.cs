@@ -19,5 +19,5 @@ public class UserEntity
 	public List<string> Roles { get; set; } = [];
 
 	[BsonIgnoreIfNull]
-	public List<Credentials>? Credentials { get; set; }
+	public List<ExchangeConnection>? ExchangeConnections { get; set; }
 }

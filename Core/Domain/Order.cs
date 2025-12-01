@@ -20,7 +20,7 @@ namespace Core.Domain
 		public required string Id { get; set; }
 		public string? UserId { get; set; }
 		public required string ExchangeOrderId { get; set; }
-		public required string Exchange { get; set; }
+		public required ExchangeName Exchange { get; set; }
 
 		//Main info
 		public required string Symbol { get; set; }
