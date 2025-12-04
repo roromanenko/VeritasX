@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Core.Domain
+﻿namespace Core.Domain
 {
 	public class ExchangeConnection
 	{
-		public required ExchangeName ExchangeName { get; set; }
-		public required string AccessToken { get; set; }
-		public required string RefreshToken { get; set; }
-		public int AccessTokenExpiresInSeconds { get; set; }
-		public int RefreshTokenExpiresInSeconds { get; set; }
-		public string? Scope { get; set; }
+		public required string ApiKey { get; set; }
+		public required string SecretKey { get; set; }
 		public bool IsTestnet { get; set; } = true;
-		public DateTimeOffset RefreshedDate { get; set; } = DateTimeOffset.UtcNow;
+		public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+		public DateTimeOffset? LastUsedAt { get; set; }
 	}
 
 	public enum ExchangeName

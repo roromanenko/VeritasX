@@ -1,11 +1,10 @@
 using Core.Interfaces;
-using Infrastructure.Persistence.Entities;
-using Infrastructure.Persistence.MongoDb;
 using Core.Options;
-using Microsoft.Extensions.Options;
-using MongoDB.Driver;
-using MongoDB.Bson;
 using Infrastructure.Interfaces;
+using Infrastructure.Persistence.Entities;
+using Microsoft.Extensions.Options;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Infrastructure.Persistence.Repositories;
 

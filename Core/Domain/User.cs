@@ -6,6 +6,6 @@
 		public required string Username { get; set; }
 		public required string PasswordHash { get; set; }
 		public List<string> Roles { get; set; } = [];
-		public List<ExchangeConnection>? ExchangeConnections { get; set; }
+		public Dictionary<ExchangeName, ExchangeConnection>? ExchangeConnections { get; set; }
 	}
 }
