@@ -1,6 +1,7 @@
 using Api.Mapping;
 using Core.Interfaces;
 using Core.Options;
+using Infrastructure.Exchanges.Binance.Models;
 using Infrastructure.Interfaces;
 using Infrastructure.Jobs;
 using Infrastructure.Mapping.Profiles;
@@ -12,12 +13,14 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using VeritasX.Api.Extensions;
+using BinanceNet = Binance.Net;
 
 namespace Api.Extensions;
 
@@ -27,7 +30,7 @@ public static class ServiceCollectionExtensions
 	{
 		services.AddCachingServices(configuration);
 		services.AddHttpServices();
-		services.AddBusinessServices();
+		services.AddBusinessServices(configuration);
 		services.AddApplicationServices(configuration);
 		services.AddMongoDbServices(configuration);
 		services.AddJwtAuthentication(configuration);
@@ -87,9 +90,10 @@ public static class ServiceCollectionExtensions
 			cfg.AddProfile<DataChunkProfile>();
 			cfg.AddProfile<DataCollectionJobProfile>();
 			cfg.AddProfile<UserProfile>();
-			cfg.AddProfile<CandleDtoProfile>();
+			cfg.AddProfile<ExchangeDtoProfile>();
 			cfg.AddProfile<UserDtoProfile>();
 			cfg.AddProfile<DataCollectionJobDtoProfile>();
+			cfg.AddProfile<BinanceProfile>();
 		});
 
 		services.AddSignalR()
@@ -124,10 +128,29 @@ public static class ServiceCollectionExtensions
 		return services;
 	}
 
-	private static IServiceCollection AddBusinessServices(this IServiceCollection services)
+	private static IServiceCollection AddBusinessServices(this IServiceCollection services, IConfiguration configuration)
 	{
+		services.Configure<BinanceConfig>(configuration.GetSection(nameof(BinanceConfig)));
+
 		services.AddScoped<IPriceProvider, BinancePriceProvider>();
 		services.AddScoped<ISymbolResolver, BinanceSymbolResolver>();
+
+		var config = configuration.GetSection(nameof(BinanceConfig)).Get<BinanceConfig>()!;
+
+		services.AddBinance(options =>
+		{
+			if (config.UseTestnet)
+			{
+				options.Environment = BinanceNet.BinanceEnvironment.Testnet;
+			}
+
+			options.ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(
+				config.ApiKey,
+				config.SecretKey
+			);
+		});
+
+		services.AddScoped<Core.Interfaces.IExchangeService, Infrastructure.Exchanges.Binance.Services.BinanceService>();
 
 		return services;
 	}

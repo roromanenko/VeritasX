@@ -14,11 +14,11 @@ namespace Core.Domain
 	public sealed class Trade
 	{
 		public required string Id { get; init; }
-		public string? UserId { get; init; }
+		public string? UserId { get; set; }
 		public required ExchangeName Exchange { get; init; }
 		public required string ExchangeOrderId { get; set; }
 		public required string ExchangeTradeId { get; set; }
-		public bool IsTestnet { get; init; }
+		public bool IsTestnet { get; set; }
 
 		public required string Symbol { get; set; }
 		public OrderSide Side { get; set; }
