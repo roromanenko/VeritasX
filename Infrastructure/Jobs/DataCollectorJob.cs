@@ -13,9 +13,15 @@ using System.Collections.Concurrent;
 
 namespace Infrastructure.Jobs;
 
+/// <summary>
+/// Background service that manages concurrent data collection jobs, fetching historical candle data
+/// from a price provider and persisting it as chunks. <br/>
+/// Supports job prioritization by resuming interrupted jobs before picking up new pending ones, enforces configurable rate limiting
+/// on external API requests, and broadcasts real-time progress updates via SignalR.
+/// </summary>
 public class DataCollectorBackgroundService : BackgroundService
 {
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IServiceScopeFactory _scopeFactory;
 	private readonly IHubContext<JobProgressHub> _hubContext;
 
 	private readonly ILogger<DataCollectorBackgroundService> _logger;
@@ -24,12 +30,12 @@ public class DataCollectorBackgroundService : BackgroundService
 	private readonly ConcurrentDictionary<string, DataCollectionJob> _activeJobs = new();
 
 	public DataCollectorBackgroundService(
-		IServiceProvider serviceProvider,
+        IServiceScopeFactory scopeFactory,
 		IHubContext<JobProgressHub> hubContext,
 		ILogger<DataCollectorBackgroundService> logger,
 		IOptions<DataCollectorOptions> options)
 	{
-		_serviceProvider = serviceProvider;
+        _scopeFactory = scopeFactory;
 		_hubContext = hubContext;
 
 		_logger = logger;
@@ -62,7 +68,7 @@ public class DataCollectorBackgroundService : BackgroundService
 			// Проверяем, можем ли взять новое задание
 			if (_activeJobs.Count < _options.MaxConcurrentJobs)
 			{
-				using var scope = _serviceProvider.CreateScope();
+				using var scope = _scopeFactory.CreateScope();
 				var dataService = scope.ServiceProvider.GetRequiredService<IDataCollectionService>();
 				var interruptedJob = await dataService.GetInterruptedJobAsync(_activeJobs.Keys.ToList());
 				var job = interruptedJob ?? await dataService.GetNextPendingJobAsync();
@@ -82,14 +88,22 @@ public class DataCollectorBackgroundService : BackgroundService
 		await Task.WhenAll(tasks);
 	}
 
-	private async Task ProcessJobAsync(DataCollectionJob job, CancellationToken cancellationToken)
+    /// <summary>
+    /// Executes a single data collection job by iterating over its incomplete chunks,
+    /// fetching candle data from the price provider, and persisting each chunk to storage.<br/>
+    /// Updates job state throughout the lifecycle and notifies connected clients of progress.
+    /// On failure, marks the job as <see cref="CollectionState.Failed"/> and records the error message.
+    /// </summary>
+    /// <param name="job">The data collection job to process.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    private async Task ProcessJobAsync(DataCollectionJob job, CancellationToken cancellationToken)
 	{
 		try
 		{
 			job.State = CollectionState.InProgress;
 			job.StartedAt = DateTimeOffset.UtcNow;
 
-			using var scope = _serviceProvider.CreateScope();
+			using var scope = _scopeFactory.CreateScope();
 			var dataService = scope.ServiceProvider.GetRequiredService<IDataCollectionService>();
 			var chunkService = scope.ServiceProvider.GetRequiredService<ICandleChunkService>();
 			await dataService.UpdateJobAsync(job);
@@ -149,7 +163,7 @@ public class DataCollectorBackgroundService : BackgroundService
 		}
 		finally
 		{
-			using var scope = _serviceProvider.CreateScope();
+			using var scope = _scopeFactory.CreateScope();
 			var dataService = scope.ServiceProvider.GetRequiredService<IDataCollectionService>();
 			await dataService.UpdateJobAsync(job);
 
@@ -157,7 +171,18 @@ public class DataCollectorBackgroundService : BackgroundService
 		}
 	}
 
-	private async Task<IEnumerable<Candle>> ProcessChunkAsync(
+    /// <summary>
+    /// Fetches candle data for a single time-range chunk with retry logic and rate limiting.
+    /// Retries up to <see cref="DataCollectorOptions.RetryAttempts"/> times using exponential backoff.<br/>
+    /// Returns an empty collection if all retry attempts are exhausted.
+    /// </summary>
+    /// <param name="chunk">The time-range chunk to fetch data for.</param>
+    /// <param name="job">The parent job that owns this chunk.</param>
+    /// <param name="priceProvider">The external data source used to retrieve candle history.</param>
+    /// <param name="dataService">Service used to persist updated job state after each chunk.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A collection of candles for the given chunk, or an empty collection on failure.</returns>
+    private async Task<IEnumerable<Candle>> ProcessChunkAsync(
 		DataChunk chunk,
 		DataCollectionJob job,
 		IPriceProvider priceProvider,

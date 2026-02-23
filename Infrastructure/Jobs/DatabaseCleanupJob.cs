@@ -7,18 +7,23 @@ using Core.Options;
 
 namespace Infrastructure.Jobs;
 
+/// <summary>
+/// Background service that periodically removes outdated completed jobs and their associated data chunks from the database.<br/>
+/// Runs on a configurable interval and processes records in batches to minimize database load. <br/>
+/// Can be disabled via <see cref="DatabaseCleanupOptions.EnabledCleanupService"/>.
+/// </summary>
 public class DatabaseCleanupJob : BackgroundService
 {
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IServiceScopeFactory _scopeFactory;
 	private readonly ILogger<DatabaseCleanupJob> _logger;
 	private readonly DatabaseCleanupOptions _options;
 
 	public DatabaseCleanupJob(
-		IServiceProvider serviceProvider,
+        IServiceScopeFactory scopeFactory,
 		ILogger<DatabaseCleanupJob> logger,
 		IOptions<DatabaseCleanupOptions> options)
 	{
-		_serviceProvider = serviceProvider;
+        _scopeFactory = scopeFactory;
 		_logger = logger;
 		_options = options.Value;
 	}
@@ -49,9 +54,14 @@ public class DatabaseCleanupJob : BackgroundService
 		}
 	}
 
-	private async Task CleanupDatabaseAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// Performs a single cleanup cycle by deleting completed jobs older than the configured retention period
+    /// and their associated candle chunks, processing records in batches.
+    /// </summary>
+    /// <param name="cancellationToken">Token used to cancel the cleanup operation.</param>
+    private async Task CleanupDatabaseAsync(CancellationToken cancellationToken)
 	{
-		using var scope = _serviceProvider.CreateScope();
+		using var scope = _scopeFactory.CreateScope();
 		var cleanupRepository = scope.ServiceProvider.GetRequiredService<IDatabaseCleanupRepository>();
 
 		var cutoffDate = DateTime.UtcNow - _options.MaxRecordAge;

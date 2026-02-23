@@ -17,4 +17,17 @@ public class TradingResultDto
 	public decimal EndTotalInBaseline { get; set; }
 	public decimal ProfitInBaseline { get; set; }
 	public decimal JustHoldTotalInBaseline { get; set; }
+
+	/// <summary>
+	/// Annualized Sharpe ratio of the strategy, calculated from per-candle portfolio returns.<br/>
+	/// Measures risk-adjusted performance — how much return is generated per unit of volatility.<br/>
+	/// Higher values indicate better return relative to risk.
+	/// </summary>
+	public decimal SharpeStrategy { get; set; }
+
+	/// <summary>
+	/// Annualized Sharpe ratio of the passive buy-and-hold benchmark, calculated from per-candle portfolio returns.<br/>
+	/// Used as a baseline to evaluate whether the rebalancing strategy delivers superior risk-adjusted performance.
+	/// </summary>
+	public decimal SharpeHold { get; set; }
 }

@@ -15,16 +15,15 @@ namespace Core.Interfaces
 
 		// Market Data
 		Task<TradingPair?> GetTradingPairInfo(string symbol, CancellationToken cancellationToken = default);
-		Task<Price?> GetPrice(string symbol, CancellationToken cancellationToken = default);
-		Task<List<Candle>> GetCandles(string symbol, string interval, DateTime? startTime = null, DateTime? endTime = null, int limit = 500, CancellationToken cancellationToken = default);
+		Task<Price> GetPrice(string symbol, CancellationToken cancellationToken = default);
 
 		// Account
-		Task<Portfolio?> GetPortfolio(string userId, CancellationToken cancellationToken = default);
+		Task<Portfolio> GetPortfolio(string userId, CancellationToken cancellationToken = default);
 
 		// Orders
-		Task<Order?> PlaceOrder(Order order, CancellationToken cancellationToken = default);
-		Task<Order?> GetOrder(string symbol, long orderId, CancellationToken cancellationToken = default);
-		Task<Order?> CancelOrder(string symbol, long orderId, CancellationToken cancellationToken = default);
+		Task<Order> PlaceOrder(Order order, CancellationToken cancellationToken = default);
+		Task<Order> GetOrder(string symbol, long orderId, CancellationToken cancellationToken = default);
+		Task<Order> CancelOrder(string symbol, long orderId, CancellationToken cancellationToken = default);
 		Task<List<Order>> GetOpenOrders(string? symbol = null, CancellationToken cancellationToken = default);
 
 		// Trades

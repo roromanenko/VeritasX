@@ -36,31 +36,39 @@ namespace Infrastructure.Exchanges.Binance.Services
 		}
 
 		/// <summary>
-		/// Gets the current server time from Binance.
+		/// Retrieves the current server time from Binance.
 		/// </summary>
-		/// <returns>
-		/// Server time in Unix milliseconds, or 0 if request fails.
-		/// </returns>
+		/// <param name="cancellationToken">Token used to cancel the operation.</param>
+		/// <returns>Server time as Unix timestamp in milliseconds.</returns>
+		/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to return server time.</exception>
 		public async Task<long> GetServerTime(CancellationToken cancellationToken = default)
 		{
 			var result = await _client.SpotApi.ExchangeData.GetServerTimeAsync(cancellationToken);
-			return result.Success ? new DateTimeOffset(result.Data).ToUnixTimeMilliseconds() : 0;
+
+			if (!result.Success)
+				throw new InvalidOperationException($"Failed to retrieve server time from Binance: {result.Error?.Message}");
+
+			return new DateTimeOffset(result.Data).ToUnixTimeMilliseconds();
 		}
 
 		/// <summary>
-		/// Retrieves trading pair information including price and quantity constraints.
+		/// Retrieves trading pair information including price and quantity constraints from Binance.
 		/// </summary>
-		/// <param name="symbol">
-		/// Trading pair symbol (e.g., "BTCUSDT").
-		/// </param>
+		/// <param name="symbol">Trading pair symbol (e.g. "BTCUSDT").</param>
+		/// <param name="cancellationToken">Token used to cancel the operation.</param>
 		/// <returns>
-		/// Trading pair details, or null if symbol not found.
+		/// Trading pair details with filters and constraints,
+		/// or <see langword="null"/> if the symbol does not exist on Binance.
 		/// </returns>
+		/// <exception cref="InvalidOperationException">Thrown when the Binance API returns an unexpected error.</exception>
 		public async Task<TradingPair?> GetTradingPairInfo(string symbol, CancellationToken cancellationToken = default)
 		{
 			var result = await _client.SpotApi.ExchangeData.GetExchangeInfoAsync(symbol, ct: cancellationToken);
 
-			if (!result.Success || result.Data.Symbols.Length == 0)
+			if (!result.Success)
+				throw new InvalidOperationException($"Failed to retrieve exchange info for '{symbol}': {result.Error?.Message}");
+
+			if (result.Data.Symbols.Length == 0)
 				return null;
 
 			var binanceSymbol = result.Data.Symbols[0];
@@ -84,20 +92,18 @@ namespace Infrastructure.Exchanges.Binance.Services
 		}
 
 		/// <summary>
-		/// Gets the current price information for a trading pair.
+		/// Retrieves the current ticker price for the specified trading pair from Binance.
 		/// </summary>
-		/// <param name="symbol">
-		/// Trading pair symbol (e.g., "BTCUSDT").
-		/// </param>
-		/// <returns>
-		/// Current price data including bid/ask prices, or null if request fails.
-		/// </returns>
-		public async Task<Price?> GetPrice(string symbol, CancellationToken cancellationToken = default)
+		/// <param name="symbol">Trading pair symbol (e.g. "BTCUSDT").</param>
+		/// <param name="cancellationToken">Token used to cancel the operation.</param>
+		/// <returns>Current price data including last, bid, and ask prices.</returns>
+		/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to return ticker data.</exception>
+		public async Task<Price> GetPrice(string symbol, CancellationToken cancellationToken = default)
 		{
 			var result = await _client.SpotApi.ExchangeData.GetTickerAsync(symbol, cancellationToken);
 
 			if (!result.Success)
-				return null;
+				throw new InvalidOperationException($"Failed to retrieve price for '{symbol}': {result.Error?.Message}");
 
 			return new Price
 			{
@@ -111,44 +117,18 @@ namespace Infrastructure.Exchanges.Binance.Services
 		}
 
 		/// <summary>
-		/// Retrieves historical candlestick data for a trading pair.
+		/// Retrieves the user's portfolio including all non-zero asset balances from Binance.
 		/// </summary>
-		/// <param name="symbol">Trading pair symbol (e.g., "BTCUSDT").</param>
-		/// <param name="interval">Candle interval (e.g., "1m", "1h", "1d").</param>
-		/// <param name="startTime">Optional start time for data range.</param>
-		/// <param name="endTime">Optional end time for data range.</param>
-		/// <param name="limit">Maximum number of candles to retrieve (default: 500).</param>
-		/// <returns>List of candles, or empty list if request fails.</returns>
-		public async Task<List<Candle>> GetCandles(string symbol, string interval, DateTime? startTime = null, DateTime? endTime = null, int limit = 500, CancellationToken cancellationToken = default)
-		{
-			var klineInterval = BinanceHelpers.ParseInterval(interval);
-			var result = await _client.SpotApi.ExchangeData.GetKlinesAsync(symbol, klineInterval, startTime, endTime, limit, cancellationToken);
-
-			if (!result.Success)
-				return new List<Candle>();
-
-			return result.Data.Select(k => new Candle(
-				OpenTimeUtc: k.OpenTime,
-				Open: k.OpenPrice,
-				High: k.HighPrice,
-				Low: k.LowPrice,
-				Close: k.ClosePrice,
-				Volume: k.Volume
-			)).ToList();
-		}
-
-		/// <summary>
-		/// Retrieves the user's portfolio including all asset balances.
-		/// </summary>
-		/// <returns>
-		/// Portfolio with all balances, or null if request fails.
-		/// </returns>
-		public async Task<Portfolio?> GetPortfolio(string userId, CancellationToken cancellationToken = default)
+		/// <param name="userId">Internal user identifier to associate with the returned portfolio.</param>
+		/// <param name="cancellationToken">Token used to cancel the operation.</param>
+		/// <returns>Portfolio with all non-zero balances at the time of the request.</returns>
+		/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to return account info.</exception>
+		public async Task<Portfolio> GetPortfolio(string userId, CancellationToken cancellationToken = default)
 		{
 			var result = await _client.SpotApi.Account.GetAccountInfoAsync(ct: cancellationToken);
 
 			if (!result.Success)
-				return null;
+				throw new InvalidOperationException($"Failed to retrieve account info from Binance: {result.Error?.Message}");
 
 			return new Portfolio
 			{
@@ -171,37 +151,44 @@ namespace Infrastructure.Exchanges.Binance.Services
 		/// Places a new <see cref="Order"/> on Binance after validating quantity, price, and notional value.
 		/// </summary>
 		/// <param name="order">Order details to place.</param>
-		/// <returns>Placed order with exchange ID, or null if validation or placement fails.</returns>
-		public async Task<Order?> PlaceOrder(Order order, CancellationToken cancellationToken = default)
+		/// <param name="cancellationToken">Token used to cancel the operation.</param>
+		/// <returns>Placed order with exchange-assigned ID and mapped domain fields.</returns>
+		/// <exception cref="InvalidOperationException">
+		/// Thrown when the trading pair is not found, not supported, or Binance rejects the order.
+		/// </exception>
+		/// <exception cref="ArgumentException">
+		/// Thrown when order quantity, price, or notional value fails validation.
+		/// </exception>
+		public async Task<Order> PlaceOrder(Order order, CancellationToken cancellationToken = default)
 		{
 			var symbolInfo = await GetTradingPairInfo(order.Symbol, cancellationToken);
-			if (symbolInfo == null) 
+			if (symbolInfo is null) 
 			{
-				return null;
+				throw new InvalidOperationException($"Trading pair '{order.Symbol}' not found or is not supported.");
 			}
 
 			var binanceSymbol = await GetBinanceSymbol(order.Symbol, cancellationToken);
 
 			if (!BinanceHelpers.ValidateQuantity(order.Quantity, binanceSymbol))
 			{
-				return null;
+				throw new ArgumentException($"Invalid quantity {order.Quantity} for symbol '{order.Symbol}'.", nameof(order));
 			}
 
 			if (order.Type == Core.Domain.OrderType.Limit)
 			{
 				if (!order.Price.HasValue)
 				{
-					return null;
+					throw new ArgumentException("Price has no value. Price is required.", nameof(order));
 				}
 
 				if (!BinanceHelpers.ValidatePrice(order.Price.Value, binanceSymbol))
 				{
-					return null;
+					throw new ArgumentException($"Invalid price {order.Price.Value} for symbol '{order.Symbol}'.", nameof(order));
 				}
 
 				if (!BinanceHelpers.ValidateNotional(order.Price.Value, order.Quantity, binanceSymbol, false))
 				{
-					return null;
+					throw new ArgumentException($"Order notional value does not meet minimum requirements for '{order.Symbol}'.", nameof(order));
 				}
 			}
 
@@ -219,7 +206,7 @@ namespace Infrastructure.Exchanges.Binance.Services
 			);
 
 			if (!result.Success)
-				return null;
+				throw new InvalidOperationException($"Binance rejected the order: {result.Error?.Message}");
 
 			var mappedOrder = _mapper.Map<Order>(result.Data);
 			mappedOrder.UserId = order.UserId;
@@ -228,29 +215,19 @@ namespace Infrastructure.Exchanges.Binance.Services
 		}
 
 		/// <summary>
-		/// Retrieves details of a specific order.
+		/// Retrieves details of a specific order from Binance.
 		/// </summary>
-		/// <param name="symbol">Trading pair symbol.</param>
-		/// <param name="orderId">Exchange order ID.</param>
-		/// <returns>Order details, or null if order not found.</returns>
-		public async Task<Order?> GetOrder(string symbol, long orderId, CancellationToken cancellationToken = default)
+		/// <param name="symbol">Trading pair symbol (e.g. "BTCUSDT").</param>
+		/// <param name="orderId">Exchange-assigned order ID.</param>
+		/// <param name="cancellationToken">Token used to cancel the operation.</param>
+		/// <returns>Order details</returns>
+		/// <exception cref="InvalidOperationException">Thrown when the Binance API returns an unexpected error.</exception>
+		public async Task<Order> GetOrder(string symbol, long orderId, CancellationToken cancellationToken = default)
 		{
 			var result = await _client.SpotApi.Trading.GetOrderAsync(symbol, orderId, ct: cancellationToken);
 
 			if (!result.Success)
-				return null;
-
-			var mappedOrder = _mapper.Map<Order>(result.Data);
-			mappedOrder.IsTestnet = _config.UseTestnet;
-			return mappedOrder;
-		}
-
-		public async Task<Order?> CancelOrder(string symbol, long orderId, CancellationToken cancellationToken = default)
-		{
-			var result = await _client.SpotApi.Trading.CancelOrderAsync(symbol, orderId, ct: cancellationToken);
-
-			if (!result.Success)
-				return null;
+				throw new InvalidOperationException($"Failed to retrieve order {orderId}: {result.Error?.Message}");
 
 			var mappedOrder = _mapper.Map<Order>(result.Data);
 			mappedOrder.IsTestnet = _config.UseTestnet;
@@ -258,15 +235,38 @@ namespace Infrastructure.Exchanges.Binance.Services
 		}
 
 		/// <summary>
-		/// Retrieves all open orders for a symbol or all symbols.
+		/// Cancels an active order on Binance.
 		/// </summary>
-		/// <returns>List of open orders, or empty list if request fails.</returns>
+		/// <param name="symbol">Trading pair symbol (e.g. "BTCUSDT").</param>
+		/// <param name="orderId">Exchange-assigned order ID to cancel.</param>
+		/// <param name="cancellationToken">Token used to cancel the operation.</param>
+		/// <returns>Cancelled order with updated state from Binance.</returns>
+		/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to cancel the order.</exception>
+		public async Task<Order> CancelOrder(string symbol, long orderId, CancellationToken cancellationToken = default)
+		{
+			var result = await _client.SpotApi.Trading.CancelOrderAsync(symbol, orderId, ct: cancellationToken);
+
+			if (!result.Success)
+				throw new InvalidOperationException($"Failed to cancel order {orderId}: {result.Error?.Message}");
+
+			var mappedOrder = _mapper.Map<Order>(result.Data);
+			mappedOrder.IsTestnet = _config.UseTestnet;
+			return mappedOrder;
+		}
+
+		/// <summary>
+		/// Retrieves all open orders for the specified symbol, or for all symbols if none is provided.
+		/// </summary>
+		/// <param name="symbol">Trading pair symbol (e.g. "BTCUSDT"), or <see langword="null"/> to retrieve open orders for all symbols.</param>
+		/// <param name="cancellationToken">Token used to cancel the operation.</param>
+		/// <returns>List of open orders, or an empty list if no open orders exist.</returns>
+		/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to return open orders.</exception>
 		public async Task<List<Order>> GetOpenOrders(string? symbol = null, CancellationToken cancellationToken = default)
 		{
 			var result = await _client.SpotApi.Trading.GetOpenOrdersAsync(symbol, ct: cancellationToken);
 
 			if (!result.Success)
-				return new List<Order>();
+				throw new InvalidOperationException($"Failed to retrieve open orders: {result.Error?.Message}");
 
 			return result.Data.Select(o =>
 			{
@@ -277,8 +277,17 @@ namespace Infrastructure.Exchanges.Binance.Services
 		}
 
 		/// <summary>
-		/// Retrieves trade history for a symbol.
+		/// Retrieves trade history for the specified symbol with optional filters.
 		/// </summary>
+		/// <param name="symbol">Trading pair symbol (e.g. "BTCUSDT").</param>
+		/// <param name="userId">Internal user identifier to associate with each returned trade.</param>
+		/// <param name="orderId">Filter trades by a specific exchange-assigned order ID.</param>
+		/// <param name="startTime">Filter trades executed at or after this time.</param>
+		/// <param name="endTime">Filter trades executed at or before this time.</param>
+		/// <param name="limit">Maximum number of trades to return (default: 500).</param>
+		/// <param name="cancellationToken">Token used to cancel the operation.</param>
+		/// <returns>List of trades matching the specified filters, or an empty list if none exist.</returns>
+		/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to return trade history.</exception>
 		public async Task<List<Trade>> GetTrades(string symbol, string? userId = null, long? orderId = null, DateTime? startTime = null, DateTime? endTime = null, int limit = 500, CancellationToken cancellationToken = default)
 		{
 			var result = await _client.SpotApi.Trading.GetUserTradesAsync(
@@ -291,7 +300,7 @@ namespace Infrastructure.Exchanges.Binance.Services
 			);
 
 			if (!result.Success)
-				return new List<Trade>();
+				throw new InvalidOperationException($"Failed to retrieve trades for '{symbol}': {result.Error?.Message}");
 
 			return result.Data.Select(t =>
 			{
@@ -303,16 +312,22 @@ namespace Infrastructure.Exchanges.Binance.Services
 		}
 
 		/// <summary>
-		/// Retrieves raw Binance symbol information for validation purposes.
+		/// Retrieves raw Binance symbol metadata used for order validation.
 		/// </summary>
+		/// <param name="symbol">Trading pair symbol (e.g. "BTCUSDT").</param>
+		/// <param name="cancellationToken">Token used to cancel the operation.</param>
+		/// <returns>
+		/// Binance symbol metadata, or <see langword="null"/> if the symbol does not exist.
+		/// </returns>
+		/// <exception cref="InvalidOperationException">Thrown when the Binance API returns an unexpected error.</exception>
 		private async Task<BinanceSymbol?> GetBinanceSymbol(string symbol, CancellationToken cancellationToken)
 		{
 			var result = await _client.SpotApi.ExchangeData.GetExchangeInfoAsync(symbol, ct: cancellationToken);
 
-			if (!result.Success || result.Data.Symbols.Length == 0)
-				return null;
+			if (!result.Success)
+				throw new InvalidOperationException($"Failed to retrieve symbol info for '{symbol}': {result.Error?.Message}");
 
-			return result.Data.Symbols[0];
+			return result.Data.Symbols.Length == 0 ? null : result.Data.Symbols[0];
 		}
 	}
 }
