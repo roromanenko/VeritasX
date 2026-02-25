@@ -94,6 +94,16 @@ public class TestTradingProcessor : ITradingProcessor
 		return Task.CompletedTask;
 	}
 
+	/// <summary>
+	/// Calculates the annualized Sharpe ratio from a series of equity snapshots.<br/>
+	/// The Sharpe ratio measures risk-adjusted returns by comparing the mean return to its volatility.
+	/// </summary>
+	/// <param name="snapshots">Sequential equity snapshots (e.g., daily portfolio values).</param>
+	/// <param name="periodsPerYear">Number of periods per year for annualization (e.g., 252 for daily trading days, 365 for daily data, 12 for monthly).</param>
+	/// <returns>
+	/// The annualized Sharpe ratio. Returns 0 if insufficient data (&lt;2 snapshots), 
+	/// if variance is zero (constant returns), or if calculations encounter division by zero.
+	/// </returns>
 	private static decimal CalcSharpe(List<decimal> snapshots, int periodsPerYear)
 	{
 		if (snapshots.Count < 2) return 0;

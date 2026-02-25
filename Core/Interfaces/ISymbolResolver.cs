@@ -16,5 +16,5 @@ public class BinanceSymbolInfo
 
 public class BinanceExchangeInfo
 {
-	public List<BinanceSymbolInfo> Symbols { get; set; } = new();
+	public List<BinanceSymbolInfo> Symbols { get; set; } = [];
 }

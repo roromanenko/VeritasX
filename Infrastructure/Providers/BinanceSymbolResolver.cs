@@ -1,18 +1,18 @@
-﻿using Core.Interfaces;
+﻿using System.Text.Json;
+using Core.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
-using System.Text.Json;
 
 namespace Infrastructure.Providers;
 
 public class BinanceSymbolResolver : ISymbolResolver
 {
-	private static readonly TimeSpan CacheExpiry = TimeSpan.FromHours(1);
+	private static readonly TimeSpan _cacheExpiry = TimeSpan.FromHours(1);
 	private readonly Dictionary<string, BinanceSymbolInfo?> _memoryCache;
 	private readonly HttpClient _httpClient;
 
-	public BinanceSymbolResolver(IMemoryCache memoryCache, HttpClient httpClient)
+	public BinanceSymbolResolver(HttpClient httpClient)
 	{
-		_memoryCache = new Dictionary<string, BinanceSymbolInfo?>();
+		_memoryCache = [];
 		_httpClient = httpClient;
 	}
 

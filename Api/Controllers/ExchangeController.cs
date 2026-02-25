@@ -1,173 +1,229 @@
 ﻿using Api.DTO;
 using AutoMapper;
 using Core.Domain;
+using Core.Exceptions;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VeritasX.Api.Controllers;
 
-namespace Api.Controllers
+namespace Api.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ExchangeController : BaseController
 {
-	[ApiController]
-	[Route("api/[controller]")]
-	public class ExchangeController : BaseController
+	private readonly IExchangeService _exchangeService;
+	private readonly IMapper _mapper;
+	private readonly ILogger<ExchangeController> _logger;
+
+	public ExchangeController(
+		IExchangeService exchangeService,
+		IMapper mapper,
+		ILogger<ExchangeController> logger)
 	{
-		private readonly IExchangeService _exchangeService;
-		private readonly IMapper _mapper;
-		private readonly ILogger<ExchangeController> _logger;
+		_exchangeService = exchangeService;
+		_mapper = mapper;
+		_logger = logger;
+	}
 
-		public ExchangeController(
-			IExchangeService exchangeService,
-			IMapper mapper,
-			ILogger<ExchangeController> logger)
+	/// <summary>
+	/// Tests connectivity to the exchange API.
+	/// </summary>
+	[HttpGet("connectivity")]
+	[ProducesResponseType(typeof(ConnectivityResponse), StatusCodes.Status200OK)]
+	public async Task<ActionResult<ConnectivityResponse>> TestConnectivity(CancellationToken cancellationToken)
+	{
+		var isConnected = await _exchangeService.TestConnectivity(cancellationToken);
+		return Ok(new ConnectivityResponse
 		{
-			_exchangeService = exchangeService;
-			_mapper = mapper;
-			_logger = logger;
-		}
+			IsConnected = isConnected,
+			Timestamp = DateTimeOffset.UtcNow
+		});
+	}
 
-		/// <summary>
-		/// Tests connectivity to the exchange API.
-		/// </summary>
-		[HttpGet("connectivity")]
-		public async Task<ActionResult<ConnectivityResponse>> TestConnectivity(CancellationToken cancellationToken)
+	/// <summary>
+	/// Gets the current server time from the exchange.
+	/// </summary>
+	[HttpGet("server-time")]
+	[ProducesResponseType(typeof(ServerTimeResponse), StatusCodes.Status200OK)]
+	public async Task<ActionResult<ServerTimeResponse>> GetServerTime(CancellationToken cancellationToken)
+	{
+		var serverTime = await _exchangeService.GetServerTime(cancellationToken);
+		return Ok(new ServerTimeResponse
 		{
-			var isConnected = await _exchangeService.TestConnectivity(cancellationToken);
-			return Ok(new ConnectivityResponse
-			{
-				IsConnected = isConnected,
-				Timestamp = DateTimeOffset.UtcNow
-			});
-		}
+			ServerTime = serverTime,
+			ServerDateTime = DateTimeOffset.FromUnixTimeMilliseconds(serverTime)
+		});
+	}
 
-		/// <summary>
-		/// Gets the current server time from the exchange.
-		/// </summary>
-		[HttpGet("server-time")]
-		public async Task<ActionResult<ServerTimeResponse>> GetServerTime(CancellationToken cancellationToken)
-		{
-			var serverTime = await _exchangeService.GetServerTime(cancellationToken);
-			return Ok(new ServerTimeResponse
-			{
-				ServerTime = serverTime,
-				ServerDateTime = DateTimeOffset.FromUnixTimeMilliseconds(serverTime)
-			});
-		}
-
-		/// <summary>
-		/// Gets trading pair information including price and quantity constraints.
-		/// </summary>
-		[HttpGet("pairs/{symbol}")]
-		public async Task<ActionResult<TradingPairDto>> GetTradingPair(string symbol, CancellationToken cancellationToken)
+	/// <summary>
+	/// Gets trading pair information including price and quantity constraints.
+	/// </summary>
+	[HttpGet("pairs/{symbol}")]
+	[ProducesResponseType(typeof(TradingPairDto), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+	public async Task<ActionResult<TradingPairDto>> GetTradingPair(string symbol, CancellationToken cancellationToken)
+	{
+		try
 		{
 			var tradingPair = await _exchangeService.GetTradingPairInfo(symbol, cancellationToken);
-
-			if (tradingPair == null)
-				return NotFound();
-
 			var tradingPairDto = _mapper.Map<TradingPairDto>(tradingPair);
 			return Ok(tradingPairDto);
 		}
+		catch (TradingPairNotFoundException)
+		{
+			return NotFound(new { message = $"Trading pair '{symbol}' not found." });
+		}
+		catch (InvalidOperationException ex)
+		{
+			_logger.LogError(ex, "Failed to retrieve trading pair info for {Symbol}", symbol);
+			return StatusCode(StatusCodes.Status500InternalServerError,
+				new { message = "Failed to retrieve trading pair information from exchange." });
+		}
+	}
 
-		/// <summary>
-		/// Gets the current price for a trading pair.
-		/// </summary>
-		[HttpGet("price/{symbol}")]
-		public async Task<ActionResult<PriceDto>> GetPrice(string symbol, CancellationToken cancellationToken)
+	/// <summary>
+	/// Gets the current price for a trading pair.
+	/// </summary>
+	[HttpGet("price/{symbol}")]
+	[ProducesResponseType(typeof(PriceDto), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<PriceDto>> GetPrice(string symbol, CancellationToken cancellationToken)
+	{
+		try
 		{
 			var price = await _exchangeService.GetPrice(symbol, cancellationToken);
-
-			if (price == null)
-				return NotFound();
-
 			var priceDto = _mapper.Map<PriceDto>(price);
 			return Ok(priceDto);
 		}
-
-		/// <summary>
-		/// Gets user portfolio with all asset balances.
-		/// </summary>
-		[HttpGet("portfolio")]
-		[Authorize]
-		public async Task<ActionResult<PortfolioDto>> GetPortfolio(CancellationToken cancellationToken)
+		catch (TradingPairNotFoundException ex)
 		{
-			var userId = User.FindFirst("sub")?.Value ?? User.Identity?.Name;
+			return NotFound(new { message = ex.Message });
+		}
+	}
 
-			if (string.IsNullOrEmpty(userId))
-				return Unauthorized();
-
-			var portfolio = await _exchangeService.GetPortfolio(userId, cancellationToken);
-
-			if (portfolio == null)
-				return NotFound();
-
+	/// <summary>
+	/// Gets user portfolio with all asset balances.
+	/// </summary>
+	[HttpGet("portfolio")]
+	[Authorize]
+	[ProducesResponseType(typeof(PortfolioDto), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+	public async Task<ActionResult<PortfolioDto>> GetPortfolio(CancellationToken cancellationToken)
+	{
+		try
+		{
+			var portfolio = await _exchangeService.GetPortfolio(UserId!, cancellationToken);
 			var portfolioDto = _mapper.Map<PortfolioDto>(portfolio);
 			return Ok(portfolioDto);
 		}
-
-		/// <summary>
-		/// Places a new order on the exchange.
-		/// </summary>
-		[HttpPost("orders")]
-		[Authorize]
-		public async Task<ActionResult<OrderDto>> PlaceOrder([FromBody] PlaceOrderRequest request, CancellationToken cancellationToken)
+		catch (InvalidOperationException ex)
 		{
-			var userId = User.FindFirst("sub")?.Value ?? User.Identity?.Name;
+			_logger.LogError(ex, "Exchange API error while retrieving portfolio for user {UserId}", UserId);
+			return StatusCode(StatusCodes.Status503ServiceUnavailable,
+				new { message = "Exchange service is temporarily unavailable." });
+		}
+	}
 
-			if (string.IsNullOrEmpty(userId))
-				return Unauthorized();
-
+	/// <summary>
+	/// Places a new order on the exchange.
+	/// </summary>
+	[HttpPost("orders")]
+	[Authorize]
+	[ProducesResponseType(typeof(OrderDto), StatusCodes.Status201Created)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+	public async Task<ActionResult<OrderDto>> PlaceOrder([FromBody] PlaceOrderRequest request, CancellationToken cancellationToken)
+	{
+		try
+		{
 			var order = _mapper.Map<Order>(request);
-			order.UserId = userId;
-			order.IsTestnet = true;
+			order.UserId = UserId!;
 
 			var placedOrder = await _exchangeService.PlaceOrder(order, cancellationToken);
-
-			if (placedOrder == null)
-				return BadRequest("Failed to place order. Check validation errors.");
-
 			var orderDto = _mapper.Map<OrderDto>(placedOrder);
-			return CreatedAtAction(nameof(GetOrder), new { symbol = orderDto.Symbol, orderId = orderDto.ExchangeOrderId }, orderDto);
-		}
 
-		/// <summary>
-		/// Gets details of a specific order.
-		/// </summary>
-		[HttpGet("orders/{symbol}/{orderId}")]
-		[Authorize]
-		public async Task<ActionResult<OrderDto>> GetOrder(string symbol, long orderId, CancellationToken cancellationToken)
+			return CreatedAtAction(
+				nameof(GetOrder),
+				new { symbol = orderDto.Symbol, orderId = orderDto.ExchangeOrderId },
+				orderDto);
+		}
+		catch (TradingPairNotFoundException ex)
+		{
+			_logger.LogWarning(ex, $"Trading pair not found while placing order for user {UserId}");
+			return NotFound(new { message = ex.Message });
+		}
+		catch (ArgumentException ex)
+		{
+			_logger.LogWarning(ex, $"Order validation failed for user {UserId}: {ex.Message}");
+			return BadRequest(new { message = ex.Message });
+		}
+		catch (InvalidOperationException ex)
+		{
+			_logger.LogError(ex, $"Exchange API error while placing order for user {UserId}");
+			return StatusCode(StatusCodes.Status503ServiceUnavailable,
+				new { message = "Exchange service is temporarily unavailable." });
+		}
+	}
+
+	/// <summary>
+	/// Gets details of a specific order.
+	/// </summary>
+	[HttpGet("orders/{symbol}/{orderId}")]
+	[Authorize]
+	[ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+	public async Task<ActionResult<OrderDto>> GetOrder(string symbol, long orderId, CancellationToken cancellationToken)
+	{
+		try
 		{
 			var order = await _exchangeService.GetOrder(symbol, orderId, cancellationToken);
-
-			if (order == null)
-				return NotFound();
-
 			var orderDto = _mapper.Map<OrderDto>(order);
 			return Ok(orderDto);
 		}
+		catch (InvalidOperationException ex)
+		{
+			_logger.LogError(ex, $"Exchange API error while retrieving order {orderId} for symbol {symbol}");
+			return StatusCode(StatusCodes.Status503ServiceUnavailable,
+				new { message = "Exchange service is temporarily unavailable." });
+		}
+	}
 
-		/// <summary>
-		/// Cancels an open order.
-		/// </summary>
-		[HttpDelete("orders/{symbol}/{orderId}")]
-		[Authorize]
-		public async Task<ActionResult<OrderDto>> CancelOrder(string symbol, long orderId, CancellationToken cancellationToken)
+	/// <summary>
+	/// Cancels an open order.
+	/// </summary>
+	[HttpDelete("orders/{symbol}/{orderId}")]
+	[Authorize]
+	[ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	public async Task<ActionResult<OrderDto>> CancelOrder(string symbol, long orderId, CancellationToken cancellationToken)
+	{
+		try
 		{
 			var cancelledOrder = await _exchangeService.CancelOrder(symbol, orderId, cancellationToken);
-
-			if (cancelledOrder == null)
-				return NotFound();
-
 			var orderDto = _mapper.Map<OrderDto>(cancelledOrder);
 			return Ok(orderDto);
 		}
+		catch (InvalidOperationException ex)
+		{
+			_logger.LogWarning(ex, $"Cannot cancel order {orderId} for symbol {symbol}: {ex.Message}");
+			return BadRequest(new { message = ex.Message });
+		}
+	}
 
-		/// <summary>
-		/// Gets all open orders for a symbol or all symbols.
-		/// </summary>
-		[HttpGet("orders/open")]
-		[Authorize]
-		public async Task<ActionResult<OrdersResponse>> GetOpenOrders([FromQuery] string? symbol = null, CancellationToken cancellationToken = default)
+	/// <summary>
+	/// Gets all open orders for a symbol or all symbols.
+	/// </summary>
+	[HttpGet("orders/open")]
+	[Authorize]
+	[ProducesResponseType(typeof(OrdersResponse), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+	public async Task<ActionResult<OrdersResponse>> GetOpenOrders([FromQuery] string? symbol = null, CancellationToken cancellationToken = default)
+	{
+		try
 		{
 			var orders = await _exchangeService.GetOpenOrders(symbol, cancellationToken);
 			var ordersDto = _mapper.Map<List<OrderDto>>(orders);
@@ -179,23 +235,32 @@ namespace Api.Controllers
 				Orders = ordersDto
 			});
 		}
-
-		/// <summary>
-		/// Gets trade history for a symbol.
-		/// </summary>
-		[HttpGet("trades/{symbol}")]
-		[Authorize]
-		public async Task<ActionResult<TradesResponse>> GetTrades(
-			string symbol,
-			[FromQuery] long? orderId = null,
-			[FromQuery] DateTime? startTime = null,
-			[FromQuery] DateTime? endTime = null,
-			[FromQuery] int limit = 100,
-			CancellationToken cancellationToken = default)
+		catch (InvalidOperationException ex)
 		{
-			var userId = User.FindFirst("sub")?.Value ?? User.Identity?.Name;
+			_logger.LogError(ex, $"Exchange API error while retrieving open orders for user {UserId}, symbol: {symbol}");
+			return StatusCode(StatusCodes.Status503ServiceUnavailable,
+				new { message = "Exchange service is temporarily unavailable." });
+		}
+	}
 
-			var trades = await _exchangeService.GetTrades(symbol, userId, orderId, startTime, endTime, limit, cancellationToken);
+	/// <summary>
+	/// Gets trade history for a symbol.
+	/// </summary>
+	[HttpGet("trades/{symbol}")]
+	[Authorize]
+	[ProducesResponseType(typeof(TradesResponse), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+	public async Task<ActionResult<TradesResponse>> GetTrades(
+		string symbol,
+		[FromQuery] long? orderId = null,
+		[FromQuery] DateTime? startTime = null,
+		[FromQuery] DateTime? endTime = null,
+		[FromQuery] int limit = 100,
+		CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			var trades = await _exchangeService.GetTrades(symbol, UserId!, orderId, startTime, endTime, limit, cancellationToken);
 			var tradesDto = _mapper.Map<List<TradeDto>>(trades);
 
 			return Ok(new TradesResponse
@@ -204,6 +269,12 @@ namespace Api.Controllers
 				Count = tradesDto.Count,
 				Trades = tradesDto
 			});
+		}
+		catch (InvalidOperationException ex)
+		{
+			_logger.LogError(ex, "Exchange API error while retrieving trades for symbol {Symbol}", symbol);
+			return StatusCode(StatusCodes.Status503ServiceUnavailable,
+				new { message = "Exchange service is temporarily unavailable." });
 		}
 	}
 }

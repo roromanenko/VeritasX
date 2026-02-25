@@ -13,14 +13,14 @@ public class TradingResult
 	/// Used to calculate risk-adjusted performance metrics
 	/// such as the Sharpe ratio.
 	/// </summary>
-	public List<decimal> PortfolioSnapshots { get; set; } = new();
+	public List<decimal> PortfolioSnapshots { get; set; } = [];
 
 	/// <summary>
 	/// A chronological series of total portfolio values (in baseline asset) captured after each candle
 	/// under a passive buy-and-hold scenario (initial allocation held without any trades). <br/>
 	/// Used as a benchmark to compare against the active strategy.
 	/// </summary>
-	public List<decimal> HoldSnapshots { get; set; } = new();
+	public List<decimal> HoldSnapshots { get; set; } = [];
 
 	/// <summary>
 	/// Annualized Sharpe ratio of the strategy, calculated from per-candle portfolio returns.<br/>

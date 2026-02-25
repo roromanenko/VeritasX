@@ -1,9 +1,8 @@
-using System.Net.Http;
-using System.Text.Json;
 using System.Globalization;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Core.Domain;
 using Core.Interfaces;
-using System.Net.Http.Json;
 
 namespace Infrastructure.Providers;
 
