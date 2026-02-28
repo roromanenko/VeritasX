@@ -80,7 +80,7 @@ public class ExchangeController : BaseController
 		{
 			_logger.LogError(ex, "Failed to retrieve trading pair info for {Symbol}", symbol);
 			return StatusCode(StatusCodes.Status500InternalServerError,
-				new { message = "Failed to retrieve trading pair information from exchange." });
+				new { message = $"Exchange service is temporarily unavailable. {ex.Message}" });
 		}
 	}
 
@@ -123,7 +123,7 @@ public class ExchangeController : BaseController
 		{
 			_logger.LogError(ex, "Exchange API error while retrieving portfolio for user {UserId}", UserId);
 			return StatusCode(StatusCodes.Status503ServiceUnavailable,
-				new { message = "Exchange service is temporarily unavailable." });
+				new { message = $"Exchange service is temporarily unavailable. {ex.Message}" });
 		}
 	}
 
@@ -165,7 +165,7 @@ public class ExchangeController : BaseController
 		{
 			_logger.LogError(ex, $"Exchange API error while placing order for user {UserId}");
 			return StatusCode(StatusCodes.Status503ServiceUnavailable,
-				new { message = "Exchange service is temporarily unavailable." });
+				new { message = $"Exchange service is temporarily unavailable. {ex.Message}" });
 		}
 	}
 
@@ -188,7 +188,7 @@ public class ExchangeController : BaseController
 		{
 			_logger.LogError(ex, $"Exchange API error while retrieving order {orderId} for symbol {symbol}");
 			return StatusCode(StatusCodes.Status503ServiceUnavailable,
-				new { message = "Exchange service is temporarily unavailable." });
+				new { message = $"Exchange service is temporarily unavailable. {ex.Message}" });
 		}
 	}
 
@@ -239,7 +239,7 @@ public class ExchangeController : BaseController
 		{
 			_logger.LogError(ex, $"Exchange API error while retrieving open orders for user {UserId}, symbol: {symbol}");
 			return StatusCode(StatusCodes.Status503ServiceUnavailable,
-				new { message = "Exchange service is temporarily unavailable." });
+				new { message = $"Exchange service is temporarily unavailable. {ex.Message}" });
 		}
 	}
 
@@ -274,7 +274,7 @@ public class ExchangeController : BaseController
 		{
 			_logger.LogError(ex, "Exchange API error while retrieving trades for symbol {Symbol}", symbol);
 			return StatusCode(StatusCodes.Status503ServiceUnavailable,
-				new { message = "Exchange service is temporarily unavailable." });
+				new { message = $"Exchange service is temporarily unavailable. {ex.Message}" });
 		}
 	}
 }

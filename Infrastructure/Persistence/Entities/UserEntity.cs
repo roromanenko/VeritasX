@@ -19,5 +19,5 @@ public class UserEntity
 	public List<string> Roles { get; set; } = [];
 
 	[BsonIgnoreIfNull]
-	public Dictionary<ExchangeName, ExchangeConnection>? ExchangeConnections { get; set; }
+	public Dictionary<ExchangeName, ExchangeConnectionEntity>? ExchangeConnections { get; set; }
 }
