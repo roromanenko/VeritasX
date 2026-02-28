@@ -1,12 +1,15 @@
+using System.Text.Json.Serialization;
 using Api.Extensions;
 using Api.OpenApi;
+using DotNetEnv;
 using Infrastructure.Hubs;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using System.Text.Json.Serialization;
 using VeritasX.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Env.Load();
 
 // Add services to the container.
 builder.Services.AddControllers()
