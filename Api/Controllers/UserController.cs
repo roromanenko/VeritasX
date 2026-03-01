@@ -1,5 +1,6 @@
 using Api.DTO;
 using AutoMapper;
+using Core.Domain;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -104,6 +105,114 @@ public class UserController : BaseController
 		{
 			_logger.LogError(ex, "Error getting current user");
 			return StatusCode(500, new ApiResponse<UserDto>(false, "Internal server error"));
+		}
+	}
+
+	[HttpPost("exchanges/{exchange}")]
+	[Authorize]
+	public async Task<ActionResult<ApiResponse<ExchangeConnectionResponse>>> AddExchangeConnection(
+	ExchangeName exchange,
+	[FromBody] AddExchangeConnectionRequest request)
+	{
+		try
+		{
+			var connection = _mapper.Map<ExchangeConnection>(request);
+			await _userService.AddExchangeConnection(UserId!, exchange, connection);
+			var response = _mapper.Map<ExchangeConnectionResponse>(connection, opt => opt.Items["Exchange"] = exchange);
+			return Ok(new ApiResponse<ExchangeConnectionResponse>(true, "Exchange connection added successfully", response));
+		}
+		catch (InvalidOperationException ex)
+		{
+			return Ok(new ApiResponse<ExchangeConnectionResponse>(false, ex.Message));
+		}
+		catch (Exception)
+		{
+			return Ok(new ApiResponse<ExchangeConnectionResponse>(false, "Failed to add exchange connection"));
+		}
+	}
+
+	[HttpPut("exchanges/{exchange}")]
+	[Authorize]
+	public async Task<ActionResult<ApiResponse<ExchangeConnectionResponse>>> UpdateExchangeConnection(
+		ExchangeName exchange,
+		[FromBody] UpdateExchangeConnectionRequest request)
+	{
+		try
+		{
+			var connection = _mapper.Map<ExchangeConnection>(request);
+			await _userService.UpdateExchangeConnection(UserId!, exchange, connection);
+			var response = _mapper.Map<ExchangeConnectionResponse>(connection, opt => opt.Items["Exchange"] = exchange);
+			return Ok(new ApiResponse<ExchangeConnectionResponse>(true, "Exchange connection updated successfully", response));
+		}
+		catch (KeyNotFoundException ex)
+		{
+			return Ok(new ApiResponse<ExchangeConnectionResponse>(false, ex.Message));
+		}
+		catch (Exception)
+		{
+			return Ok(new ApiResponse<ExchangeConnectionResponse>(false, "Failed to update exchange connection"));
+		}
+	}
+
+	[HttpDelete("exchanges/{exchange}")]
+	[Authorize]
+	public async Task<ActionResult<ApiResponse<string>>> RemoveExchangeConnection(ExchangeName exchange)
+	{
+		try
+		{
+			await _userService.RemoveExchangeConnection(UserId!, exchange);
+			return Ok(new ApiResponse<string>(true, "Exchange connection removed successfully"));
+		}
+		catch (KeyNotFoundException ex)
+		{
+			return Ok(new ApiResponse<string>(false, ex.Message));
+		}
+		catch (Exception)
+		{
+			return Ok(new ApiResponse<string>(false, "Failed to remove exchange connection"));
+		}
+	}
+
+	[HttpGet("exchanges/{exchange}")]
+	[Authorize]
+	public async Task<ActionResult<ApiResponse<ExchangeConnectionResponse>>> GetExchangeConnection(ExchangeName exchange)
+	{
+		try
+		{
+			var connection = await _userService.GetExchangeConnection(UserId!, exchange);
+			var response = _mapper.Map<ExchangeConnectionResponse>(connection, opt => opt.Items["Exchange"] = exchange);
+			return Ok(new ApiResponse<ExchangeConnectionResponse>(true, "Exchange connection found", response));
+		}
+		catch (KeyNotFoundException ex)
+		{
+			return Ok(new ApiResponse<ExchangeConnectionResponse>(false, ex.Message));
+		}
+		catch (Exception)
+		{
+			return Ok(new ApiResponse<ExchangeConnectionResponse>(false, "Failed to get exchange connection"));
+		}
+	}
+
+	[HttpGet("exchanges")]
+	[Authorize]
+	public async Task<ActionResult<ApiResponse<Dictionary<ExchangeName, ExchangeConnectionResponse>>>> GetAllExchangeConnections()
+	{
+		try
+		{
+			var connections = await _userService.GetAllExchangeConnections(UserId!);
+			var response = connections.ToDictionary(
+				kvp => kvp.Key,
+				kvp => _mapper.Map<ExchangeConnectionResponse>(kvp.Value, opt => opt.Items["Exchange"] = kvp.Key)
+			);
+			return Ok(new ApiResponse<Dictionary<ExchangeName, ExchangeConnectionResponse>>(true, "Exchange connections found", response));
+		}
+		catch (KeyNotFoundException ex)
+		{
+			return Ok(new ApiResponse<Dictionary<ExchangeName, ExchangeConnectionResponse>>(false, ex.Message));
+		}
+		catch (Exception)
+		{
+			return Ok(new ApiResponse<Dictionary<ExchangeName, ExchangeConnectionResponse>>(false, "Failed to get exchange connections"));
 		}
 	}
 }

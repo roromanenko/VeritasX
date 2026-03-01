@@ -6,8 +6,6 @@ public class ExchangeConnectionEntity
 
 	public required byte[] EncryptedSecretKey { get; set; }
 
-	public required byte[] EncryptedDek { get; set; }
-
 	public bool IsTestnet { get; set; }
 	public DateTimeOffset CreatedAt { get; set; }
 	public DateTimeOffset? LastUsedAt { get; set; }

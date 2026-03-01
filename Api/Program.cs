@@ -7,9 +7,9 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using VeritasX.Api.Extensions;
 
-var builder = WebApplication.CreateBuilder(args);
-
 Env.Load();
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers()
