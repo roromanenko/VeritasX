@@ -13,13 +13,17 @@ public class UserService : IUserService
 	private readonly IUserRepository _userRepository;
 	private readonly PasswordHasher<UserEntity> _passwordHasher;
 	private readonly IMapper _mapper;
+	private readonly IEncryptionService _encryptionService;
 
-	public UserService(IUserRepository userRepository, PasswordHasher<UserEntity> passwordHasher, IMapper mapper)
+	public UserService(IUserRepository userRepository, PasswordHasher<UserEntity> passwordHasher, IMapper mapper, IEncryptionService encryptionService)
 	{
 		_userRepository = userRepository;
 		_passwordHasher = passwordHasher;
 		_mapper = mapper;
+		_encryptionService = encryptionService;
 	}
+
+	#region User actions
 
 	public async Task<User?> VerifyUserLogin(string username, string password)
 	{
@@ -77,4 +81,57 @@ public class UserService : IUserService
 		var hashedPassword = _passwordHasher.HashPassword(user, newPassword);
 		await _userRepository.ChangePassword(ObjectId.Parse(userId), hashedPassword);
 	}
+
+	#endregion
+
+	#region Exchange connection actions
+
+	public async Task AddExchangeConnection(string userId, ExchangeName exchange, ExchangeConnection connection)
+	{
+		var entity = EncryptConnection(connection);
+		await _userRepository.AddExchangeConnection(ObjectId.Parse(userId), exchange, entity);
+	}
+
+	public async Task UpdateExchangeConnection(string userId, ExchangeName exchange, ExchangeConnection connection)
+	{
+		var entity = EncryptConnection(connection);
+		await _userRepository.UpdateExchangeConnection(ObjectId.Parse(userId), exchange, entity);
+	}
+
+	public async Task RemoveExchangeConnection(string userId, ExchangeName exchange)
+	{
+		await _userRepository.RemoveExchangeConnection(ObjectId.Parse(userId), exchange);
+	}
+
+	public async Task<ExchangeConnection> GetExchangeConnection(string userId, ExchangeName exchange)
+	{
+		var entity = await _userRepository.GetExchangeConnection(ObjectId.Parse(userId), exchange);
+		return DecryptConnection(entity);
+	}
+
+	public async Task<Dictionary<ExchangeName, ExchangeConnection>> GetAllExchangeConnections(string userId)
+	{
+		var entities = await _userRepository.GetAllExchangeConnections(ObjectId.Parse(userId));
+		return entities.ToDictionary(kvp => kvp.Key, kvp => DecryptConnection(kvp.Value));
+	}
+
+	private ExchangeConnectionEntity EncryptConnection(ExchangeConnection connection) => new()
+	{
+		EncryptedApiKey = _encryptionService.Encrypt(connection.ApiKey),
+		EncryptedSecretKey = _encryptionService.Encrypt(connection.SecretKey),
+		IsTestnet = connection.IsTestnet,
+		CreatedAt = connection.CreatedAt,
+		LastUsedAt = connection.LastUsedAt
+	};
+
+	private ExchangeConnection DecryptConnection(ExchangeConnectionEntity entity) => new()
+	{
+		ApiKey = _encryptionService.Decrypt(entity.EncryptedApiKey),
+		SecretKey = _encryptionService.Decrypt(entity.EncryptedSecretKey),
+		IsTestnet = entity.IsTestnet,
+		CreatedAt = entity.CreatedAt,
+		LastUsedAt = entity.LastUsedAt
+	};
+
+	#endregion
 }

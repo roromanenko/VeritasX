@@ -1,9 +1,13 @@
+using System.Text.Json.Serialization;
 using Api.Extensions;
+using Api.OpenApi;
+using DotNetEnv;
 using Infrastructure.Hubs;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using System.Text.Json.Serialization;
 using VeritasX.Api.Extensions;
+
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +61,8 @@ builder.Services.AddSwaggerGen(c =>
 		Format = "time-span", // optional, for clarity
 		Example = new OpenApiString("01:30:00")
 	});
+
+	c.SchemaFilter<EnumSchemaFilter>();
 });
 
 // Add application services

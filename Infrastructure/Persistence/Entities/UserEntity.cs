@@ -1,3 +1,4 @@
+using Core.Domain;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -16,4 +17,7 @@ public class UserEntity
 	[BsonRequired]
 	public string PasswordHash { get; set; } = string.Empty;
 	public List<string> Roles { get; set; } = [];
+
+	[BsonIgnoreIfNull]
+	public Dictionary<ExchangeName, ExchangeConnectionEntity>? ExchangeConnections { get; set; }
 }

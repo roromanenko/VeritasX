@@ -1,6 +1,9 @@
+using System.Text;
+using System.Text.Json.Serialization;
 using Api.Mapping;
 using Core.Interfaces;
 using Core.Options;
+using Infrastructure.Exchanges.Binance.Factory;
 using Infrastructure.Interfaces;
 using Infrastructure.Jobs;
 using Infrastructure.Mapping.Profiles;
@@ -12,11 +15,9 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using VeritasX.Api.Extensions;
 
 namespace Api.Extensions;
@@ -71,6 +72,10 @@ public static class ServiceCollectionExtensions
 	private static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
 	{
 		services.Configure<DataCollectorOptions>(configuration.GetSection(nameof(DataCollectorOptions)));
+		services.Configure<EncryptionOptions>(configuration.GetSection(nameof(EncryptionOptions)));
+
+		var masterKey = configuration["MASTER_ENCRYPTION_KEY"]
+			?? throw new InvalidOperationException("MASTER_ENCRYPTION_KEY is not configured");
 
 		services.AddScoped<IDataCollectionService, DataCollectionService>();
 		services.AddScoped<ICandleChunkService, CandleChunkService>();
@@ -79,6 +84,7 @@ public static class ServiceCollectionExtensions
 		services.AddHostedService<DatabaseCleanupJob>();
 		services.AddScoped<IUserService, UserService>();
 		services.AddScoped<IJwtService, JwtService>();
+		services.AddScoped<IEncryptionService>(sp => new EncryptionService(masterKey, sp.GetRequiredService<IOptions<EncryptionOptions>>()));
 		services.AddScoped<PasswordHasher<UserEntity>>();
 		services.AddAutoMapper(cfg =>
 		{
@@ -87,9 +93,11 @@ public static class ServiceCollectionExtensions
 			cfg.AddProfile<DataChunkProfile>();
 			cfg.AddProfile<DataCollectionJobProfile>();
 			cfg.AddProfile<UserProfile>();
-			cfg.AddProfile<CandleDtoProfile>();
+			cfg.AddProfile<ExchangeDtoProfile>();
 			cfg.AddProfile<UserDtoProfile>();
 			cfg.AddProfile<DataCollectionJobDtoProfile>();
+			cfg.AddProfile<BinanceProfile>();
+			cfg.AddProfile<ExchangeConnectionDtoProfile>();
 		});
 
 		services.AddSignalR()
@@ -118,6 +126,7 @@ public static class ServiceCollectionExtensions
 
 		services.AddScoped<IMongoDbContext, MongoDbContext>();
 		services.AddScoped<IUserRepository, UserRepository>();
+		services.AddScoped<ITradeRepository, TradeRepository>();
 		services.AddScoped<IDatabaseCleanupRepository, DatabaseCleanupRepository>();
 
 		return services;
@@ -127,6 +136,10 @@ public static class ServiceCollectionExtensions
 	{
 		services.AddScoped<IPriceProvider, BinancePriceProvider>();
 		services.AddScoped<ISymbolResolver, BinanceSymbolResolver>();
+		services.AddScoped<IBinanceClientFactory, BinanceClientFactory>();
+		services.AddScoped<Core.Interfaces.IExchangeService, Infrastructure.Exchanges.Binance.Services.BinanceService>();
+
+		services.AddBinance();
 
 		return services;
 	}

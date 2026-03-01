@@ -69,11 +69,14 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 	}
 
 	private static TradingSolution Noop(string asset) =>
-		new TradingSolution { Asset = asset, Quantity = 0m, Type = SolutionType.Hold };
+		new()
+		{ Asset = asset, Quantity = 0m, Type = SolutionType.Hold };
 	private static TradingSolution Buy(string asset, decimal quantity) =>
-		new TradingSolution { Asset = asset, Quantity = quantity, Type = SolutionType.Buy };
+		new()
+		{ Asset = asset, Quantity = quantity, Type = SolutionType.Buy };
 	private static TradingSolution Sell(string asset, decimal quantity) =>
-		new TradingSolution { Asset = asset, Quantity = quantity, Type = SolutionType.Sell };
+		new()
+		{ Asset = asset, Quantity = quantity, Type = SolutionType.Sell };
 
 	private static bool PassesGuards(decimal qty, decimal price, decimal? minQty, decimal? minNotional)
 	{

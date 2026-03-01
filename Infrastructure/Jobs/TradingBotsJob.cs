@@ -9,11 +9,11 @@ namespace Infrastructure.Jobs;
 
 public class TradingBotsJob : BackgroundService
 {
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IServiceScopeFactory _scopeFactory;
 
-	public TradingBotsJob(IServiceProvider serviceProvider)
+	public TradingBotsJob(IServiceScopeFactory scopeFactory)
 	{
-		_serviceProvider = serviceProvider;
+        _scopeFactory = scopeFactory;
 	}
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)

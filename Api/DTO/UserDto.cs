@@ -4,5 +4,6 @@ public record UserDto
 (
 	string Id,
 	string Username,
-	IEnumerable<string> Roles
+	IEnumerable<string> Roles,
+	IEnumerable<string> ConnectedExchanges
 );

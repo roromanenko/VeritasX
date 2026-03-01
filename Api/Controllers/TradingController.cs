@@ -3,8 +3,6 @@ using AutoMapper;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Runtime;
-using Trading;
 using Trading.Processors;
 using Trading.Strategies;
 using VeritasX.Api.Controllers;
@@ -51,6 +49,6 @@ public class TradingController : BaseController
 			candles, job, request.InitBaselineQuantity);
 
 		var result = await processor.Start(HttpContext.RequestAborted);
-		return Ok(_mapper.Map<TradingResultDto>(result)); 
+		return Ok(_mapper.Map<TradingResultDto>(result));
 	}
 }

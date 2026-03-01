@@ -1,6 +1,6 @@
 namespace Core.Domain;
 
-public sealed record  Candle
+public sealed record Candle
 (
 	DateTimeOffset OpenTimeUtc,
 	decimal Open,

@@ -3,29 +3,28 @@ using Core.Domain;
 using Infrastructure.Persistence.Entities;
 using MongoDB.Bson;
 
-namespace Infrastructure.Mapping.Profiles
-{
-	public class UserProfile : Profile
-	{
-		public UserProfile()
-		{
-			CreateMap<User, UserEntity>()
-				.ConstructUsing(u => new UserEntity
-				{
-					Id = ObjectId.Parse(u.Id),
-					Username = u.Username,
-					PasswordHash = u.PasswordHash,
-					Roles = u.Roles.ToList()
-				});
+namespace Infrastructure.Mapping.Profiles;
 
-			CreateMap<UserEntity, User>()
-			.ConstructUsing(e => new User
+public class UserProfile : Profile
+{
+	public UserProfile()
+	{
+		CreateMap<User, UserEntity>()
+			.ConstructUsing(u => new UserEntity
 			{
-				Id = e.Id.ToString(),
-				Username = e.Username,
-				PasswordHash = e.PasswordHash,
-				Roles = e.Roles.ToList()
+				Id = ObjectId.Parse(u.Id),
+				Username = u.Username,
+				PasswordHash = u.PasswordHash,
+				Roles = u.Roles.ToList()
 			});
-		}
+
+		CreateMap<UserEntity, User>()
+		.ConstructUsing(e => new User
+		{
+			Id = e.Id.ToString(),
+			Username = e.Username,
+			PasswordHash = e.PasswordHash,
+			Roles = e.Roles.ToList()
+		});
 	}
 }

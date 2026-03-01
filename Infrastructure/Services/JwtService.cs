@@ -1,12 +1,11 @@
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Options;
-using Core.Interfaces;
-using Infrastructure.Persistence.Entities;
-using Core.Options;
 using Core.Domain;
+using Core.Interfaces;
+using Core.Options;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace Infrastructure.Services;
@@ -15,7 +14,7 @@ public class JwtService : IJwtService
 {
 	private readonly JwtOptions _jwtOptions;
 
-    public JwtService(IOptions<JwtOptions> jwtOptions)
+	public JwtService(IOptions<JwtOptions> jwtOptions)
 	{
 		_jwtOptions = jwtOptions.Value;
 	}
