@@ -3,7 +3,9 @@ using System.Text.Json.Serialization;
 using Api.Mapping;
 using Core.Interfaces;
 using Core.Options;
+using Infrastructure.Exchanges;
 using Infrastructure.Exchanges.Binance.Factory;
+using Infrastructure.Exchanges.Binance.Services;
 using Infrastructure.Interfaces;
 using Infrastructure.Jobs;
 using Infrastructure.Mapping.Profiles;
@@ -24,7 +26,7 @@ namespace Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddVeritasServices(this IServiceCollection services, IConfiguration configuration)
+	public static IServiceCollection AddVeritasxServices(this IServiceCollection services, IConfiguration configuration)
 	{
 		services.AddCachingServices(configuration);
 		services.AddHttpServices();
@@ -137,7 +139,9 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IPriceProvider, BinancePriceProvider>();
 		services.AddScoped<ISymbolResolver, BinanceSymbolResolver>();
 		services.AddScoped<IBinanceClientFactory, BinanceClientFactory>();
-		services.AddScoped<Core.Interfaces.IExchangeService, Infrastructure.Exchanges.Binance.Services.BinanceService>();
+		services.AddScoped<BinanceService>();
+		services.AddScoped<IExchangeServiceFactory, ExchangeServiceFactory>();
+		services.AddSingleton<IMarketDataStreamFactory, MarketDataStreamFactory>();
 
 		services.AddBinance();
 

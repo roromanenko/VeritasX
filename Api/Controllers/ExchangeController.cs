@@ -14,18 +14,18 @@ namespace Api.Controllers;
 [Authorize]
 public class ExchangeController : BaseController
 {
-	private readonly IExchangeService _exchangeService;
+	private readonly IExchangeServiceFactory _exchangeServiceFactory;
 	private readonly IUserService _userService;
 	private readonly IMapper _mapper;
 	private readonly ILogger<ExchangeController> _logger;
 
 	public ExchangeController(
-		IExchangeService exchangeService,
+		IExchangeServiceFactory exchangeServiceFactory,
 		IUserService userService,
 		IMapper mapper,
 		ILogger<ExchangeController> logger)
 	{
-		_exchangeService = exchangeService;
+		_exchangeServiceFactory = exchangeServiceFactory;
 		_userService = userService;
 		_mapper = mapper;
 		_logger = logger;
@@ -38,8 +38,9 @@ public class ExchangeController : BaseController
 	[ProducesResponseType(typeof(ConnectivityResponse), StatusCodes.Status200OK)]
 	public async Task<ActionResult<ConnectivityResponse>> TestConnectivity(ExchangeName exchange, CancellationToken cancellationToken)
 	{
+		var service = _exchangeServiceFactory.Create(exchange);
 		var connection = await _userService.GetExchangeConnection(UserId!, exchange);
-		var isConnected = await _exchangeService.TestConnectivity(connection, cancellationToken);
+		var isConnected = await service.TestConnectivity(connection, cancellationToken);
 		return Ok(new ConnectivityResponse
 		{
 			IsConnected = isConnected,
@@ -54,8 +55,9 @@ public class ExchangeController : BaseController
 	[ProducesResponseType(typeof(ServerTimeResponse), StatusCodes.Status200OK)]
 	public async Task<ActionResult<ServerTimeResponse>> GetServerTime(ExchangeName exchange, CancellationToken cancellationToken)
 	{
+		var service = _exchangeServiceFactory.Create(exchange);
 		var connection = await _userService.GetExchangeConnection(UserId!, exchange);
-		var serverTime = await _exchangeService.GetServerTime(connection, cancellationToken);
+		var serverTime = await service.GetServerTime(connection, cancellationToken);
 		return Ok(new ServerTimeResponse
 		{
 			ServerTime = serverTime,
@@ -74,8 +76,9 @@ public class ExchangeController : BaseController
 	{
 		try
 		{
+			var service = _exchangeServiceFactory.Create(exchange);
 			var connection = await _userService.GetExchangeConnection(UserId!, exchange);
-			var tradingPair = await _exchangeService.GetTradingPairInfo(symbol, connection, cancellationToken);
+			var tradingPair = await service.GetTradingPairInfo(symbol, connection, cancellationToken);
 			return Ok(_mapper.Map<TradingPairDto>(tradingPair));
 		}
 		catch (TradingPairNotFoundException)
@@ -100,8 +103,9 @@ public class ExchangeController : BaseController
 	{
 		try
 		{
+			var service = _exchangeServiceFactory.Create(exchange);
 			var connection = await _userService.GetExchangeConnection(UserId!, exchange);
-			var price = await _exchangeService.GetPrice(symbol, connection, cancellationToken);
+			var price = await service.GetPrice(symbol, connection, cancellationToken);
 			return Ok(_mapper.Map<PriceDto>(price));
 		}
 		catch (TradingPairNotFoundException ex)
@@ -120,8 +124,9 @@ public class ExchangeController : BaseController
 	{
 		try
 		{
+			var service = _exchangeServiceFactory.Create(exchange);
 			var connection = await _userService.GetExchangeConnection(UserId!, exchange);
-			var portfolio = await _exchangeService.GetPortfolio(UserId!, connection, cancellationToken);
+			var portfolio = await service.GetPortfolio(UserId!, connection, cancellationToken);
 			return Ok(_mapper.Map<PortfolioDto>(portfolio));
 		}
 		catch (InvalidOperationException ex)
@@ -144,11 +149,12 @@ public class ExchangeController : BaseController
 	{
 		try
 		{
+			var service = _exchangeServiceFactory.Create(exchange);
 			var connection = await _userService.GetExchangeConnection(UserId!, exchange);
 			var order = _mapper.Map<Order>(request);
 			order.UserId = UserId!;
 
-			var placedOrder = await _exchangeService.PlaceOrder(order, connection, cancellationToken);
+			var placedOrder = await service.PlaceOrder(order, connection, cancellationToken);
 			var orderDto = _mapper.Map<OrderDto>(placedOrder);
 
 			return CreatedAtAction(
@@ -184,8 +190,9 @@ public class ExchangeController : BaseController
 	{
 		try
 		{
+			var service = _exchangeServiceFactory.Create(exchange);
 			var connection = await _userService.GetExchangeConnection(UserId!, exchange);
-			var order = await _exchangeService.GetOrder(symbol, orderId, connection, cancellationToken);
+			var order = await service.GetOrder(symbol, orderId, connection, cancellationToken);
 			return Ok(_mapper.Map<OrderDto>(order));
 		}
 		catch (InvalidOperationException ex)
@@ -206,8 +213,9 @@ public class ExchangeController : BaseController
 	{
 		try
 		{
+			var service = _exchangeServiceFactory.Create(exchange);
 			var connection = await _userService.GetExchangeConnection(UserId!, exchange);
-			var cancelledOrder = await _exchangeService.CancelOrder(symbol, orderId, connection, cancellationToken);
+			var cancelledOrder = await service.CancelOrder(symbol, orderId, connection, cancellationToken);
 			return Ok(_mapper.Map<OrderDto>(cancelledOrder));
 		}
 		catch (InvalidOperationException ex)
@@ -227,8 +235,9 @@ public class ExchangeController : BaseController
 	{
 		try
 		{
+			var service = _exchangeServiceFactory.Create(exchange);
 			var connection = await _userService.GetExchangeConnection(UserId!, exchange);
-			var orders = await _exchangeService.GetOpenOrders(symbol, connection, cancellationToken);
+			var orders = await service.GetOpenOrders(symbol, connection, cancellationToken);
 			var ordersDto = _mapper.Map<List<OrderDto>>(orders);
 			return Ok(new OrdersResponse
 			{
@@ -262,8 +271,9 @@ public class ExchangeController : BaseController
 	{
 		try
 		{
+			var service = _exchangeServiceFactory.Create(exchange);
 			var connection = await _userService.GetExchangeConnection(UserId!, exchange);
-			var trades = await _exchangeService.GetTrades(symbol, connection, UserId!, orderId, startTime, endTime, limit, cancellationToken);
+			var trades = await service.GetTrades(symbol, connection, UserId!, orderId, startTime, endTime, limit, cancellationToken);
 			var tradesDto = _mapper.Map<List<TradeDto>>(trades);
 			return Ok(new TradesResponse
 			{

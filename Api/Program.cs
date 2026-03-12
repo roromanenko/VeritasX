@@ -66,7 +66,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add application services
-builder.Services.AddVeritasServices(builder.Configuration);
+builder.Services.AddVeritasxServices(builder.Configuration);
 
 var app = builder.Build();
 

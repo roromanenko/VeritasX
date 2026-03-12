@@ -215,25 +215,48 @@ public static class BinanceHelpers
 		return notional >= minNotional;
 	}
 
-	public static BinanceNet.Enums.KlineInterval ParseInterval(string interval)
+	public static KlineInterval ToKlineInterval(TimeSpan interval)
+	{
+		return interval.TotalMinutes switch
+		{
+			1 => KlineInterval.OneMinute,
+			3 => KlineInterval.ThreeMinutes,
+			5 => KlineInterval.FiveMinutes,
+			15 => KlineInterval.FifteenMinutes,
+			30 => KlineInterval.ThirtyMinutes,
+			60 => KlineInterval.OneHour,
+			120 => KlineInterval.TwoHour,
+			240 => KlineInterval.FourHour,
+			360 => KlineInterval.SixHour,
+			480 => KlineInterval.EightHour,
+			720 => KlineInterval.TwelveHour,
+			1440 => KlineInterval.OneDay,
+			4320 => KlineInterval.ThreeDay,
+			10080 => KlineInterval.OneWeek,
+			43200 => KlineInterval.OneMonth,
+			_ => throw new ArgumentException($"Unsupported interval: {interval}")
+		};
+	}
+
+	public static KlineInterval ParseInterval(string interval)
 	{
 		return interval switch
 		{
-			"1m" => KlineInterval.OneMinute,
-			"3m" => KlineInterval.ThreeMinutes,
-			"5m" => KlineInterval.FiveMinutes,
-			"15m" => KlineInterval.FifteenMinutes,
-			"30m" => KlineInterval.ThirtyMinutes,
-			"1h" => KlineInterval.OneHour,
-			"2h" => KlineInterval.TwoHour,
-			"4h" => KlineInterval.FourHour,
-			"6h" => KlineInterval.SixHour,
-			"8h" => KlineInterval.EightHour,
-			"12h" => KlineInterval.TwelveHour,
-			"1d" => KlineInterval.OneDay,
-			"3d" => KlineInterval.ThreeDay,
-			"1w" => KlineInterval.OneWeek,
-			"1M" => KlineInterval.OneMonth,
+			"1m" => ToKlineInterval(TimeSpan.FromMinutes(1)),
+			"3m" => ToKlineInterval(TimeSpan.FromMinutes(3)),
+			"5m" => ToKlineInterval(TimeSpan.FromMinutes(5)),
+			"15m" => ToKlineInterval(TimeSpan.FromMinutes(15)),
+			"30m" => ToKlineInterval(TimeSpan.FromMinutes(30)),
+			"1h" => ToKlineInterval(TimeSpan.FromHours(1)),
+			"2h" => ToKlineInterval(TimeSpan.FromHours(2)),
+			"4h" => ToKlineInterval(TimeSpan.FromHours(4)),
+			"6h" => ToKlineInterval(TimeSpan.FromHours(6)),
+			"8h" => ToKlineInterval(TimeSpan.FromHours(8)),
+			"12h" => ToKlineInterval(TimeSpan.FromHours(12)),
+			"1d" => ToKlineInterval(TimeSpan.FromDays(1)),
+			"3d" => ToKlineInterval(TimeSpan.FromDays(3)),
+			"1w" => ToKlineInterval(TimeSpan.FromDays(7)),
+			"1M" => ToKlineInterval(TimeSpan.FromDays(30)),
 			_ => throw new ArgumentException($"Unknown interval: {interval}")
 		};
 	}

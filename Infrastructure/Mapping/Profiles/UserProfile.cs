@@ -19,12 +19,13 @@ public class UserProfile : Profile
 			});
 
 		CreateMap<UserEntity, User>()
-		.ConstructUsing(e => new User
-		{
-			Id = e.Id.ToString(),
-			Username = e.Username,
-			PasswordHash = e.PasswordHash,
-			Roles = e.Roles.ToList()
-		});
+			.ConstructUsing(e => new User
+			{
+				Id = e.Id.ToString(),
+				Username = e.Username,
+				PasswordHash = e.PasswordHash,
+				Roles = e.Roles.ToList()
+			})
+			.ForMember(dest => dest.ExchangeConnections, opt => opt.Ignore());
 	}
 }
