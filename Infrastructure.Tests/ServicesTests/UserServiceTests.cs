@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Domain;
+using Core.Interfaces;
 using Infrastructure.Interfaces;
 using Infrastructure.Persistence.Entities;
 using Infrastructure.Services;
@@ -13,6 +14,7 @@ public class UserServiceTests
 {
 	private readonly Mock<IUserRepository> _userRepositoryMock;
 	private readonly Mock<IMapper> _mapperMock;
+	private readonly Mock<IEncryptionService> _encryptionServiceMock;
 	private readonly PasswordHasher<UserEntity> _passwordHasher;
 	private readonly UserService _sut;
 
@@ -20,9 +22,14 @@ public class UserServiceTests
 	{
 		_userRepositoryMock = new Mock<IUserRepository>();
 		_mapperMock = new Mock<IMapper>();
+		_encryptionServiceMock = new Mock<IEncryptionService>();
 		_passwordHasher = new PasswordHasher<UserEntity>();
 
-		_sut = new UserService(_userRepositoryMock.Object, _passwordHasher, _mapperMock.Object);
+		_sut = new UserService(
+			_userRepositoryMock.Object,
+			_passwordHasher,
+			_mapperMock.Object,
+			_encryptionServiceMock.Object);
 	}
 
 	[Theory]

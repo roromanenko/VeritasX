@@ -51,7 +51,6 @@ public static class ServiceCollectionExtensions
 
 	private static IServiceCollection AddCachingServices(this IServiceCollection services, IConfiguration configuration)
 	{
-		// Регистрируем конфигурацию кэша
 		services.Configure<CacheOptions>(configuration.GetSection(nameof(CacheOptions)));
 		var cacheOptions = configuration.GetSection(nameof(CacheOptions)).Get<CacheOptions>() ?? new CacheOptions();
 
@@ -150,11 +149,9 @@ public static class ServiceCollectionExtensions
 
 	private static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
 	{
-		// Регистрируем JWT опции
 		services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
 		var jwtOptions = configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
 
-		// Настраиваем JWT аутентификацию
 		services.AddAuthentication(options =>
 		{
 			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

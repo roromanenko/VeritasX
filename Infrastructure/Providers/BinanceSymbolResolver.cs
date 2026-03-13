@@ -1,13 +1,26 @@
 ﻿using System.Text.Json;
+using Core.Domain;
 using Core.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Infrastructure.Providers;
 
+file class BinanceExchangeInfo
+{
+	public List<BinanceSymbolDto> Symbols { get; set; } = [];
+}
+
+file class BinanceSymbolDto
+{
+	public string Symbol { get; set; } = "";
+	public string BaseAsset { get; set; } = "";
+	public string QuoteAsset { get; set; } = "";
+}
+
 public class BinanceSymbolResolver : ISymbolResolver
 {
 	private static readonly TimeSpan _cacheExpiry = TimeSpan.FromHours(1);
-	private readonly Dictionary<string, BinanceSymbolInfo?> _memoryCache;
+	private readonly Dictionary<string, SymbolInfo?> _memoryCache;
 	private readonly HttpClient _httpClient;
 
 	public BinanceSymbolResolver(HttpClient httpClient)
@@ -16,26 +29,20 @@ public class BinanceSymbolResolver : ISymbolResolver
 		_httpClient = httpClient;
 	}
 
-	public async Task<BinanceSymbolInfo> ParseSymbolAsync(string symbol)
+	public async Task<SymbolInfo> ParseSymbolAsync(string symbol)
 	{
 		if (string.IsNullOrWhiteSpace(symbol))
 			throw new ArgumentException("Symbol cannot be null or empty");
 
 		symbol = symbol.ToUpper();
 
-		if (_memoryCache.TryGetValue(symbol, out BinanceSymbolInfo? cachedInfo))
-		{
-			return cachedInfo!;
-		}
-		if (cachedInfo == null)
-		{
-			await RefreshSymbolCacheAsync();
-		}
+		if (_memoryCache.TryGetValue(symbol, out SymbolInfo? cached))
+			return cached!;
 
-		if (_memoryCache.TryGetValue(symbol, out cachedInfo))
-		{
-			return cachedInfo!;
-		}
+		await RefreshSymbolCacheAsync();
+
+		if (_memoryCache.TryGetValue(symbol, out cached))
+			return cached!;
 
 		throw new ArgumentException($"Symbol '{symbol}' not found in Binance exchange info");
 	}
@@ -44,34 +51,23 @@ public class BinanceSymbolResolver : ISymbolResolver
 	{
 		try
 		{
-			const string exchangeInfoUrl = "https://api.binance.com/api/v3/exchangeInfo";
-			var response = await _httpClient.GetStringAsync(exchangeInfoUrl);
+			const string url = "https://api.binance.com/api/v3/exchangeInfo";
+			var response = await _httpClient.GetStringAsync(url);
 
-			var options = new JsonSerializerOptions
-			{
-				PropertyNameCaseInsensitive = true
-			};
-
+			var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 			var exchangeInfo = JsonSerializer.Deserialize<BinanceExchangeInfo>(response, options);
-			if (exchangeInfo == null || exchangeInfo.Symbols == null)
-			{
-				throw new InvalidOperationException("Failed to parse exchange info from Binance");
-			}
 
-			foreach (var symbolInfo in exchangeInfo.Symbols)
+			if (exchangeInfo?.Symbols == null)
+				throw new InvalidOperationException("Failed to parse exchange info from Binance");
+
+			foreach (var s in exchangeInfo.Symbols)
 			{
-				var entry = new BinanceSymbolInfo
+				_memoryCache[s.Symbol] = new SymbolInfo
 				{
-					Symbol = symbolInfo.Symbol,
-					BaseAsset = symbolInfo.BaseAsset,
-					QuoteAsset = symbolInfo.QuoteAsset
+					Symbol = s.Symbol,
+					BaseAsset = s.BaseAsset,
+					QuoteAsset = s.QuoteAsset
 				};
-				//_memoryCache.Set(symbolInfo.Symbol!, entry, new MemoryCacheEntryOptions
-				//{
-				//	AbsoluteExpirationRelativeToNow = CacheExpiry,
-				//	Size = entry.ObjectSizeInBytes
-				//});
-				_memoryCache.Add(symbolInfo.Symbol!, entry);
 			}
 		}
 		catch (Exception ex)

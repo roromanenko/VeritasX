@@ -199,7 +199,7 @@ public class DataCollectorBackgroundService : BackgroundService
 				try
 				{
 					var candles = await priceProvider.GetHistoryAsync(
-						job.Symbol, chunk.FromUtc, chunk.ToUtc, job.Interval, cancellationToken);
+						job.BaseAsset, job.QuoteAsset, chunk.FromUtc, chunk.ToUtc, job.Interval, cancellationToken);
 
 					chunk.State = ChunkState.Completed;
 					job.CompletedChunks++;

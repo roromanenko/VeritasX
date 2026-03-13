@@ -131,7 +131,13 @@ public class TestPriceProvider : IPriceProvider
 {
 	private decimal _currentPrice = 0;
 
-	public Task<IEnumerable<Candle>> GetHistoryAsync(string symbol, DateTimeOffset fromUtc, DateTimeOffset toUtc, TimeSpan interval, CancellationToken ct = default)
+	public Task<IEnumerable<Candle>> GetHistoryAsync(
+		string asset,
+		string baseline,
+		DateTimeOffset fromUtc,
+		DateTimeOffset toUtc,
+		TimeSpan interval,
+		CancellationToken ct = default)
 	{
 		return Task.FromResult(Enumerable.Empty<Candle>());
 	}

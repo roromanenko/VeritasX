@@ -9,67 +9,45 @@ namespace Infrastructure.Providers;
 public class BinancePriceProvider : IPriceProvider
 {
 	private readonly HttpClient _httpClient;
+	private readonly ISymbolResolver _symbolResolver;
 
-	public BinancePriceProvider(HttpClient httpClient)
+	public BinancePriceProvider(HttpClient httpClient, ISymbolResolver symbolResolver)
 	{
 		_httpClient = httpClient;
+		_symbolResolver = symbolResolver;
 	}
 
-	public async Task<IEnumerable<Candle>> GetHistoryAsync(string symbol, DateTimeOffset fromUtc, DateTimeOffset toUtc, TimeSpan interval, CancellationToken ct = default)
+	public async Task<IEnumerable<Candle>> GetHistoryAsync(
+		string asset,
+		string baseline,
+		DateTimeOffset fromUtc,
+		DateTimeOffset toUtc,
+		TimeSpan interval,
+		CancellationToken ct = default)
 	{
-		Console.WriteLine("Binance cache test");
+		var symbolInfo = await _symbolResolver.ParseSymbolAsync($"{asset}{baseline}");
 
 		long startMs = fromUtc.ToUnixTimeMilliseconds();
 		long endMs = toUtc.ToUnixTimeMilliseconds();
+		string intervalStr = ToIntervalString(interval);
 
-		string unit;
-		int value;
-
-		if (interval.TotalSeconds < 60)
-		{
-			unit = "s";
-			value = (int)interval.TotalSeconds;
-		}
-		else if (interval.TotalMinutes < 60)
-		{
-			unit = "m";
-			value = (int)interval.TotalMinutes;
-		}
-		else if (interval.TotalHours < 24)
-		{
-			unit = "h";
-			value = (int)interval.TotalHours;
-		}
-		else
-		{
-			unit = "d";
-			value = (int)interval.TotalDays;
-		}
-
-		string intervalStr = $"{value}{unit}";
-
-		string url = $"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={intervalStr}&startTime={startMs}&endTime={endMs}";
+		string url = $"https://api.binance.com/api/v3/klines?symbol={symbolInfo.Symbol}&interval={intervalStr}&startTime={startMs}&endTime={endMs}";
 
 		using var resp = await _httpClient.GetAsync(url, ct);
 		resp.EnsureSuccessStatusCode();
-		using var doc = await resp.Content.ReadFromJsonAsync<JsonDocument>(ct);
 
-		if (doc == null)
-		{
-			return [];
-		}
+		using var doc = await resp.Content.ReadFromJsonAsync<JsonDocument>(ct);
+		if (doc == null) return [];
 
 		var list = new List<Candle>();
 		foreach (var item in doc.RootElement.EnumerateArray())
 		{
 			long openTime = item[0].GetInt64();
-
 			decimal open = decimal.Parse(item[1].GetString() ?? "0", CultureInfo.InvariantCulture);
 			decimal high = decimal.Parse(item[2].GetString() ?? "0", CultureInfo.InvariantCulture);
 			decimal low = decimal.Parse(item[3].GetString() ?? "0", CultureInfo.InvariantCulture);
 			decimal close = decimal.Parse(item[4].GetString() ?? "0", CultureInfo.InvariantCulture);
 			decimal volume = decimal.Parse(item[5].GetString() ?? "0", CultureInfo.InvariantCulture);
-
 			DateTime openTimeUtc = DateTimeOffset.FromUnixTimeMilliseconds(openTime).UtcDateTime;
 			list.Add(new Candle(openTimeUtc, open, high, low, close, volume));
 		}
@@ -77,8 +55,28 @@ public class BinancePriceProvider : IPriceProvider
 		return list;
 	}
 
-	public Task<decimal> GetPriceAsync(string asset, string baseline, CancellationToken ct = default)
+	public async Task<decimal> GetPriceAsync(string asset, string baseline, CancellationToken ct = default)
 	{
-		return Task.FromResult(0m);
+		var symbolInfo = await _symbolResolver.ParseSymbolAsync($"{asset}{baseline}");
+
+		string url = $"https://api.binance.com/api/v3/ticker/price?symbol={symbolInfo.Symbol}";
+		using var resp = await _httpClient.GetAsync(url, ct);
+		resp.EnsureSuccessStatusCode();
+
+		using var doc = await resp.Content.ReadFromJsonAsync<JsonDocument>(ct);
+		if (doc == null) return 0m;
+
+		return decimal.Parse(
+			doc.RootElement.GetProperty("price").GetString() ?? "0",
+			CultureInfo.InvariantCulture
+		);
+	}
+
+	private static string ToIntervalString(TimeSpan interval)
+	{
+		if (interval.TotalSeconds < 60) return $"{(int)interval.TotalSeconds}s";
+		if (interval.TotalMinutes < 60) return $"{(int)interval.TotalMinutes}m";
+		if (interval.TotalHours < 24) return $"{(int)interval.TotalHours}h";
+		return $"{(int)interval.TotalDays}d";
 	}
 }
