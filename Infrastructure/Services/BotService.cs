@@ -85,11 +85,10 @@ public class BotService : IBotService
 	{
 		var bot = await GetBot(botId, userId);
 
-		if (bot.Status == BotStatus.Active)
-			throw new InvalidOperationException($"Bot '{botId}' is already running");
+		if (bot.Status == BotStatus.Active || bot.Status == BotStatus.Pending)
+			throw new InvalidOperationException($"Bot '{botId}' is already running or pending");
 
-		bot.Status = BotStatus.Active;
-		bot.StartedAt = DateTimeOffset.UtcNow;
+		bot.Status = BotStatus.Pending;
 		bot.ErrorMessage = null;
 		await UpdateBot(bot);
 	}

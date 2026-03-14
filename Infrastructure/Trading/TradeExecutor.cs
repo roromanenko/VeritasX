@@ -1,5 +1,9 @@
 ﻿using Core.Domain;
 using Core.Interfaces;
+using Infrastructure.Interfaces;
+using Infrastructure.Persistence.Entities;
+using Infrastructure.Persistence.Repositories;
+using MongoDB.Bson;
 
 namespace Infrastructure.Trading;
 
@@ -13,11 +17,13 @@ public class TradeExecutor : ITradeExecutor
 {
 	private readonly IExchangeServiceFactory _exchangeServiceFactory;
 	private readonly IUserService _userService;
+	private readonly ITradeRepository _tradeRepository;
 
-	public TradeExecutor(IExchangeServiceFactory exchangeServiceFactory, IUserService userService)
+	public TradeExecutor(IExchangeServiceFactory exchangeServiceFactory, IUserService userService, ITradeRepository tradeRepository)
 	{
 		_exchangeServiceFactory = exchangeServiceFactory;
 		_userService = userService;
+		_tradeRepository = tradeRepository;
 	}
 
 	/// <summary>
@@ -68,6 +74,22 @@ public class TradeExecutor : ITradeExecutor
 
 		var placedOrder = await exchangeService.PlaceOrder(order, connection, ct);
 
+		var tradeDocument = new TradeDocument
+		{
+			UserId = ObjectId.Parse(bot.UserId),
+			Exchange = bot.Exchange.ToString(),
+			ExchangeOrderId = placedOrder.ExchangeOrderId,
+			ExchangeTradeId = placedOrder.Id,
+			IsTestnet = connection.IsTestnet,
+			Symbol = bot.Symbol,
+			Side = side,
+			Price = placedOrder.AverageFillPrice ?? 0,
+			Quantity = placedOrder.FilledQuantity,
+			ExecutedAt = placedOrder.ExecutedAt ?? DateTimeOffset.UtcNow
+		};
+
+		var savedTrade = await _tradeRepository.CreateTrade(tradeDocument);
+
 		return new BotTradeRecord
 		{
 			Id = Guid.NewGuid().ToString(),
@@ -78,6 +100,7 @@ public class TradeExecutor : ITradeExecutor
 			Price = placedOrder.AverageFillPrice ?? 0,
 			Quantity = placedOrder.FilledQuantity,
 			Reason = solution.Reason,
+			TradeId = savedTrade.Id.ToString(),
 			ExecutedAt = placedOrder.ExecutedAt ?? DateTimeOffset.UtcNow
 		};
 	}

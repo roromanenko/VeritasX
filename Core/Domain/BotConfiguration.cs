@@ -21,6 +21,7 @@ public class BotConfiguration
 public enum BotStatus
 {
 	Active,
+	Pending,
 	Stopped,
 	Error
 }
