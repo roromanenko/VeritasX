@@ -12,7 +12,7 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 		_config = config;
 	}
 
-	public async Task<TradingSolution> CalculateNextStep(TradingContext context, CancellationToken cancellationToken = default)
+	public Task<TradingSolution> CalculateNextStep(TradingContext context, MarketTick tick, CancellationToken ct = default)
 	{
 		var asset = _config.Asset.ToUpperInvariant();
 		var baseline = context.Account.Baseline;
@@ -21,12 +21,11 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 		balances.TryGetValue(asset, out var assetQty);
 		balances.TryGetValue(baseline, out var baselineQty);
 
-		var price = await context.GetPriceInBaselineAsync(asset, cancellationToken).ConfigureAwait(false);
-		var total = await context.GetTotalInBaseline(cancellationToken).ConfigureAwait(false);
+		var price = tick.Price;
+		var total = context.GetTotalInBaseline(price);
 
-		// Nothing to do if portfolio is empty or price unavailable
 		if (total <= 0m || price <= 0m)
-			return Noop(asset);
+			return Task.FromResult(Noop(asset));
 
 		var currentValue = assetQty * price;
 		var currentWeight = currentValue / total;
@@ -34,38 +33,28 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 		var lower = _config.TargetWeight - _config.Threshold;
 		var upper = _config.TargetWeight + _config.Threshold;
 
-		// Inside band → do nothing
 		if (currentWeight >= lower && currentWeight <= upper)
-			return Noop(asset);
+			return Task.FromResult(Noop(asset));
 
-		// Rebalance back to target exactly
 		var desiredValue = _config.TargetWeight * total;
-		var deltaValue = desiredValue - currentValue; // >0 buy, <0 sell
+		var deltaValue = desiredValue - currentValue;
 
 		if (deltaValue > 0m)
 		{
-			// BUY using baseline
 			var qtyToBuy = deltaValue / price;
-
-			// Cap by available baseline (can't spend more than you have)
 			var maxBuyQty = baselineQty / price;
 			qtyToBuy = Math.Min(qtyToBuy, maxBuyQty);
 			if (!PassesGuards(qtyToBuy, price, _config.MinQty, _config.MinNotional))
-				return Noop(asset);
-
-			return Buy(asset, qtyToBuy, currentWeight, _config.TargetWeight);
+				return Task.FromResult(Noop(asset));
+			return Task.FromResult(Buy(asset, qtyToBuy, currentWeight, _config.TargetWeight));
 		}
 		else
 		{
-			// SELL down to target
 			var qtyToSell = Math.Abs(deltaValue) / price;
-
-			// Cap by current holdings
 			qtyToSell = Math.Min(qtyToSell, assetQty);
 			if (!PassesGuards(qtyToSell, price, _config.MinQty, _config.MinNotional))
-				return Noop(asset);
-
-			return Sell(asset, qtyToSell, currentWeight, _config.TargetWeight);
+				return Task.FromResult(Noop(asset));
+			return Task.FromResult(Sell(asset, qtyToSell, currentWeight, _config.TargetWeight));
 		}
 	}
 

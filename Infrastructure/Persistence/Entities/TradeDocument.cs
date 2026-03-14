@@ -5,6 +5,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Infrastructure.Persistence.Entities;
 
+[Table("trades")]
 public class TradeDocument
 {
 	[BsonId]

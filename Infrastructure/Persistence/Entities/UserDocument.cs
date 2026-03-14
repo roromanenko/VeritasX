@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Persistence.Entities;
 
+[Table("users")]
 public class UserDocument
 {
 	[BsonId]

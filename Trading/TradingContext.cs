@@ -41,52 +41,37 @@ public sealed class AccountContext
 
 public class TradingContext
 {
-	private readonly IPriceProvider _prices;
-
 	public AccountContext Account { get; }
-	public TradingContext(AccountContext account, IPriceProvider prices)
+
+	public TradingContext(AccountContext account)
 	{
 		Account = account ?? throw new ArgumentNullException(nameof(account));
-		_prices = prices ?? throw new ArgumentNullException(nameof(prices));
 	}
 
-	public Task<decimal> GetPriceInBaselineAsync(string asset, CancellationToken ct = default)
+	public decimal GetPriceInBaseline(string asset, decimal currentPrice)
 	{
-		asset = asset.ToUpperInvariant();
 		return asset.Equals(Account.Baseline, StringComparison.OrdinalIgnoreCase)
-			? Task.FromResult(1m)
-			: _prices.GetPriceAsync(asset, Account.Baseline, ct);
+			? 1m
+			: currentPrice;
 	}
 
-	public async Task<decimal> GetTotalInBaseline(CancellationToken ct)
+	public decimal GetTotalInBaseline(decimal currentPrice)
 	{
-		var priceTasks = Account.GetBalances().Select(async item =>
-		{
-			decimal px = item.Key.Equals(Account.Baseline, StringComparison.OrdinalIgnoreCase)
-				? 1m
-				: await _prices.GetPriceAsync(item.Key, Account.Baseline, ct).ConfigureAwait(false);
-
-			return item.Value * px;
-		});
-
-		var results = await Task.WhenAll(priceTasks).ConfigureAwait(false);	
-
-		return results.Sum();
+		return Account.GetBalances().Sum(b =>
+			b.Key.Equals(Account.Baseline, StringComparison.OrdinalIgnoreCase)
+				? b.Value
+				: b.Value * currentPrice);
 	}
 
-	public async Task<decimal> GetAssetWeightAsync(string asset, CancellationToken ct)
+	public decimal GetAssetWeight(string asset, decimal currentPrice)
 	{
-		if (string.IsNullOrWhiteSpace(asset))
-			throw new ArgumentException("asset required", nameof(asset));
-
-		asset = asset.ToUpperInvariant();
-		var total = await GetTotalInBaseline(ct).ConfigureAwait(false);
+		var total = GetTotalInBaseline(currentPrice);
 		if (total == 0) return 0;
+
 		var balance = Account.GetBalances().GetValueOrDefault(asset, 0);
 		if (balance == 0) return 0;
-		var price = asset.Equals(Account.Baseline, StringComparison.OrdinalIgnoreCase)
-			? 1m
-			: await _prices.GetPriceAsync(asset, Account.Baseline, ct).ConfigureAwait(false);
+
+		var price = GetPriceInBaseline(asset, currentPrice);
 		return (balance * price) / total;
 	}
 }

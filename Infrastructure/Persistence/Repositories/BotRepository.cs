@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Core.Domain;
+﻿using Core.Domain;
 using Core.Interfaces;
 using Core.Options;
 using Infrastructure.Interfaces;
@@ -28,7 +23,7 @@ public class BotRepository : IBotRepository
 	public async Task<BotConfigurationDocument> CreateBot(BotConfigurationDocument bot)
 	{
 		await _dbContext
-			.GetCollection<BotConfigurationDocument>("bot_configurations")
+			.GetCollection<BotConfigurationDocument>()
 			.InsertOneAsync(bot);
 		return bot;
 	}
@@ -40,7 +35,7 @@ public class BotRepository : IBotRepository
 			Builders<BotConfigurationDocument>.Filter.Eq(b => b.UserId, userId)
 		);
 		return await _dbContext
-			.GetCollection<BotConfigurationDocument>("bot_configurations")
+			.GetCollection<BotConfigurationDocument>()
 			.Find(filter)
 			.FirstOrDefaultAsync();
 	}
@@ -49,7 +44,7 @@ public class BotRepository : IBotRepository
 	{
 		var filter = Builders<BotConfigurationDocument>.Filter.Eq(b => b.UserId, userId);
 		return await _dbContext
-			.GetCollection<BotConfigurationDocument>("bot_configurations")
+			.GetCollection<BotConfigurationDocument>()
 			.Find(filter)
 			.ToListAsync();
 	}
@@ -58,7 +53,7 @@ public class BotRepository : IBotRepository
 	{
 		var filter = Builders<BotConfigurationDocument>.Filter.Eq(b => b.Status, BotStatus.Active);
 		return await _dbContext
-			.GetCollection<BotConfigurationDocument>("bot_configurations")
+			.GetCollection<BotConfigurationDocument>()
 			.Find(filter)
 			.ToListAsync();
 	}
@@ -67,7 +62,7 @@ public class BotRepository : IBotRepository
 	{
 		var filter = Builders<BotConfigurationDocument>.Filter.Eq(b => b.Id, bot.Id);
 		return _dbContext
-			.GetCollection<BotConfigurationDocument>("bot_configurations")
+			.GetCollection<BotConfigurationDocument>()
 			.ReplaceOneAsync(filter, bot);
 	}
 
@@ -78,9 +73,8 @@ public class BotRepository : IBotRepository
 			Builders<BotConfigurationDocument>.Filter.Eq(b => b.UserId, userId)
 		);
 		var result = await _dbContext
-			.GetCollection<BotConfigurationDocument>("bot_configurations")
+			.GetCollection<BotConfigurationDocument>()
 			.DeleteOneAsync(filter);
-
 		if (result.DeletedCount == 0)
 			throw new KeyNotFoundException($"Bot '{botId}' not found for user '{userId}'");
 	}

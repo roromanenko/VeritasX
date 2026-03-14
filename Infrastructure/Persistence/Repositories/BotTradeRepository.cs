@@ -27,7 +27,7 @@ public class BotTradeRepository : IBotTradeRepository
 	public async Task<BotTradeRecordDocument> CreateTradeRecord(BotTradeRecordDocument record)
 	{
 		await _dbContext
-			.GetCollection<BotTradeRecordDocument>("bot_trade_records")
+			.GetCollection<BotTradeRecordDocument>()
 			.InsertOneAsync(record);
 		return record;
 	}
@@ -36,7 +36,7 @@ public class BotTradeRepository : IBotTradeRepository
 	{
 		var filter = Builders<BotTradeRecordDocument>.Filter.Eq(r => r.BotId, botId);
 		return await _dbContext
-			.GetCollection<BotTradeRecordDocument>("bot_trade_records")
+			.GetCollection<BotTradeRecordDocument>()
 			.Find(filter)
 			.SortByDescending(r => r.ExecutedAt)
 			.Limit(limit)
@@ -47,7 +47,7 @@ public class BotTradeRepository : IBotTradeRepository
 	{
 		var filter = Builders<BotTradeRecordDocument>.Filter.Eq(r => r.UserId, userId);
 		return await _dbContext
-			.GetCollection<BotTradeRecordDocument>("bot_trade_records")
+			.GetCollection<BotTradeRecordDocument>()
 			.Find(filter)
 			.SortByDescending(r => r.ExecutedAt)
 			.Limit(limit)
@@ -62,7 +62,7 @@ public class BotTradeRepository : IBotTradeRepository
 			Builders<BotTradeRecordDocument>.Filter.Lte(r => r.ExecutedAt, to)
 		);
 		return await _dbContext
-			.GetCollection<BotTradeRecordDocument>("bot_trade_records")
+			.GetCollection<BotTradeRecordDocument>()
 			.Find(filter)
 			.SortByDescending(r => r.ExecutedAt)
 			.ToListAsync();

@@ -1,9 +1,11 @@
-﻿using Core.Domain;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Core.Domain;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Infrastructure.Persistence.Entities;
 
+[Table("bot_trade_records")]
 public class BotTradeRecordDocument
 {
 	[BsonId]

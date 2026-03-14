@@ -13,22 +13,22 @@ public class TestTradingProcessor : ITradingProcessor
 
 	public TestTradingProcessor(
 		ITradingStrategy strategy,
-		IEnumerable<Candle> candels,
+		IEnumerable<Candle> candles,
 		DataCollectionJob jobInfo,
 		decimal initBaselineQuantity)
 	{
 		_strategy = strategy;
-		_candles = candels;
+		_candles = candles;
 		_jobInfo = jobInfo;
 		_initBaselineQuantity = initBaselineQuantity;
 	}
 
 	public async Task<TradingResult> Start(CancellationToken cancellationToken)
 	{
-		var testPriceProvider = new TestPriceProvider();
-		var context = new TradingContext(new AccountContext(_jobInfo.QuoteAsset), testPriceProvider);
+		var context = new TradingContext(new AccountContext(_jobInfo.QuoteAsset));
 		context.Account.SetBalance(_jobInfo.QuoteAsset, _initBaselineQuantity);
-		var startTotal = await context.GetTotalInBaseline(cancellationToken);
+
+		var startTotal = context.GetTotalInBaseline(0);
 		bool tradingStarted = false;
 
 		(decimal baselineQty, decimal targetQty) = (0, 0);
@@ -40,8 +40,15 @@ public class TestTradingProcessor : ITradingProcessor
 		foreach (var candle in _candles)
 		{
 			currentPrice = candle.Close;
-			testPriceProvider.SetPrice(currentPrice);
-			var solution = await _strategy.CalculateNextStep(context, cancellationToken);
+
+			var tick = new MarketTick
+			{
+				Symbol = _jobInfo.Symbol,
+				Price = currentPrice,
+				Candle = candle
+			};
+
+			var solution = await _strategy.CalculateNextStep(context, tick, cancellationToken);
 
 			switch (solution.Type)
 			{
@@ -67,15 +74,13 @@ public class TestTradingProcessor : ITradingProcessor
 				tradingStarted = true;
 			}
 
-			if (tradingStarted)
-			{
-				portfolioSnapshots.Add(await context.GetTotalInBaseline(cancellationToken));
-				holdSnapshots.Add(baselineQty + targetQty * currentPrice);
-			}
+			portfolioSnapshots.Add(context.GetTotalInBaseline(currentPrice));
+			holdSnapshots.Add(baselineQty + targetQty * currentPrice);
 		}
-		
-		var endTotal = await context.GetTotalInBaseline(cancellationToken);
+
+		var endTotal = context.GetTotalInBaseline(currentPrice);
 		var periodsPerYear = (int)(TimeSpan.FromDays(365) / _jobInfo.Interval);
+
 		return new TradingResult
 		{
 			StartTotalInBaseline = startTotal,
@@ -89,10 +94,7 @@ public class TestTradingProcessor : ITradingProcessor
 		};
 	}
 
-	public Task Stop(CancellationToken cancellationToken)
-	{
-		return Task.CompletedTask;
-	}
+	public Task Stop(CancellationToken cancellationToken) => Task.CompletedTask;
 
 	/// <summary>
 	/// Calculates the annualized Sharpe ratio from a series of equity snapshots.<br/>
@@ -101,7 +103,7 @@ public class TestTradingProcessor : ITradingProcessor
 	/// <param name="snapshots">Sequential equity snapshots (e.g., daily portfolio values).</param>
 	/// <param name="periodsPerYear">Number of periods per year for annualization (e.g., 252 for daily trading days, 365 for daily data, 12 for monthly).</param>
 	/// <returns>
-	/// The annualized Sharpe ratio. Returns 0 if insufficient data (&lt;2 snapshots), 
+	/// The annualized Sharpe ratio. Returns 0 if insufficient data (&lt;2 snapshots),
 	/// if variance is zero (constant returns), or if calculations encounter division by zero.
 	/// </returns>
 	private static decimal CalcSharpe(List<decimal> snapshots, int periodsPerYear)
@@ -124,31 +126,5 @@ public class TestTradingProcessor : ITradingProcessor
 		if (std == 0) return 0;
 
 		return mean / std * (decimal)Math.Sqrt(periodsPerYear);
-	}
-}
-
-public class TestPriceProvider : IPriceProvider
-{
-	private decimal _currentPrice = 0;
-
-	public Task<IEnumerable<Candle>> GetHistoryAsync(
-		string asset,
-		string baseline,
-		DateTimeOffset fromUtc,
-		DateTimeOffset toUtc,
-		TimeSpan interval,
-		CancellationToken ct = default)
-	{
-		return Task.FromResult(Enumerable.Empty<Candle>());
-	}
-
-	public Task<decimal> GetPriceAsync(string asset, string baseline, CancellationToken ct = default)
-	{
-		return Task.FromResult(_currentPrice);
-	}
-
-	public void SetPrice(decimal price)
-	{
-		_currentPrice = price;
 	}
 }

@@ -24,7 +24,7 @@ public class DatabaseCleanupRepository : IDatabaseCleanupRepository
 		var filter = Builders<DataCollectionJobDocument>.Filter.And(Builders<DataCollectionJobDocument>.Filter.Lt(job => job.CompletedAt, cutoffDate));
 
 		return await _dbContext
-			.GetCollection<DataCollectionJobDocument>("data_collection_jobs")
+			.GetCollection<DataCollectionJobDocument>()
 			.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public class DatabaseCleanupRepository : IDatabaseCleanupRepository
 		var filter = Builders<DataCollectionJobDocument>.Filter.And(Builders<DataCollectionJobDocument>.Filter.Lt(job => job.CompletedAt, cutoffDate));
 
 		using var cursor = await _dbContext
-			.GetCollection<DataCollectionJobDocument>("data_collection_jobs")
+			.GetCollection<DataCollectionJobDocument>()
 			.Find(filter, new() { BatchSize = batchSize })
 			.Project(job => job.Id)
 			.ToCursorAsync(cancellationToken);
@@ -57,7 +57,7 @@ public class DatabaseCleanupRepository : IDatabaseCleanupRepository
 		var filter = Builders<DataCollectionJobDocument>.Filter.In(job => job.Id, jobIds);
 
 		var deletedCount = await _dbContext
-			.GetCollection<DataCollectionJobDocument>("data_collection_jobs")
+			.GetCollection<DataCollectionJobDocument>()
 			.DeleteManyAsync(filter, cancellationToken: cancellationToken);
 
 		return deletedCount.DeletedCount;
@@ -73,7 +73,7 @@ public class DatabaseCleanupRepository : IDatabaseCleanupRepository
 		var filter = Builders<CandleChunkDocument>.Filter.In(chunk => chunk.JobId, jobIds);
 
 		var deletedCount = await _dbContext
-			.GetCollection<CandleChunkDocument>("candle_chunks")
+			.GetCollection<CandleChunkDocument>()
 			.DeleteManyAsync(filter, cancellationToken: cancellationToken);
 
 		return deletedCount.DeletedCount;

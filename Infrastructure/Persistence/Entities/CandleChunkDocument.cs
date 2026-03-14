@@ -1,8 +1,10 @@
-﻿using MongoDB.Bson;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Infrastructure.Persistence.Entities;
 
+[Table("candle_chunks")]
 public record CandleChunkDocument
 {
 	[BsonId]
