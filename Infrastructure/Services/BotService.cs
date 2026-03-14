@@ -31,6 +31,8 @@ public class BotService : IBotService
 			Name = config.Name,
 			Exchange = config.Exchange,
 			Symbol = config.Symbol,
+			BaseAsset = config.BaseAsset,
+			QuoteAsset = config.QuoteAsset,
 			Strategy = _mapper.Map<StrategyDefinitionDocument>(config.Strategy),
 			RiskParameters = _mapper.Map<RiskParametersDocument>(config.RiskParameters)
 		};

@@ -14,6 +14,7 @@ using Infrastructure.Persistence.MongoDb;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Providers;
 using Infrastructure.Services;
+using Infrastructure.Trading;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
@@ -145,6 +146,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<BinanceService>();
 		services.AddScoped<IExchangeServiceFactory, ExchangeServiceFactory>();
 		services.AddSingleton<IMarketDataStreamFactory, MarketDataStreamFactory>();
+		services.AddScoped<ITradeExecutor, TradeExecutor>();
 
 		services.AddBinance();
 

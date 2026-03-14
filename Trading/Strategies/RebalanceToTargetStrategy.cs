@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Core.Domain;
 
 namespace Trading.Strategies;
 
@@ -52,7 +53,7 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 			if (!PassesGuards(qtyToBuy, price, _config.MinQty, _config.MinNotional))
 				return Noop(asset);
 
-			return Buy(asset, qtyToBuy);
+			return Buy(asset, qtyToBuy, currentWeight, _config.TargetWeight);
 		}
 		else
 		{
@@ -64,19 +65,36 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 			if (!PassesGuards(qtyToSell, price, _config.MinQty, _config.MinNotional))
 				return Noop(asset);
 
-			return Sell(asset, qtyToSell);
+			return Sell(asset, qtyToSell, currentWeight, _config.TargetWeight);
 		}
 	}
 
 	private static TradingSolution Noop(string asset) =>
-		new()
-		{ Asset = asset, Quantity = 0m, Type = SolutionType.Hold };
-	private static TradingSolution Buy(string asset, decimal quantity) =>
-		new()
-		{ Asset = asset, Quantity = quantity, Type = SolutionType.Buy };
-	private static TradingSolution Sell(string asset, decimal quantity) =>
-		new()
-		{ Asset = asset, Quantity = quantity, Type = SolutionType.Sell };
+	new()
+	{
+		Asset = asset,
+		Quantity = 0m,
+		Type = SolutionType.Hold,
+		Reason = "Within threshold band"
+	};
+
+	private static TradingSolution Buy(string asset, decimal quantity, decimal currentWeight, decimal targetWeight) =>
+	new()
+	{
+		Asset = asset,
+		Quantity = quantity,
+		Type = SolutionType.Buy,
+		Reason = $"Weight {currentWeight:P2} below target {targetWeight:P2}, buying to rebalance"
+	};
+
+	private static TradingSolution Sell(string asset, decimal quantity, decimal currentWeight, decimal targetWeight) =>
+	new()
+	{
+		Asset = asset,
+		Quantity = quantity,
+		Type = SolutionType.Sell,
+		Reason = $"Weight {currentWeight:P2} above target {targetWeight:P2}, selling to rebalance"
+	};
 
 	private static bool PassesGuards(decimal qty, decimal price, decimal? minQty, decimal? minNotional)
 	{

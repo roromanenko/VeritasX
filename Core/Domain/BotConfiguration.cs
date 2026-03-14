@@ -7,6 +7,8 @@ public class BotConfiguration
 	public required string Name { get; set; }
 	public required ExchangeName Exchange { get; init; }
 	public required string Symbol { get; init; }
+	public required string BaseAsset { get; init; }
+	public required string QuoteAsset { get; init; }
 	public required StrategyDefinition Strategy { get; init; }
 	public required RiskParameters RiskParameters { get; set; }
 	public BotStatus Status { get; set; } = BotStatus.Stopped;

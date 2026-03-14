@@ -12,6 +12,8 @@ public class BotConfigurationDocument
 	public string Name { get; set; } = string.Empty;
 	public ExchangeName Exchange { get; set; }
 	public string Symbol { get; set; } = string.Empty;
+	public string BaseAsset { get; set; } = string.Empty;
+	public string QuoteAsset { get; set; } = string.Empty;
 	public StrategyDefinitionDocument Strategy { get; set; } = null!;
 	public RiskParametersDocument RiskParameters { get; set; } = null!;
 	public BotStatus Status { get; set; } = BotStatus.Stopped;
