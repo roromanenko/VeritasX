@@ -8,10 +8,10 @@ public interface IUserRepository
 {
 	#region User actions
 
-	Task<UserEntity> CreateUser(UserEntity newUser);
-	Task<UserEntity> GetUserByUsername(string username);
-	Task<UserEntity> GetUserById(ObjectId userid);
-	Task UpdateUser(UserEntity user);
+	Task<UserDocument> CreateUser(UserDocument newUser);
+	Task<UserDocument> GetUserByUsername(string username);
+	Task<UserDocument> GetUserById(ObjectId userid);
+	Task UpdateUser(UserDocument user);
 	Task ChangePassword(ObjectId userId, string newPasswordHash);
 	Task DeleteUser(ObjectId userId);
 
@@ -19,11 +19,11 @@ public interface IUserRepository
 
 	#region Exchange connection actions
 
-	Task AddExchangeConnection(ObjectId userId, ExchangeName exchange, ExchangeConnectionEntity connection);
-	Task UpdateExchangeConnection(ObjectId userId, ExchangeName exchange, ExchangeConnectionEntity connection);
+	Task AddExchangeConnection(ObjectId userId, ExchangeName exchange, ExchangeConnectionDocument connection);
+	Task UpdateExchangeConnection(ObjectId userId, ExchangeName exchange, ExchangeConnectionDocument connection);
 	Task RemoveExchangeConnection(ObjectId userId, ExchangeName exchange);
-	Task<ExchangeConnectionEntity> GetExchangeConnection(ObjectId userId, ExchangeName exchange);
-	Task<Dictionary<ExchangeName, ExchangeConnectionEntity>> GetAllExchangeConnections(ObjectId userId);
+	Task<ExchangeConnectionDocument> GetExchangeConnection(ObjectId userId, ExchangeName exchange);
+	Task<Dictionary<ExchangeName, ExchangeConnectionDocument>> GetAllExchangeConnections(ObjectId userId);
 
 	#endregion
 }

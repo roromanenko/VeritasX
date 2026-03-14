@@ -1,5 +1,4 @@
-﻿using Core.Domain;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Infrastructure.Persistence.Entities;

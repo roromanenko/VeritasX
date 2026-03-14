@@ -11,11 +11,11 @@ namespace Infrastructure.Services;
 public class UserService : IUserService
 {
 	private readonly IUserRepository _userRepository;
-	private readonly PasswordHasher<UserEntity> _passwordHasher;
+	private readonly PasswordHasher<UserDocument> _passwordHasher;
 	private readonly IMapper _mapper;
 	private readonly IEncryptionService _encryptionService;
 
-	public UserService(IUserRepository userRepository, PasswordHasher<UserEntity> passwordHasher, IMapper mapper, IEncryptionService encryptionService)
+	public UserService(IUserRepository userRepository, PasswordHasher<UserDocument> passwordHasher, IMapper mapper, IEncryptionService encryptionService)
 	{
 		_userRepository = userRepository;
 		_passwordHasher = passwordHasher;
@@ -50,7 +50,7 @@ public class UserService : IUserService
 			throw new ArgumentException("User with this username already exists");
 		}
 
-		var newUser = new UserEntity
+		var newUser = new UserDocument
 		{
 			Username = username,
 			Roles = ["user"]
@@ -63,7 +63,7 @@ public class UserService : IUserService
 
 	public async Task<User> GetUserById(string userId)
 	{
-		UserEntity userEntity = await _userRepository.GetUserById(ObjectId.Parse(userId));
+		UserDocument userEntity = await _userRepository.GetUserById(ObjectId.Parse(userId));
 
 		return userEntity is null
 			? throw new KeyNotFoundException($"User with ID '{userId}' was not found.")
@@ -72,7 +72,7 @@ public class UserService : IUserService
 
 	public async Task UpdateUser(User user)
 	{
-		await _userRepository.UpdateUser(_mapper.Map<UserEntity>(user));
+		await _userRepository.UpdateUser(_mapper.Map<UserDocument>(user));
 	}
 
 	public async Task ChangePassword(string userId, string newPassword)
@@ -115,7 +115,7 @@ public class UserService : IUserService
 		return entities.ToDictionary(kvp => kvp.Key, kvp => DecryptConnection(kvp.Value));
 	}
 
-	private ExchangeConnectionEntity EncryptConnection(ExchangeConnection connection) => new()
+	private ExchangeConnectionDocument EncryptConnection(ExchangeConnection connection) => new()
 	{
 		EncryptedApiKey = _encryptionService.Encrypt(connection.ApiKey),
 		EncryptedSecretKey = _encryptionService.Encrypt(connection.SecretKey),
@@ -124,7 +124,7 @@ public class UserService : IUserService
 		LastUsedAt = connection.LastUsedAt
 	};
 
-	private ExchangeConnection DecryptConnection(ExchangeConnectionEntity entity) => new()
+	private ExchangeConnection DecryptConnection(ExchangeConnectionDocument entity) => new()
 	{
 		ApiKey = _encryptionService.Decrypt(entity.EncryptedApiKey),
 		SecretKey = _encryptionService.Decrypt(entity.EncryptedSecretKey),

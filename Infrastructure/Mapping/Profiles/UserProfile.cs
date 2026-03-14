@@ -9,8 +9,8 @@ public class UserProfile : Profile
 {
 	public UserProfile()
 	{
-		CreateMap<User, UserEntity>()
-			.ConstructUsing(u => new UserEntity
+		CreateMap<User, UserDocument>()
+			.ConstructUsing(u => new UserDocument
 			{
 				Id = ObjectId.Parse(u.Id),
 				Username = u.Username,
@@ -18,7 +18,7 @@ public class UserProfile : Profile
 				Roles = u.Roles.ToList()
 			});
 
-		CreateMap<UserEntity, User>()
+		CreateMap<UserDocument, User>()
 			.ConstructUsing(e => new User
 			{
 				Id = e.Id.ToString(),

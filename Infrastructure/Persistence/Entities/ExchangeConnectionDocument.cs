@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Persistence.Entities;
 
-public class ExchangeConnectionEntity
+public class ExchangeConnectionDocument
 {
 	public required byte[] EncryptedApiKey { get; set; }
 

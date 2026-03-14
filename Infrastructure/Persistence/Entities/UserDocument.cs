@@ -5,8 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Persistence.Entities;
 
-[Table("user")]
-public class UserEntity
+public class UserDocument
 {
 	[BsonId]
 	public ObjectId Id { get; set; }
@@ -19,5 +18,5 @@ public class UserEntity
 	public List<string> Roles { get; set; } = [];
 
 	[BsonIgnoreIfNull]
-	public Dictionary<ExchangeName, ExchangeConnectionEntity>? ExchangeConnections { get; set; }
+	public Dictionary<ExchangeName, ExchangeConnectionDocument>? ExchangeConnections { get; set; }
 }

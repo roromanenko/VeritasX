@@ -81,12 +81,12 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IDataCollectionService, DataCollectionService>();
 		services.AddScoped<ICandleChunkService, CandleChunkService>();
 		services.AddHostedService<DataCollectorBackgroundService>();
-		services.AddHostedService<TradingBotsJob>();
 		services.AddHostedService<DatabaseCleanupJob>();
 		services.AddScoped<IUserService, UserService>();
 		services.AddScoped<IJwtService, JwtService>();
+		services.AddScoped<IBotService, BotService>();
 		services.AddScoped<IEncryptionService>(sp => new EncryptionService(masterKey, sp.GetRequiredService<IOptions<EncryptionOptions>>()));
-		services.AddScoped<PasswordHasher<UserEntity>>();
+		services.AddScoped<PasswordHasher<UserDocument>>();
 		services.AddAutoMapper(cfg =>
 		{
 			cfg.AddProfile<CandleProfile>();
@@ -99,6 +99,8 @@ public static class ServiceCollectionExtensions
 			cfg.AddProfile<DataCollectionJobDtoProfile>();
 			cfg.AddProfile<BinanceProfile>();
 			cfg.AddProfile<ExchangeConnectionDtoProfile>();
+			cfg.AddProfile<BotProfile>();
+			cfg.AddProfile<TradeProfile>();
 		});
 
 		services.AddSignalR()
@@ -128,6 +130,8 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IMongoDbContext, MongoDbContext>();
 		services.AddScoped<IUserRepository, UserRepository>();
 		services.AddScoped<ITradeRepository, TradeRepository>();
+		services.AddScoped<IBotRepository, BotRepository>();
+		services.AddScoped<IBotTradeRepository, BotTradeRepository>();
 		services.AddScoped<IDatabaseCleanupRepository, DatabaseCleanupRepository>();
 
 		return services;

@@ -22,65 +22,65 @@ public class UserRepository : IUserRepository
 
 	#region User actions
 
-	public async Task<UserEntity> CreateUser(UserEntity newUser)
+	public async Task<UserDocument> CreateUser(UserDocument newUser)
 	{
 		await _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.InsertOneAsync(newUser);
 
 		return newUser;
 	}
 
-	public async Task<UserEntity> GetUserByUsername(string username)
+	public async Task<UserDocument> GetUserByUsername(string username)
 	{
-		var filter = Builders<UserEntity>.Filter.Eq(u => u.Username, username);
+		var filter = Builders<UserDocument>.Filter.Eq(u => u.Username, username);
 
 		var user = await _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.Find(filter)
 			.FirstOrDefaultAsync();
 
 		return user;
 	}
 
-	public async Task<UserEntity> GetUserById(ObjectId userid)
+	public async Task<UserDocument> GetUserById(ObjectId userid)
 	{
-		var filter = Builders<UserEntity>.Filter.Eq(u => u.Id, userid);
+		var filter = Builders<UserDocument>.Filter.Eq(u => u.Id, userid);
 
 		var user = await _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.Find(filter)
 			.FirstOrDefaultAsync();
 
 		return user;
 	}
 
-	public Task UpdateUser(UserEntity user)
+	public Task UpdateUser(UserDocument user)
 	{
-		var filter = Builders<UserEntity>.Filter.Eq(u => u.Id, user.Id);
+		var filter = Builders<UserDocument>.Filter.Eq(u => u.Id, user.Id);
 
 		return _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.ReplaceOneAsync(filter, user);
 	}
 
 	public Task ChangePassword(ObjectId userId, string newPasswordHash)
 	{
-		var filter = Builders<UserEntity>.Filter.Eq(u => u.Id, userId);
+		var filter = Builders<UserDocument>.Filter.Eq(u => u.Id, userId);
 
-		var update = Builders<UserEntity>.Update.Set(x => x.PasswordHash, newPasswordHash);
+		var update = Builders<UserDocument>.Update.Set(x => x.PasswordHash, newPasswordHash);
 
 		return _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.UpdateOneAsync(filter, update);
 	}
 
 	public async Task DeleteUser(ObjectId userId)
 	{
-		var filter = Builders<UserEntity>.Filter.Eq(u => u.Id, userId);
+		var filter = Builders<UserDocument>.Filter.Eq(u => u.Id, userId);
 
 		await _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.DeleteOneAsync(filter);
 	}
 
@@ -88,38 +88,38 @@ public class UserRepository : IUserRepository
 
 	#region Exchange connection actions
 
-	public async Task AddExchangeConnection(ObjectId userId, ExchangeName exchange, ExchangeConnectionEntity connection)
+	public async Task AddExchangeConnection(ObjectId userId, ExchangeName exchange, ExchangeConnectionDocument connection)
 	{
-		var userFilter = Builders<UserEntity>.Filter.Eq(u => u.Id, userId);
-		var existsFilter = Builders<UserEntity>.Filter.And(
+		var userFilter = Builders<UserDocument>.Filter.Eq(u => u.Id, userId);
+		var existsFilter = Builders<UserDocument>.Filter.And(
 			userFilter,
-			Builders<UserEntity>.Filter.Exists($"ExchangeConnections.{exchange}")
+			Builders<UserDocument>.Filter.Exists($"ExchangeConnections.{exchange}")
 		);
 
 		var alreadyExists = await _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.CountDocumentsAsync(existsFilter) > 0;
 
 		if (alreadyExists)
 			throw new InvalidOperationException($"Connection for exchange '{exchange}' already exists for user '{userId}'");
 
-		var update = Builders<UserEntity>.Update.Set($"ExchangeConnections.{exchange}", connection);
+		var update = Builders<UserDocument>.Update.Set($"ExchangeConnections.{exchange}", connection);
 		await _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.UpdateOneAsync(userFilter, update);
 	}
 
-	public async Task UpdateExchangeConnection(ObjectId userId, ExchangeName exchange, ExchangeConnectionEntity connection)
+	public async Task UpdateExchangeConnection(ObjectId userId, ExchangeName exchange, ExchangeConnectionDocument connection)
 	{
-		var filter = Builders<UserEntity>.Filter.And(
-			Builders<UserEntity>.Filter.Eq(u => u.Id, userId),
-			Builders<UserEntity>.Filter.Exists($"ExchangeConnections.{exchange}")
+		var filter = Builders<UserDocument>.Filter.And(
+			Builders<UserDocument>.Filter.Eq(u => u.Id, userId),
+			Builders<UserDocument>.Filter.Exists($"ExchangeConnections.{exchange}")
 		);
 
-		var update = Builders<UserEntity>.Update.Set($"ExchangeConnections.{exchange}", connection);
+		var update = Builders<UserDocument>.Update.Set($"ExchangeConnections.{exchange}", connection);
 
 		var result = await _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.UpdateOneAsync(filter, update);
 
 		if (result.MatchedCount == 0)
@@ -128,23 +128,23 @@ public class UserRepository : IUserRepository
 
 	public async Task RemoveExchangeConnection(ObjectId userId, ExchangeName exchange)
 	{
-		var filter = Builders<UserEntity>.Filter.Eq(u => u.Id, userId);
-		var update = Builders<UserEntity>.Update.Unset($"ExchangeConnections.{exchange}");
+		var filter = Builders<UserDocument>.Filter.Eq(u => u.Id, userId);
+		var update = Builders<UserDocument>.Update.Unset($"ExchangeConnections.{exchange}");
 
 		var result = await _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.UpdateOneAsync(filter, update);
 
 		if (result.MatchedCount == 0)
 			throw new KeyNotFoundException($"Connection for exchange '{exchange}' not found for user '{userId}'");
 	}
 
-	public async Task<ExchangeConnectionEntity> GetExchangeConnection(ObjectId userId, ExchangeName exchange)
+	public async Task<ExchangeConnectionDocument> GetExchangeConnection(ObjectId userId, ExchangeName exchange)
 	{
-		var filter = Builders<UserEntity>.Filter.Eq(u => u.Id, userId);
+		var filter = Builders<UserDocument>.Filter.Eq(u => u.Id, userId);
 
 		var user = await _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.Find(filter)
 			.FirstOrDefaultAsync();
 
@@ -154,12 +154,12 @@ public class UserRepository : IUserRepository
 		return connection;
 	}
 
-	public async Task<Dictionary<ExchangeName, ExchangeConnectionEntity>> GetAllExchangeConnections(ObjectId userId)
+	public async Task<Dictionary<ExchangeName, ExchangeConnectionDocument>> GetAllExchangeConnections(ObjectId userId)
 	{
-		var filter = Builders<UserEntity>.Filter.Eq(u => u.Id, userId);
+		var filter = Builders<UserDocument>.Filter.Eq(u => u.Id, userId);
 
 		var user = await _dbContext
-			.GetCollection<UserEntity>()
+			.GetCollection<UserDocument>()
 			.Find(filter)
 			.FirstOrDefaultAsync();
 

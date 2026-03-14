@@ -15,7 +15,7 @@ public class UserServiceTests
 	private readonly Mock<IUserRepository> _userRepositoryMock;
 	private readonly Mock<IMapper> _mapperMock;
 	private readonly Mock<IEncryptionService> _encryptionServiceMock;
-	private readonly PasswordHasher<UserEntity> _passwordHasher;
+	private readonly PasswordHasher<UserDocument> _passwordHasher;
 	private readonly UserService _sut;
 
 	public UserServiceTests()
@@ -23,7 +23,7 @@ public class UserServiceTests
 		_userRepositoryMock = new Mock<IUserRepository>();
 		_mapperMock = new Mock<IMapper>();
 		_encryptionServiceMock = new Mock<IEncryptionService>();
-		_passwordHasher = new PasswordHasher<UserEntity>();
+		_passwordHasher = new PasswordHasher<UserDocument>();
 
 		_sut = new UserService(
 			_userRepositoryMock.Object,
@@ -37,7 +37,7 @@ public class UserServiceTests
 	public async Task RegisterUser_WhenUserAlreadyExists_ShouldThrowArgumentException(string username, string password)
 	{
 		//Arrange
-		var existingUser = new UserEntity { Username = username };
+		var existingUser = new UserDocument { Username = username };
 		_userRepositoryMock
 			.Setup(repo => repo.GetUserByUsername(username))
 			.ReturnsAsync(existingUser);
@@ -46,7 +46,7 @@ public class UserServiceTests
 		var exception = await Assert.ThrowsAsync<ArgumentException>(() => _sut.RegisterUser(username, password));
 
 		Assert.Equal("User with this username already exists", exception.Message);
-		_userRepositoryMock.Verify(repo => repo.CreateUser(It.IsAny<UserEntity>()), Times.Never);
+		_userRepositoryMock.Verify(repo => repo.CreateUser(It.IsAny<UserDocument>()), Times.Never);
 	}
 
 	[Fact]
@@ -58,19 +58,19 @@ public class UserServiceTests
 
 		_userRepositoryMock
 			.Setup(repo => repo.GetUserByUsername(username))
-			.ReturnsAsync((UserEntity?)null!);
+			.ReturnsAsync((UserDocument?)null!);
 
 		_userRepositoryMock
-			.Setup(repo => repo.CreateUser(It.IsAny<UserEntity>()))
-			.ReturnsAsync((UserEntity u) =>
+			.Setup(repo => repo.CreateUser(It.IsAny<UserDocument>()))
+			.ReturnsAsync((UserDocument u) =>
 			{
 				u.Id = ObjectId.GenerateNewId();
 				return u;
 			});
 
 		_mapperMock
-			.Setup(m => m.Map<User>(It.IsAny<UserEntity>()))
-			.Returns((UserEntity entity) => new User
+			.Setup(m => m.Map<User>(It.IsAny<UserDocument>()))
+			.Returns((UserDocument entity) => new User
 			{
 				Id = entity.Id.ToString(),
 				Username = entity.Username,
@@ -90,8 +90,8 @@ public class UserServiceTests
 		Assert.NotEqual(password, result.PasswordHash);
 
 		_userRepositoryMock.Verify(repo => repo.GetUserByUsername(username), Times.Once);
-		_userRepositoryMock.Verify(repo => repo.CreateUser(It.IsAny<UserEntity>()), Times.Once);
-		_mapperMock.Verify(m => m.Map<User>(It.IsAny<UserEntity>()), Times.Once);
+		_userRepositoryMock.Verify(repo => repo.CreateUser(It.IsAny<UserDocument>()), Times.Once);
+		_mapperMock.Verify(m => m.Map<User>(It.IsAny<UserDocument>()), Times.Once);
 	}
 
 	[Theory]
@@ -101,7 +101,7 @@ public class UserServiceTests
 		//Arrange
 		_userRepositoryMock
 			.Setup(repo => repo.GetUserById(It.IsAny<ObjectId>()))
-			.ReturnsAsync((UserEntity?)null!);
+			.ReturnsAsync((UserDocument?)null!);
 
 		//Act
 		var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _sut.GetUserById(userId));
@@ -109,7 +109,7 @@ public class UserServiceTests
 		//Assert
 		Assert.Equal($"User with ID '{userId}' was not found.", exception.Message);
 		_userRepositoryMock.Verify(repo => repo.GetUserById(It.IsAny<ObjectId>()), Times.Once);
-		_mapperMock.Verify(mapper => mapper.Map<User>(It.IsAny<UserEntity>()), Times.Never);
+		_mapperMock.Verify(mapper => mapper.Map<User>(It.IsAny<UserDocument>()), Times.Never);
 	}
 
 	[Theory]
@@ -118,7 +118,7 @@ public class UserServiceTests
 	{
 		//Arrange
 		var password = "super_secret_password";
-		var userEntity = new UserEntity
+		var userEntity = new UserDocument
 		{
 			Id = ObjectId.Parse(userId),
 			Username = "test_user",
@@ -131,8 +131,8 @@ public class UserServiceTests
 			.ReturnsAsync(userEntity);
 
 		_mapperMock
-			.Setup(m => m.Map<User>(It.IsAny<UserEntity>()))
-			.Returns((UserEntity entity) => new User
+			.Setup(m => m.Map<User>(It.IsAny<UserDocument>()))
+			.Returns((UserDocument entity) => new User
 			{
 				Id = entity.Id.ToString(),
 				Username = entity.Username,

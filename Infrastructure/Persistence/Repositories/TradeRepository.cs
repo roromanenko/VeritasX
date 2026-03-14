@@ -6,102 +6,101 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace Infrastructure.Persistence.Repositories
+namespace Infrastructure.Persistence.Repositories;
+
+public class TradeRepository : ITradeRepository
 {
-	public class TradeRepository : ITradeRepository
+	private readonly MongoDbOptions _mongoDbOptions;
+	private readonly IMongoDbContext _dbContext;
+
+	public TradeRepository(IOptions<MongoDbOptions> mongoDbOptions, IMongoDbContext dbContext)
 	{
-		private readonly MongoDbOptions _mongoDbOptions;
-		private readonly IMongoDbContext _dbContext;
+		_mongoDbOptions = mongoDbOptions.Value;
+		_dbContext = dbContext;
+	}
 
-		public TradeRepository(IOptions<MongoDbOptions> mongoDbOptions, IMongoDbContext dbContext)
-		{
-			_mongoDbOptions = mongoDbOptions.Value;
-			_dbContext = dbContext;
-		}
+	public async Task<TradeDocument> CreateTrade(TradeDocument newTrade)
+	{
+		await _dbContext
+			.GetCollection<TradeDocument>()
+			.InsertOneAsync(newTrade);
 
-		public async Task<TradeEntity> CreateTrade(TradeEntity newTrade)
-		{
-			await _dbContext
-				.GetCollection<TradeEntity>()
-				.InsertOneAsync(newTrade);
+		return newTrade;
+	}
 
-			return newTrade;
-		}
+	public async Task<IEnumerable<TradeDocument>> GetTradeByDateRange(ObjectId userId, DateTimeOffset from, DateTimeOffset to)
+	{
+		var filter = Builders<TradeDocument>.Filter.And(
+			Builders<TradeDocument>.Filter.Eq(t => t.UserId, userId),
+			Builders<TradeDocument>.Filter.Gte(t => t.ExecutedAt, from),
+			Builders<TradeDocument>.Filter.Lte(t => t.ExecutedAt, to)
+		);
 
-		public async Task<IEnumerable<TradeEntity>> GetTradeByDateRange(ObjectId userId, DateTimeOffset from, DateTimeOffset to)
-		{
-			var filter = Builders<TradeEntity>.Filter.And(
-				Builders<TradeEntity>.Filter.Eq(t => t.UserId, userId),
-				Builders<TradeEntity>.Filter.Gte(t => t.ExecutedAt, from),
-				Builders<TradeEntity>.Filter.Lte(t => t.ExecutedAt, to)
-			);
+		var trades = await _dbContext
+			.GetCollection<TradeDocument>()
+			.Find(filter)
+			.SortByDescending(t => t.ExecutedAt)
+			.ToListAsync();
 
-			var trades = await _dbContext
-				.GetCollection<TradeEntity>()
-				.Find(filter)
-				.SortByDescending(t => t.ExecutedAt)
-				.ToListAsync();
+		return trades;
+	}
 
-			return trades;
-		}
+	public async Task<IEnumerable<TradeDocument>> GetTradeByExchangeOrderId(ObjectId userId, string exchangeOrderId)
+	{
+		var filter = Builders<TradeDocument>.Filter.And(
+			Builders<TradeDocument>.Filter.Eq(t => t.UserId, userId),
+			Builders<TradeDocument>.Filter.Eq(t => t.ExchangeOrderId, exchangeOrderId)
+		);
 
-		public async Task<IEnumerable<TradeEntity>> GetTradeByExchangeOrderId(ObjectId userId, string exchangeOrderId)
-		{
-			var filter = Builders<TradeEntity>.Filter.And(
-				Builders<TradeEntity>.Filter.Eq(t => t.UserId, userId),
-				Builders<TradeEntity>.Filter.Eq(t => t.ExchangeOrderId, exchangeOrderId)
-			);
+		var trades = await _dbContext
+			.GetCollection<TradeDocument>()
+			.Find(filter)
+			.SortByDescending(t => t.ExecutedAt)
+			.ToListAsync();
 
-			var trades = await _dbContext
-				.GetCollection<TradeEntity>()
-				.Find(filter)
-				.SortByDescending(t => t.ExecutedAt)
-				.ToListAsync();
+		return trades;
+	}
 
-			return trades;
-		}
+	public async Task<TradeDocument?> GetTradeById(ObjectId tradeId)
+	{
+		var filter = Builders<TradeDocument>.Filter.Eq(t => t.Id, tradeId);
 
-		public async Task<TradeEntity?> GetTradeById(ObjectId tradeId)
-		{
-			var filter = Builders<TradeEntity>.Filter.Eq(t => t.Id, tradeId);
+		var trade = await _dbContext
+			.GetCollection<TradeDocument>()
+			.Find(filter)
+			.FirstOrDefaultAsync();
 
-			var trade = await _dbContext
-				.GetCollection<TradeEntity>()
-				.Find(filter)
-				.FirstOrDefaultAsync();
+		return trade;
+	}
 
-			return trade;
-		}
+	public async Task<IEnumerable<TradeDocument>> GetTradeBySymbol(ObjectId userId, string symbol, int limit = 100)
+	{
+		var filter = Builders<TradeDocument>.Filter.And(
+			Builders<TradeDocument>.Filter.Eq(t => t.UserId, userId),
+			Builders<TradeDocument>.Filter.Eq(t => t.Symbol, symbol)
+		);
 
-		public async Task<IEnumerable<TradeEntity>> GetTradeBySymbol(ObjectId userId, string symbol, int limit = 100)
-		{
-			var filter = Builders<TradeEntity>.Filter.And(
-				Builders<TradeEntity>.Filter.Eq(t => t.UserId, userId),
-				Builders<TradeEntity>.Filter.Eq(t => t.Symbol, symbol)
-			);
+		var trades = await _dbContext
+			.GetCollection<TradeDocument>()
+			.Find(filter)
+			.SortByDescending(t => t.ExecutedAt)
+			.Limit(limit)
+			.ToListAsync();
 
-			var trades = await _dbContext
-				.GetCollection<TradeEntity>()
-				.Find(filter)
-				.SortByDescending(t => t.ExecutedAt)
-				.Limit(limit)
-				.ToListAsync();
+		return trades;
+	}
 
-			return trades;
-		}
+	public async Task<IEnumerable<TradeDocument>> GetTradeByUserId(ObjectId userId, int limit = 100)
+	{
+		var filter = Builders<TradeDocument>.Filter.Eq(t => t.UserId, userId);
 
-		public async Task<IEnumerable<TradeEntity>> GetTradeByUserId(ObjectId userId, int limit = 100)
-		{
-			var filter = Builders<TradeEntity>.Filter.Eq(t => t.UserId, userId);
+		var trades = await _dbContext
+			.GetCollection<TradeDocument>()
+			.Find(filter)
+			.SortByDescending(t => t.ExecutedAt)
+			.Limit(limit)
+			.ToListAsync();
 
-			var trades = await _dbContext
-				.GetCollection<TradeEntity>()
-				.Find(filter)
-				.SortByDescending(t => t.ExecutedAt)
-				.Limit(limit)
-				.ToListAsync();
-
-			return trades;
-		}
+		return trades;
 	}
 }
