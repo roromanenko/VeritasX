@@ -88,5 +88,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHub<JobProgressHub>("/jobProgressHub");
+app.MapHub<BotProgressHub>("/botProgressHub");
 
 app.Run();

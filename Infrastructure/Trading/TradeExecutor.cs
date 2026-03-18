@@ -60,15 +60,29 @@ public class TradeExecutor : ITradeExecutor
 			return null;
 
 		// TODO: Support configurable order types (Limit, StopLoss, etc.) via RiskParameters.OrderType
+		var quantity = Math.Floor(solution.Quantity);
+
+		if (side == OrderSide.Buy && solution.Price > 0)
+		{
+			var quoteBalance = portfolio.Balances
+				.FirstOrDefault(b => b.Asset.Equals(bot.QuoteAsset, StringComparison.OrdinalIgnoreCase));
+			var baseBalance = portfolio.Balances
+				.FirstOrDefault(b => b.Asset.Equals(bot.BaseAsset, StringComparison.OrdinalIgnoreCase));
+
+			var portfolioValue = (quoteBalance?.Free ?? 0) + (baseBalance?.Free ?? 0) * solution.Price;
+			var maxByPositionSize = Math.Floor((portfolioValue * bot.RiskParameters.PositionSize) / solution.Price);
+			quantity = Math.Min(quantity, maxByPositionSize);
+		}
+
 		var order = new Order
 		{
-			Id = Guid.NewGuid().ToString(),
+			Id = ObjectId.GenerateNewId().ToString(),
 			ExchangeOrderId = string.Empty,
 			Exchange = bot.Exchange,
 			Symbol = bot.Symbol,
 			Side = side,
 			Type = OrderType.Market,
-			Quantity = solution.Quantity,
+			Quantity = quantity,
 			IsTestnet = connection.IsTestnet
 		};
 
@@ -92,7 +106,7 @@ public class TradeExecutor : ITradeExecutor
 
 		return new BotTradeRecord
 		{
-			Id = Guid.NewGuid().ToString(),
+			Id = ObjectId.GenerateNewId().ToString(),
 			BotId = bot.Id,
 			UserId = bot.UserId,
 			Symbol = bot.Symbol,
@@ -111,6 +125,7 @@ public class TradeExecutor : ITradeExecutor
 		{
 			var baselineBalance = portfolio.Balances
 				.FirstOrDefault(b => b.Asset.Equals(bot.QuoteAsset, StringComparison.OrdinalIgnoreCase));
+
 			return baselineBalance?.Free >= bot.RiskParameters.PositionSize;
 		}
 		else

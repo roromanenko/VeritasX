@@ -21,6 +21,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using Trading.Strategies;
 using VeritasX.Api.Extensions;
 
 namespace Api.Extensions;
@@ -83,9 +84,11 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<ICandleChunkService, CandleChunkService>();
 		services.AddHostedService<DataCollectorBackgroundService>();
 		services.AddHostedService<DatabaseCleanupJob>();
+		services.AddHostedService<BotManagerBackgroundService>();
 		services.AddScoped<IUserService, UserService>();
 		services.AddScoped<IJwtService, JwtService>();
 		services.AddScoped<IBotService, BotService>();
+		services.AddSingleton<IBotRunnerFactory, BotRunnerFactory>();
 		services.AddScoped<IEncryptionService>(sp => new EncryptionService(masterKey, sp.GetRequiredService<IOptions<EncryptionOptions>>()));
 		services.AddScoped<PasswordHasher<UserDocument>>();
 		services.AddAutoMapper(cfg =>
@@ -95,12 +98,13 @@ public static class ServiceCollectionExtensions
 			cfg.AddProfile<DataChunkProfile>();
 			cfg.AddProfile<DataCollectionJobProfile>();
 			cfg.AddProfile<UserProfile>();
-			cfg.AddProfile<ExchangeDtoProfile>();
 			cfg.AddProfile<UserDtoProfile>();
+			cfg.AddProfile<ExchangeDtoProfile>();
 			cfg.AddProfile<DataCollectionJobDtoProfile>();
 			cfg.AddProfile<BinanceProfile>();
 			cfg.AddProfile<ExchangeConnectionDtoProfile>();
 			cfg.AddProfile<BotProfile>();
+			cfg.AddProfile<BotDtoProfile>();
 			cfg.AddProfile<TradeProfile>();
 		});
 
@@ -147,6 +151,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IExchangeServiceFactory, ExchangeServiceFactory>();
 		services.AddSingleton<IMarketDataStreamFactory, MarketDataStreamFactory>();
 		services.AddScoped<ITradeExecutor, TradeExecutor>();
+		services.AddScoped<IStrategyFactory, StrategyFactory>();
 
 		services.AddBinance();
 

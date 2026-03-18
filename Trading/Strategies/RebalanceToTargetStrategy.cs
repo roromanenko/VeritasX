@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using Core.Domain;
 
 namespace Trading.Strategies;
@@ -11,6 +12,8 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 	{
 		_config = config;
 	}
+
+	public DataRequirement DataRequirement => DataRequirement.Ticker;
 
 	public Task<TradingSolution> CalculateNextStep(TradingContext context, MarketTick tick, CancellationToken ct = default)
 	{
@@ -44,17 +47,21 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 			var qtyToBuy = deltaValue / price;
 			var maxBuyQty = baselineQty / price;
 			qtyToBuy = Math.Min(qtyToBuy, maxBuyQty);
+
 			if (!PassesGuards(qtyToBuy, price, _config.MinQty, _config.MinNotional))
 				return Task.FromResult(Noop(asset));
-			return Task.FromResult(Buy(asset, qtyToBuy, currentWeight, _config.TargetWeight));
+
+			return Task.FromResult(Buy(asset, qtyToBuy, price, currentWeight, _config.TargetWeight));
 		}
 		else
 		{
 			var qtyToSell = Math.Abs(deltaValue) / price;
 			qtyToSell = Math.Min(qtyToSell, assetQty);
+
 			if (!PassesGuards(qtyToSell, price, _config.MinQty, _config.MinNotional))
 				return Task.FromResult(Noop(asset));
-			return Task.FromResult(Sell(asset, qtyToSell, currentWeight, _config.TargetWeight));
+
+			return Task.FromResult(Sell(asset, qtyToSell, price, currentWeight, _config.TargetWeight));
 		}
 	}
 
@@ -67,20 +74,20 @@ public class RebalanceToTargetStrategy : ITradingStrategy
 		Reason = "Within threshold band"
 	};
 
-	private static TradingSolution Buy(string asset, decimal quantity, decimal currentWeight, decimal targetWeight) =>
-	new()
+	private static TradingSolution Buy(string asset, decimal quantity, decimal price, decimal currentWeight, decimal targetWeight) => new()
 	{
 		Asset = asset,
 		Quantity = quantity,
+		Price = price,
 		Type = SolutionType.Buy,
 		Reason = $"Weight {currentWeight:P2} below target {targetWeight:P2}, buying to rebalance"
 	};
 
-	private static TradingSolution Sell(string asset, decimal quantity, decimal currentWeight, decimal targetWeight) =>
-	new()
+	private static TradingSolution Sell(string asset, decimal quantity, decimal price, decimal currentWeight, decimal targetWeight) => new()
 	{
 		Asset = asset,
 		Quantity = quantity,
+		Price = price,
 		Type = SolutionType.Sell,
 		Reason = $"Weight {currentWeight:P2} above target {targetWeight:P2}, selling to rebalance"
 	};
@@ -112,7 +119,11 @@ public sealed class RebalanceConfig
 
 	public static RebalanceConfig FromJson(string json)
 	{
-		var opt = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+		var opt = new JsonSerializerOptions
+		{
+			PropertyNameCaseInsensitive = true,
+			NumberHandling = JsonNumberHandling.AllowReadingFromString
+		};
 		var cfg = JsonSerializer.Deserialize<RebalanceConfig>(json, opt)
 				  ?? throw new ArgumentException("Invalid strategyConfigurationJson");
 		return cfg;

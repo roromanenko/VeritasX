@@ -39,25 +39,23 @@ public class DataCollectorBackgroundService : BackgroundService
 		_logger = logger;
 		_options = options.Value;
 		_rateLimitSemaphore = new SemaphoreSlim(_options.RequestsPerMinute, _options.RequestsPerMinute);
-
-		// Восстанавливаем семафор каждую минуту
-		_ = Task.Run(async () =>
-		{
-			while (true)
-			{
-				await Task.Delay(TimeSpan.FromMinutes(1));
-				var currentCount = _rateLimitSemaphore.CurrentCount;
-				if (currentCount < _options.RequestsPerMinute)
-				{
-					_rateLimitSemaphore.Release(_options.RequestsPerMinute - currentCount);
-				}
-			}
-		});
 	}
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
 		_logger.LogInformation("DataCollectorBackgroundService started");
+
+		// Восстанавливаем семафор каждую минуту
+		_ = Task.Run(async () =>
+		{
+			while (!stoppingToken.IsCancellationRequested)
+			{
+				await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+				var currentCount = _rateLimitSemaphore.CurrentCount;
+				if (currentCount < _options.RequestsPerMinute)
+					_rateLimitSemaphore.Release(_options.RequestsPerMinute - currentCount);
+			}
+		}, stoppingToken);
 
 		var tasks = new List<Task>();
 

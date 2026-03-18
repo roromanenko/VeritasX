@@ -40,6 +40,15 @@ public class BotRepository : IBotRepository
 			.FirstOrDefaultAsync();
 	}
 
+	public async Task<BotConfigurationDocument?> GetBotById(ObjectId botId)
+	{
+		var filter = Builders<BotConfigurationDocument>.Filter.Eq(b => b.Id, botId);
+		return await _dbContext
+			.GetCollection<BotConfigurationDocument>()
+			.Find(filter)
+			.FirstOrDefaultAsync();
+	}
+
 	public async Task<IEnumerable<BotConfigurationDocument>> GetBotsByUserId(ObjectId userId)
 	{
 		var filter = Builders<BotConfigurationDocument>.Filter.Eq(b => b.UserId, userId);
@@ -52,6 +61,15 @@ public class BotRepository : IBotRepository
 	public async Task<IEnumerable<BotConfigurationDocument>> GetActiveBots()
 	{
 		var filter = Builders<BotConfigurationDocument>.Filter.Eq(b => b.Status, BotStatus.Active);
+		return await _dbContext
+			.GetCollection<BotConfigurationDocument>()
+			.Find(filter)
+			.ToListAsync();
+	}
+
+	public async Task<IEnumerable<BotConfigurationDocument>> GetPendingBots()
+	{
+		var filter = Builders<BotConfigurationDocument>.Filter.Eq(b => b.Status, BotStatus.Pending);
 		return await _dbContext
 			.GetCollection<BotConfigurationDocument>()
 			.Find(filter)

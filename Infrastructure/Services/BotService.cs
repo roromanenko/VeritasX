@@ -109,9 +109,11 @@ public class BotService : IBotService
 	{
 		if (!ObjectId.TryParse(botId, out var botObjectId))
 			throw new ArgumentException("Invalid bot ID");
-
 		if (!ObjectId.TryParse(userId, out var userObjectId))
 			throw new ArgumentException("Invalid user ID");
+
+		var bot = await _botRepository.GetBotById(botObjectId, userObjectId)
+		?? throw new KeyNotFoundException($"Bot '{botId}' not found");
 
 		var documents = await _botTradeRepository.GetTradesByBotId(botObjectId, limit);
 		return _mapper.Map<IEnumerable<BotTradeRecord>>(documents);

@@ -1,9 +1,9 @@
+using Core.Interfaces;
+using Core.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Core.Interfaces;
-using Core.Options;
 
 namespace Infrastructure.Jobs;
 
@@ -19,11 +19,11 @@ public class DatabaseCleanupJob : BackgroundService
 	private readonly DatabaseCleanupOptions _options;
 
 	public DatabaseCleanupJob(
-        IServiceScopeFactory scopeFactory,
+		IServiceScopeFactory scopeFactory,
 		ILogger<DatabaseCleanupJob> logger,
 		IOptions<DatabaseCleanupOptions> options)
 	{
-        _scopeFactory = scopeFactory;
+		_scopeFactory = scopeFactory;
 		_logger = logger;
 		_options = options.Value;
 	}
@@ -54,12 +54,12 @@ public class DatabaseCleanupJob : BackgroundService
 		}
 	}
 
-    /// <summary>
-    /// Performs a single cleanup cycle by deleting completed jobs older than the configured retention period
-    /// and their associated candle chunks, processing records in batches.
-    /// </summary>
-    /// <param name="cancellationToken">Token used to cancel the cleanup operation.</param>
-    private async Task CleanupDatabaseAsync(CancellationToken cancellationToken)
+	/// <summary>
+	/// Performs a single cleanup cycle by deleting completed jobs older than the configured retention period
+	/// and their associated candle chunks, processing records in batches.
+	/// </summary>
+	/// <param name="cancellationToken">Token used to cancel the cleanup operation.</param>
+	private async Task CleanupDatabaseAsync(CancellationToken cancellationToken)
 	{
 		using var scope = _scopeFactory.CreateScope();
 		var cleanupRepository = scope.ServiceProvider.GetRequiredService<IDatabaseCleanupRepository>();

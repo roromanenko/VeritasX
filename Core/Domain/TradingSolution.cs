@@ -10,6 +10,7 @@ public class TradingSolution
 {
 	public required string Asset { get; set; }
 	public decimal Quantity { get; set; }
+	public decimal Price { get; set; }
 	public SolutionType Type { get; set; }
 	public string Reason { get; set; } = string.Empty;
 }

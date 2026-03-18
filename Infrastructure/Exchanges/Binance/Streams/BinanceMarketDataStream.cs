@@ -54,10 +54,10 @@ public class BinanceMarketDataStream : IMarketDataStream
 				{
 					_logger.LogError(ex, $"[BinanceMarketDataStream] Ticker callback error for {symbol}");
 				}
-			}, ct);
+			});
 
 		if (!result.Success)
-			throw new InvalidOperationException($"Failed to subscribe to ticker for {symbol}: {result.Error?.Message}");
+			throw new InvalidOperationException($"Failed to subscribe to ticker for {symbol}: {result.Error}");
 
 		_subscriptions[symbol] = result.Data;
 	}
@@ -96,10 +96,10 @@ public class BinanceMarketDataStream : IMarketDataStream
 				{
 					_logger.LogError(ex, $"[BinanceMarketDataStream] Kline callback error for {symbol}");
 				}
-			}, ct);
+			});
 
 		if (!result.Success)
-			throw new InvalidOperationException($"Failed to subscribe to klines for {symbol}: {result.Error?.Message}");
+			throw new InvalidOperationException($"Failed to subscribe to ticker for {symbol}: {result.Error}");
 
 		_subscriptions[symbol] = result.Data;
 	}
