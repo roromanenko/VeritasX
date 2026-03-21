@@ -26,6 +26,297 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerM
 /**
  * 
  * @export
+ * @interface AddExchangeConnectionRequest
+ */
+export interface AddExchangeConnectionRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof AddExchangeConnectionRequest
+     */
+    'apiKey'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof AddExchangeConnectionRequest
+     */
+    'secretKey'?: string | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof AddExchangeConnectionRequest
+     */
+    'isTestnet'?: boolean;
+}
+/**
+ * 
+ * @export
+ * @interface BalanceDto
+ */
+export interface BalanceDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BalanceDto
+     */
+    'asset': string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof BalanceDto
+     */
+    'free': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BalanceDto
+     */
+    'locked': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BalanceDto
+     */
+    'total'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface BotDto
+ */
+export interface BotDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDto
+     */
+    'id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDto
+     */
+    'name'?: string | null;
+    /**
+     * 
+     * @type {ExchangeName}
+     * @memberof BotDto
+     */
+    'exchange'?: ExchangeName;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDto
+     */
+    'symbol'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDto
+     */
+    'baseAsset'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDto
+     */
+    'quoteAsset'?: string | null;
+    /**
+     * 
+     * @type {BotStatus}
+     * @memberof BotDto
+     */
+    'status'?: BotStatus;
+    /**
+     * 
+     * @type {StrategyDefinitionDto}
+     * @memberof BotDto
+     */
+    'strategy'?: StrategyDefinitionDto;
+    /**
+     * 
+     * @type {RiskParametersDto}
+     * @memberof BotDto
+     */
+    'riskParameters'?: RiskParametersDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDto
+     */
+    'createdAt'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDto
+     */
+    'startedAt'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDto
+     */
+    'stoppedAt'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDto
+     */
+    'errorMessage'?: string | null;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface BotDtoApiResponse
+ */
+export interface BotDtoApiResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BotDtoApiResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDtoApiResponse
+     */
+    'message'?: string | null;
+    /**
+     * 
+     * @type {BotDto}
+     * @memberof BotDtoApiResponse
+     */
+    'data'?: BotDto;
+}
+/**
+ * 
+ * @export
+ * @interface BotDtoIEnumerableApiResponse
+ */
+export interface BotDtoIEnumerableApiResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BotDtoIEnumerableApiResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDtoIEnumerableApiResponse
+     */
+    'message'?: string | null;
+    /**
+     * 
+     * @type {Array<BotDto>}
+     * @memberof BotDtoIEnumerableApiResponse
+     */
+    'data'?: Array<BotDto> | null;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const BotStatus = {
+    Active: 'Active',
+    Pending: 'Pending',
+    Stopped: 'Stopped',
+    Error: 'Error'
+} as const;
+
+export type BotStatus = typeof BotStatus[keyof typeof BotStatus];
+
+
+/**
+ * 
+ * @export
+ * @interface BotTradeRecordDto
+ */
+export interface BotTradeRecordDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BotTradeRecordDto
+     */
+    'id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotTradeRecordDto
+     */
+    'botId'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotTradeRecordDto
+     */
+    'symbol'?: string | null;
+    /**
+     * 
+     * @type {OrderSide}
+     * @memberof BotTradeRecordDto
+     */
+    'side'?: OrderSide;
+    /**
+     * 
+     * @type {number}
+     * @memberof BotTradeRecordDto
+     */
+    'price'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BotTradeRecordDto
+     */
+    'quantity'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotTradeRecordDto
+     */
+    'reason'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotTradeRecordDto
+     */
+    'executedAt'?: string;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface BotTradeRecordDtoIEnumerableApiResponse
+ */
+export interface BotTradeRecordDtoIEnumerableApiResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof BotTradeRecordDtoIEnumerableApiResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotTradeRecordDtoIEnumerableApiResponse
+     */
+    'message'?: string | null;
+    /**
+     * 
+     * @type {Array<BotTradeRecordDto>}
+     * @memberof BotTradeRecordDtoIEnumerableApiResponse
+     */
+    'data'?: Array<BotTradeRecordDto> | null;
+}
+/**
+ * 
+ * @export
  * @interface CandleDto
  */
 export interface CandleDto {
@@ -106,6 +397,76 @@ export const CollectionState = {
 } as const;
 
 export type CollectionState = typeof CollectionState[keyof typeof CollectionState];
+
+
+/**
+ * 
+ * @export
+ * @interface ConnectivityResponse
+ */
+export interface ConnectivityResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ConnectivityResponse
+     */
+    'isConnected': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof ConnectivityResponse
+     */
+    'timestamp': string;
+}
+/**
+ * 
+ * @export
+ * @interface CreateBotRequest
+ */
+export interface CreateBotRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateBotRequest
+     */
+    'name'?: string | null;
+    /**
+     * 
+     * @type {ExchangeName}
+     * @memberof CreateBotRequest
+     */
+    'exchange'?: ExchangeName;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateBotRequest
+     */
+    'symbol'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateBotRequest
+     */
+    'baseAsset'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateBotRequest
+     */
+    'quoteAsset'?: string | null;
+    /**
+     * 
+     * @type {StrategyDefinitionDto}
+     * @memberof CreateBotRequest
+     */
+    'strategy'?: StrategyDefinitionDto;
+    /**
+     * 
+     * @type {RiskParametersDto}
+     * @memberof CreateBotRequest
+     */
+    'riskParameters'?: RiskParametersDto;
+}
 
 
 /**
@@ -192,6 +553,129 @@ export interface DataCollectionJobDto {
 /**
  * 
  * @export
+ * @interface ExchangeConnectionResponse
+ */
+export interface ExchangeConnectionResponse {
+    /**
+     * 
+     * @type {ExchangeName}
+     * @memberof ExchangeConnectionResponse
+     */
+    'exchange'?: ExchangeName;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ExchangeConnectionResponse
+     */
+    'isTestnet'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExchangeConnectionResponse
+     */
+    'createdAt'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExchangeConnectionResponse
+     */
+    'lastUsedAt'?: string | null;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface ExchangeConnectionResponseApiResponse
+ */
+export interface ExchangeConnectionResponseApiResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ExchangeConnectionResponseApiResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExchangeConnectionResponseApiResponse
+     */
+    'message'?: string | null;
+    /**
+     * 
+     * @type {ExchangeConnectionResponse}
+     * @memberof ExchangeConnectionResponseApiResponse
+     */
+    'data'?: ExchangeConnectionResponse;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const ExchangeName = {
+    Binance: 'Binance',
+    Okx: 'Okx',
+    Bybit: 'Bybit'
+} as const;
+
+export type ExchangeName = typeof ExchangeName[keyof typeof ExchangeName];
+
+
+/**
+ * 
+ * @export
+ * @interface ExchangeNameExchangeConnectionResponseDictionaryApiResponse
+ */
+export interface ExchangeNameExchangeConnectionResponseDictionaryApiResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ExchangeNameExchangeConnectionResponseDictionaryApiResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExchangeNameExchangeConnectionResponseDictionaryApiResponse
+     */
+    'message'?: string | null;
+    /**
+     * 
+     * @type {ExchangeNameExchangeConnectionResponseDictionaryApiResponseData}
+     * @memberof ExchangeNameExchangeConnectionResponseDictionaryApiResponse
+     */
+    'data'?: ExchangeNameExchangeConnectionResponseDictionaryApiResponseData | null;
+}
+/**
+ * 
+ * @export
+ * @interface ExchangeNameExchangeConnectionResponseDictionaryApiResponseData
+ */
+export interface ExchangeNameExchangeConnectionResponseDictionaryApiResponseData {
+    /**
+     * 
+     * @type {ExchangeConnectionResponse}
+     * @memberof ExchangeNameExchangeConnectionResponseDictionaryApiResponseData
+     */
+    'Binance'?: ExchangeConnectionResponse;
+    /**
+     * 
+     * @type {ExchangeConnectionResponse}
+     * @memberof ExchangeNameExchangeConnectionResponseDictionaryApiResponseData
+     */
+    'Okx'?: ExchangeConnectionResponse;
+    /**
+     * 
+     * @type {ExchangeConnectionResponse}
+     * @memberof ExchangeNameExchangeConnectionResponseDictionaryApiResponseData
+     */
+    'Bybit'?: ExchangeConnectionResponse;
+}
+/**
+ * 
+ * @export
  * @interface LoginRequest
  */
 export interface LoginRequest {
@@ -251,6 +735,298 @@ export interface LoginResponseApiResponse {
      * @memberof LoginResponseApiResponse
      */
     'data'?: LoginResponse;
+}
+/**
+ * 
+ * @export
+ * @interface OrderDto
+ */
+export interface OrderDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof OrderDto
+     */
+    'id': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof OrderDto
+     */
+    'exchangeOrderId': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof OrderDto
+     */
+    'symbol': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof OrderDto
+     */
+    'side': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof OrderDto
+     */
+    'type': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof OrderDto
+     */
+    'status': string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof OrderDto
+     */
+    'quantity': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof OrderDto
+     */
+    'quoteQuantity'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof OrderDto
+     */
+    'price'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof OrderDto
+     */
+    'filledQuantity': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof OrderDto
+     */
+    'averageFillPrice'?: number | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof OrderDto
+     */
+    'createdAt': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OrderDto
+     */
+    'updatedAt': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OrderDto
+     */
+    'executedAt'?: string | null;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const OrderSide = {
+    Buy: 'Buy',
+    Sell: 'Sell'
+} as const;
+
+export type OrderSide = typeof OrderSide[keyof typeof OrderSide];
+
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const OrderType = {
+    Market: 'Market',
+    Limit: 'Limit',
+    StopLoss: 'StopLoss',
+    StopLimit: 'StopLimit'
+} as const;
+
+export type OrderType = typeof OrderType[keyof typeof OrderType];
+
+
+/**
+ * 
+ * @export
+ * @interface OrdersResponse
+ */
+export interface OrdersResponse {
+    /**
+     * 
+     * @type {string}
+     * @memberof OrdersResponse
+     */
+    'symbol': string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof OrdersResponse
+     */
+    'count': number;
+    /**
+     * 
+     * @type {Array<OrderDto>}
+     * @memberof OrdersResponse
+     */
+    'orders': Array<OrderDto> | null;
+}
+/**
+ * 
+ * @export
+ * @interface PlaceOrderRequest
+ */
+export interface PlaceOrderRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof PlaceOrderRequest
+     */
+    'symbol': string | null;
+    /**
+     * 
+     * @type {OrderSide}
+     * @memberof PlaceOrderRequest
+     */
+    'side': OrderSide;
+    /**
+     * 
+     * @type {OrderType}
+     * @memberof PlaceOrderRequest
+     */
+    'type': OrderType;
+    /**
+     * 
+     * @type {number}
+     * @memberof PlaceOrderRequest
+     */
+    'quantity': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PlaceOrderRequest
+     */
+    'price'?: number | null;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface PortfolioDto
+ */
+export interface PortfolioDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof PortfolioDto
+     */
+    'exchange': string | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PortfolioDto
+     */
+    'isTestnet': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof PortfolioDto
+     */
+    'updatedAt': string;
+    /**
+     * 
+     * @type {Array<BalanceDto>}
+     * @memberof PortfolioDto
+     */
+    'balances': Array<BalanceDto> | null;
+}
+/**
+ * 
+ * @export
+ * @interface PriceDto
+ */
+export interface PriceDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof PriceDto
+     */
+    'symbol': string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof PriceDto
+     */
+    'lastPrice': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PriceDto
+     */
+    'bidPrice': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PriceDto
+     */
+    'askPrice': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof PriceDto
+     */
+    'timestamp': string;
+}
+/**
+ * 
+ * @export
+ * @interface ProblemDetails
+ */
+export interface ProblemDetails {
+    [key: string]: any;
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProblemDetails
+     */
+    'type'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProblemDetails
+     */
+    'title'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof ProblemDetails
+     */
+    'status'?: number | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProblemDetails
+     */
+    'detail'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProblemDetails
+     */
+    'instance'?: string | null;
 }
 /**
  * 
@@ -324,6 +1100,84 @@ export interface RegisterRequest {
 /**
  * 
  * @export
+ * @interface RiskParametersDto
+ */
+export interface RiskParametersDto {
+    /**
+     * 
+     * @type {number}
+     * @memberof RiskParametersDto
+     */
+    'positionSize'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof RiskParametersDto
+     */
+    'stopLoss'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof RiskParametersDto
+     */
+    'takeProfit'?: number | null;
+}
+/**
+ * 
+ * @export
+ * @interface ServerTimeResponse
+ */
+export interface ServerTimeResponse {
+    /**
+     * 
+     * @type {number}
+     * @memberof ServerTimeResponse
+     */
+    'serverTime': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ServerTimeResponse
+     */
+    'serverDateTime': string;
+}
+/**
+ * 
+ * @export
+ * @interface StrategyDefinitionDto
+ */
+export interface StrategyDefinitionDto {
+    /**
+     * 
+     * @type {StrategyType}
+     * @memberof StrategyDefinitionDto
+     */
+    'type'?: StrategyType;
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof StrategyDefinitionDto
+     */
+    'parameters'?: { [key: string]: string; } | null;
+}
+
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+
+export const StrategyType = {
+    DeltaRebalancing: 'DeltaRebalancing'
+} as const;
+
+export type StrategyType = typeof StrategyType[keyof typeof StrategyType];
+
+
+/**
+ * 
+ * @export
  * @interface StringApiResponse
  */
 export interface StringApiResponse {
@@ -345,6 +1199,73 @@ export interface StringApiResponse {
      * @memberof StringApiResponse
      */
     'data'?: string | null;
+}
+/**
+ * 
+ * @export
+ * @interface TradeDto
+ */
+export interface TradeDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof TradeDto
+     */
+    'exchangeTradeId': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TradeDto
+     */
+    'exchangeOrderId': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TradeDto
+     */
+    'symbol': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TradeDto
+     */
+    'side': string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradeDto
+     */
+    'price': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradeDto
+     */
+    'quantity': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradeDto
+     */
+    'quoteQuantity': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradeDto
+     */
+    'fee': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof TradeDto
+     */
+    'feeAsset': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TradeDto
+     */
+    'executedAt': string;
 }
 /**
  * 
@@ -392,6 +1313,104 @@ export interface TradeOnHistoryDataRequest {
 /**
  * 
  * @export
+ * @interface TradesResponse
+ */
+export interface TradesResponse {
+    /**
+     * 
+     * @type {string}
+     * @memberof TradesResponse
+     */
+    'symbol': string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradesResponse
+     */
+    'count': number;
+    /**
+     * 
+     * @type {Array<TradeDto>}
+     * @memberof TradesResponse
+     */
+    'trades': Array<TradeDto> | null;
+}
+/**
+ * 
+ * @export
+ * @interface TradingPairDto
+ */
+export interface TradingPairDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof TradingPairDto
+     */
+    'symbol': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TradingPairDto
+     */
+    'baseAsset': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TradingPairDto
+     */
+    'quoteAsset': string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingPairDto
+     */
+    'minQuantity': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingPairDto
+     */
+    'maxQuantity': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingPairDto
+     */
+    'quantityStepSize': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingPairDto
+     */
+    'minNotional': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingPairDto
+     */
+    'minPrice': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingPairDto
+     */
+    'maxPrice': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingPairDto
+     */
+    'priceTickSize': number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TradingPairDto
+     */
+    'isActive': boolean;
+}
+/**
+ * 
+ * @export
  * @interface TradingResultDto
  */
 export interface TradingResultDto {
@@ -419,6 +1438,43 @@ export interface TradingResultDto {
      * @memberof TradingResultDto
      */
     'justHoldTotalInBaseline'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingResultDto
+     */
+    'sharpeStrategy'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof TradingResultDto
+     */
+    'sharpeHold'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface UpdateExchangeConnectionRequest
+ */
+export interface UpdateExchangeConnectionRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateExchangeConnectionRequest
+     */
+    'apiKey'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateExchangeConnectionRequest
+     */
+    'secretKey'?: string | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UpdateExchangeConnectionRequest
+     */
+    'isTestnet'?: boolean;
 }
 /**
  * 
@@ -444,6 +1500,12 @@ export interface UserDto {
      * @memberof UserDto
      */
     'roles'?: Array<string> | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof UserDto
+     */
+    'connectedExchanges'?: Array<string> | null;
 }
 /**
  * 
@@ -470,6 +1532,522 @@ export interface UserDtoApiResponse {
      */
     'data'?: UserDto;
 }
+
+/**
+ * BotsApi - axios parameter creator
+ * @export
+ */
+export const BotsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/Bots`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsIdDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('apiBotsIdDelete', 'id', id)
+            const localVarPath = `/api/Bots/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsIdGet: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('apiBotsIdGet', 'id', id)
+            const localVarPath = `/api/Bots/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsIdStartPost: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('apiBotsIdStartPost', 'id', id)
+            const localVarPath = `/api/Bots/{id}/start`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsIdStopPost: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('apiBotsIdStopPost', 'id', id)
+            const localVarPath = `/api/Bots/{id}/stop`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsIdTradesGet: async (id: string, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('apiBotsIdTradesGet', 'id', id)
+            const localVarPath = `/api/Bots/{id}/trades`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {CreateBotRequest} [createBotRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsPost: async (createBotRequest?: CreateBotRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/Bots`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createBotRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * BotsApi - functional programming interface
+ * @export
+ */
+export const BotsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = BotsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiBotsGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BotDtoIEnumerableApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiBotsGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BotsApi.apiBotsGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiBotsIdDelete(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiBotsIdDelete(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BotsApi.apiBotsIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiBotsIdGet(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BotDtoApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiBotsIdGet(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BotsApi.apiBotsIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiBotsIdStartPost(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiBotsIdStartPost(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BotsApi.apiBotsIdStartPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiBotsIdStopPost(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiBotsIdStopPost(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BotsApi.apiBotsIdStopPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiBotsIdTradesGet(id: string, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BotTradeRecordDtoIEnumerableApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiBotsIdTradesGet(id, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BotsApi.apiBotsIdTradesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {CreateBotRequest} [createBotRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiBotsPost(createBotRequest?: CreateBotRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BotDtoApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiBotsPost(createBotRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BotsApi.apiBotsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * BotsApi - factory interface
+ * @export
+ */
+export const BotsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = BotsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsGet(options?: RawAxiosRequestConfig): AxiosPromise<BotDtoIEnumerableApiResponse> {
+            return localVarFp.apiBotsGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsIdDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<StringApiResponse> {
+            return localVarFp.apiBotsIdDelete(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsIdGet(id: string, options?: RawAxiosRequestConfig): AxiosPromise<BotDtoApiResponse> {
+            return localVarFp.apiBotsIdGet(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsIdStartPost(id: string, options?: RawAxiosRequestConfig): AxiosPromise<StringApiResponse> {
+            return localVarFp.apiBotsIdStartPost(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsIdStopPost(id: string, options?: RawAxiosRequestConfig): AxiosPromise<StringApiResponse> {
+            return localVarFp.apiBotsIdStopPost(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsIdTradesGet(id: string, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<BotTradeRecordDtoIEnumerableApiResponse> {
+            return localVarFp.apiBotsIdTradesGet(id, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {CreateBotRequest} [createBotRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiBotsPost(createBotRequest?: CreateBotRequest, options?: RawAxiosRequestConfig): AxiosPromise<BotDtoApiResponse> {
+            return localVarFp.apiBotsPost(createBotRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * BotsApi - object-oriented interface
+ * @export
+ * @class BotsApi
+ * @extends {BaseAPI}
+ */
+export class BotsApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BotsApi
+     */
+    public apiBotsGet(options?: RawAxiosRequestConfig) {
+        return BotsApiFp(this.configuration).apiBotsGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BotsApi
+     */
+    public apiBotsIdDelete(id: string, options?: RawAxiosRequestConfig) {
+        return BotsApiFp(this.configuration).apiBotsIdDelete(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BotsApi
+     */
+    public apiBotsIdGet(id: string, options?: RawAxiosRequestConfig) {
+        return BotsApiFp(this.configuration).apiBotsIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BotsApi
+     */
+    public apiBotsIdStartPost(id: string, options?: RawAxiosRequestConfig) {
+        return BotsApiFp(this.configuration).apiBotsIdStartPost(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BotsApi
+     */
+    public apiBotsIdStopPost(id: string, options?: RawAxiosRequestConfig) {
+        return BotsApiFp(this.configuration).apiBotsIdStopPost(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {number} [limit] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BotsApi
+     */
+    public apiBotsIdTradesGet(id: string, limit?: number, options?: RawAxiosRequestConfig) {
+        return BotsApiFp(this.configuration).apiBotsIdTradesGet(id, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {CreateBotRequest} [createBotRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof BotsApi
+     */
+    public apiBotsPost(createBotRequest?: CreateBotRequest, options?: RawAxiosRequestConfig) {
+        return BotsApiFp(this.configuration).apiBotsPost(createBotRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
 
 /**
  * DataCollectionApi - axios parameter creator
@@ -905,6 +2483,825 @@ export class DataCollectionApi extends BaseAPI {
 
 
 /**
+ * ExchangeApi - axios parameter creator
+ * @export
+ */
+export const ExchangeApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeConnectivityGet: async (exchange: ExchangeName, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiExchangeExchangeConnectivityGet', 'exchange', exchange)
+            const localVarPath = `/api/exchange/{exchange}/connectivity`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} [symbol] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeOrdersOpenGet: async (exchange: ExchangeName, symbol?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiExchangeExchangeOrdersOpenGet', 'exchange', exchange)
+            const localVarPath = `/api/exchange/{exchange}/orders/open`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+            if (symbol !== undefined) {
+                localVarQueryParameter['symbol'] = symbol;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {PlaceOrderRequest} [placeOrderRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeOrdersPost: async (exchange: ExchangeName, placeOrderRequest?: PlaceOrderRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiExchangeExchangeOrdersPost', 'exchange', exchange)
+            const localVarPath = `/api/exchange/{exchange}/orders`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(placeOrderRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {number} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeOrdersSymbolOrderIdDelete: async (exchange: ExchangeName, symbol: string, orderId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiExchangeExchangeOrdersSymbolOrderIdDelete', 'exchange', exchange)
+            // verify required parameter 'symbol' is not null or undefined
+            assertParamExists('apiExchangeExchangeOrdersSymbolOrderIdDelete', 'symbol', symbol)
+            // verify required parameter 'orderId' is not null or undefined
+            assertParamExists('apiExchangeExchangeOrdersSymbolOrderIdDelete', 'orderId', orderId)
+            const localVarPath = `/api/exchange/{exchange}/orders/{symbol}/{orderId}`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)))
+                .replace(`{${"symbol"}}`, encodeURIComponent(String(symbol)))
+                .replace(`{${"orderId"}}`, encodeURIComponent(String(orderId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {number} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeOrdersSymbolOrderIdGet: async (exchange: ExchangeName, symbol: string, orderId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiExchangeExchangeOrdersSymbolOrderIdGet', 'exchange', exchange)
+            // verify required parameter 'symbol' is not null or undefined
+            assertParamExists('apiExchangeExchangeOrdersSymbolOrderIdGet', 'symbol', symbol)
+            // verify required parameter 'orderId' is not null or undefined
+            assertParamExists('apiExchangeExchangeOrdersSymbolOrderIdGet', 'orderId', orderId)
+            const localVarPath = `/api/exchange/{exchange}/orders/{symbol}/{orderId}`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)))
+                .replace(`{${"symbol"}}`, encodeURIComponent(String(symbol)))
+                .replace(`{${"orderId"}}`, encodeURIComponent(String(orderId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangePairsSymbolGet: async (exchange: ExchangeName, symbol: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiExchangeExchangePairsSymbolGet', 'exchange', exchange)
+            // verify required parameter 'symbol' is not null or undefined
+            assertParamExists('apiExchangeExchangePairsSymbolGet', 'symbol', symbol)
+            const localVarPath = `/api/exchange/{exchange}/pairs/{symbol}`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)))
+                .replace(`{${"symbol"}}`, encodeURIComponent(String(symbol)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangePortfolioGet: async (exchange: ExchangeName, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiExchangeExchangePortfolioGet', 'exchange', exchange)
+            const localVarPath = `/api/exchange/{exchange}/portfolio`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangePriceSymbolGet: async (exchange: ExchangeName, symbol: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiExchangeExchangePriceSymbolGet', 'exchange', exchange)
+            // verify required parameter 'symbol' is not null or undefined
+            assertParamExists('apiExchangeExchangePriceSymbolGet', 'symbol', symbol)
+            const localVarPath = `/api/exchange/{exchange}/price/{symbol}`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)))
+                .replace(`{${"symbol"}}`, encodeURIComponent(String(symbol)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeServerTimeGet: async (exchange: ExchangeName, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiExchangeExchangeServerTimeGet', 'exchange', exchange)
+            const localVarPath = `/api/exchange/{exchange}/server-time`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {number} [orderId] 
+         * @param {string} [startTime] 
+         * @param {string} [endTime] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeTradesSymbolGet: async (exchange: ExchangeName, symbol: string, orderId?: number, startTime?: string, endTime?: string, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiExchangeExchangeTradesSymbolGet', 'exchange', exchange)
+            // verify required parameter 'symbol' is not null or undefined
+            assertParamExists('apiExchangeExchangeTradesSymbolGet', 'symbol', symbol)
+            const localVarPath = `/api/exchange/{exchange}/trades/{symbol}`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)))
+                .replace(`{${"symbol"}}`, encodeURIComponent(String(symbol)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+            if (orderId !== undefined) {
+                localVarQueryParameter['orderId'] = orderId;
+            }
+
+            if (startTime !== undefined) {
+                localVarQueryParameter['startTime'] = (startTime as any instanceof Date) ?
+                    (startTime as any).toISOString() :
+                    startTime;
+            }
+
+            if (endTime !== undefined) {
+                localVarQueryParameter['endTime'] = (endTime as any instanceof Date) ?
+                    (endTime as any).toISOString() :
+                    endTime;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ExchangeApi - functional programming interface
+ * @export
+ */
+export const ExchangeApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ExchangeApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiExchangeExchangeConnectivityGet(exchange: ExchangeName, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectivityResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiExchangeExchangeConnectivityGet(exchange, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExchangeApi.apiExchangeExchangeConnectivityGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} [symbol] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiExchangeExchangeOrdersOpenGet(exchange: ExchangeName, symbol?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrdersResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiExchangeExchangeOrdersOpenGet(exchange, symbol, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExchangeApi.apiExchangeExchangeOrdersOpenGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {PlaceOrderRequest} [placeOrderRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiExchangeExchangeOrdersPost(exchange: ExchangeName, placeOrderRequest?: PlaceOrderRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiExchangeExchangeOrdersPost(exchange, placeOrderRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExchangeApi.apiExchangeExchangeOrdersPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {number} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiExchangeExchangeOrdersSymbolOrderIdDelete(exchange: ExchangeName, symbol: string, orderId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiExchangeExchangeOrdersSymbolOrderIdDelete(exchange, symbol, orderId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExchangeApi.apiExchangeExchangeOrdersSymbolOrderIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {number} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiExchangeExchangeOrdersSymbolOrderIdGet(exchange: ExchangeName, symbol: string, orderId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiExchangeExchangeOrdersSymbolOrderIdGet(exchange, symbol, orderId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExchangeApi.apiExchangeExchangeOrdersSymbolOrderIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiExchangeExchangePairsSymbolGet(exchange: ExchangeName, symbol: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TradingPairDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiExchangeExchangePairsSymbolGet(exchange, symbol, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExchangeApi.apiExchangeExchangePairsSymbolGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiExchangeExchangePortfolioGet(exchange: ExchangeName, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PortfolioDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiExchangeExchangePortfolioGet(exchange, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExchangeApi.apiExchangeExchangePortfolioGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiExchangeExchangePriceSymbolGet(exchange: ExchangeName, symbol: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PriceDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiExchangeExchangePriceSymbolGet(exchange, symbol, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExchangeApi.apiExchangeExchangePriceSymbolGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiExchangeExchangeServerTimeGet(exchange: ExchangeName, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ServerTimeResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiExchangeExchangeServerTimeGet(exchange, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExchangeApi.apiExchangeExchangeServerTimeGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {number} [orderId] 
+         * @param {string} [startTime] 
+         * @param {string} [endTime] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiExchangeExchangeTradesSymbolGet(exchange: ExchangeName, symbol: string, orderId?: number, startTime?: string, endTime?: string, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TradesResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiExchangeExchangeTradesSymbolGet(exchange, symbol, orderId, startTime, endTime, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExchangeApi.apiExchangeExchangeTradesSymbolGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ExchangeApi - factory interface
+ * @export
+ */
+export const ExchangeApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ExchangeApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeConnectivityGet(exchange: ExchangeName, options?: RawAxiosRequestConfig): AxiosPromise<ConnectivityResponse> {
+            return localVarFp.apiExchangeExchangeConnectivityGet(exchange, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} [symbol] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeOrdersOpenGet(exchange: ExchangeName, symbol?: string, options?: RawAxiosRequestConfig): AxiosPromise<OrdersResponse> {
+            return localVarFp.apiExchangeExchangeOrdersOpenGet(exchange, symbol, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {PlaceOrderRequest} [placeOrderRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeOrdersPost(exchange: ExchangeName, placeOrderRequest?: PlaceOrderRequest, options?: RawAxiosRequestConfig): AxiosPromise<OrderDto> {
+            return localVarFp.apiExchangeExchangeOrdersPost(exchange, placeOrderRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {number} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeOrdersSymbolOrderIdDelete(exchange: ExchangeName, symbol: string, orderId: number, options?: RawAxiosRequestConfig): AxiosPromise<OrderDto> {
+            return localVarFp.apiExchangeExchangeOrdersSymbolOrderIdDelete(exchange, symbol, orderId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {number} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeOrdersSymbolOrderIdGet(exchange: ExchangeName, symbol: string, orderId: number, options?: RawAxiosRequestConfig): AxiosPromise<OrderDto> {
+            return localVarFp.apiExchangeExchangeOrdersSymbolOrderIdGet(exchange, symbol, orderId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangePairsSymbolGet(exchange: ExchangeName, symbol: string, options?: RawAxiosRequestConfig): AxiosPromise<TradingPairDto> {
+            return localVarFp.apiExchangeExchangePairsSymbolGet(exchange, symbol, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangePortfolioGet(exchange: ExchangeName, options?: RawAxiosRequestConfig): AxiosPromise<PortfolioDto> {
+            return localVarFp.apiExchangeExchangePortfolioGet(exchange, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangePriceSymbolGet(exchange: ExchangeName, symbol: string, options?: RawAxiosRequestConfig): AxiosPromise<PriceDto> {
+            return localVarFp.apiExchangeExchangePriceSymbolGet(exchange, symbol, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeServerTimeGet(exchange: ExchangeName, options?: RawAxiosRequestConfig): AxiosPromise<ServerTimeResponse> {
+            return localVarFp.apiExchangeExchangeServerTimeGet(exchange, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {string} symbol 
+         * @param {number} [orderId] 
+         * @param {string} [startTime] 
+         * @param {string} [endTime] 
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiExchangeExchangeTradesSymbolGet(exchange: ExchangeName, symbol: string, orderId?: number, startTime?: string, endTime?: string, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<TradesResponse> {
+            return localVarFp.apiExchangeExchangeTradesSymbolGet(exchange, symbol, orderId, startTime, endTime, limit, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ExchangeApi - object-oriented interface
+ * @export
+ * @class ExchangeApi
+ * @extends {BaseAPI}
+ */
+export class ExchangeApi extends BaseAPI {
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExchangeApi
+     */
+    public apiExchangeExchangeConnectivityGet(exchange: ExchangeName, options?: RawAxiosRequestConfig) {
+        return ExchangeApiFp(this.configuration).apiExchangeExchangeConnectivityGet(exchange, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {string} [symbol] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExchangeApi
+     */
+    public apiExchangeExchangeOrdersOpenGet(exchange: ExchangeName, symbol?: string, options?: RawAxiosRequestConfig) {
+        return ExchangeApiFp(this.configuration).apiExchangeExchangeOrdersOpenGet(exchange, symbol, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {PlaceOrderRequest} [placeOrderRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExchangeApi
+     */
+    public apiExchangeExchangeOrdersPost(exchange: ExchangeName, placeOrderRequest?: PlaceOrderRequest, options?: RawAxiosRequestConfig) {
+        return ExchangeApiFp(this.configuration).apiExchangeExchangeOrdersPost(exchange, placeOrderRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {string} symbol 
+     * @param {number} orderId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExchangeApi
+     */
+    public apiExchangeExchangeOrdersSymbolOrderIdDelete(exchange: ExchangeName, symbol: string, orderId: number, options?: RawAxiosRequestConfig) {
+        return ExchangeApiFp(this.configuration).apiExchangeExchangeOrdersSymbolOrderIdDelete(exchange, symbol, orderId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {string} symbol 
+     * @param {number} orderId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExchangeApi
+     */
+    public apiExchangeExchangeOrdersSymbolOrderIdGet(exchange: ExchangeName, symbol: string, orderId: number, options?: RawAxiosRequestConfig) {
+        return ExchangeApiFp(this.configuration).apiExchangeExchangeOrdersSymbolOrderIdGet(exchange, symbol, orderId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {string} symbol 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExchangeApi
+     */
+    public apiExchangeExchangePairsSymbolGet(exchange: ExchangeName, symbol: string, options?: RawAxiosRequestConfig) {
+        return ExchangeApiFp(this.configuration).apiExchangeExchangePairsSymbolGet(exchange, symbol, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExchangeApi
+     */
+    public apiExchangeExchangePortfolioGet(exchange: ExchangeName, options?: RawAxiosRequestConfig) {
+        return ExchangeApiFp(this.configuration).apiExchangeExchangePortfolioGet(exchange, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {string} symbol 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExchangeApi
+     */
+    public apiExchangeExchangePriceSymbolGet(exchange: ExchangeName, symbol: string, options?: RawAxiosRequestConfig) {
+        return ExchangeApiFp(this.configuration).apiExchangeExchangePriceSymbolGet(exchange, symbol, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExchangeApi
+     */
+    public apiExchangeExchangeServerTimeGet(exchange: ExchangeName, options?: RawAxiosRequestConfig) {
+        return ExchangeApiFp(this.configuration).apiExchangeExchangeServerTimeGet(exchange, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {string} symbol 
+     * @param {number} [orderId] 
+     * @param {string} [startTime] 
+     * @param {string} [endTime] 
+     * @param {number} [limit] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExchangeApi
+     */
+    public apiExchangeExchangeTradesSymbolGet(exchange: ExchangeName, symbol: string, orderId?: number, startTime?: string, endTime?: string, limit?: number, options?: RawAxiosRequestConfig) {
+        return ExchangeApiFp(this.configuration).apiExchangeExchangeTradesSymbolGet(exchange, symbol, orderId, startTime, endTime, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * TradingApi - axios parameter creator
  * @export
  */
@@ -1017,6 +3414,190 @@ export class TradingApi extends BaseAPI {
  */
 export const UserApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserExchangesExchangeDelete: async (exchange: ExchangeName, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiUserExchangesExchangeDelete', 'exchange', exchange)
+            const localVarPath = `/api/User/exchanges/{exchange}`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserExchangesExchangeGet: async (exchange: ExchangeName, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiUserExchangesExchangeGet', 'exchange', exchange)
+            const localVarPath = `/api/User/exchanges/{exchange}`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {AddExchangeConnectionRequest} [addExchangeConnectionRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserExchangesExchangePost: async (exchange: ExchangeName, addExchangeConnectionRequest?: AddExchangeConnectionRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiUserExchangesExchangePost', 'exchange', exchange)
+            const localVarPath = `/api/User/exchanges/{exchange}`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(addExchangeConnectionRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {UpdateExchangeConnectionRequest} [updateExchangeConnectionRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserExchangesExchangePut: async (exchange: ExchangeName, updateExchangeConnectionRequest?: UpdateExchangeConnectionRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'exchange' is not null or undefined
+            assertParamExists('apiUserExchangesExchangePut', 'exchange', exchange)
+            const localVarPath = `/api/User/exchanges/{exchange}`
+                .replace(`{${"exchange"}}`, encodeURIComponent(String(exchange)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateExchangeConnectionRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserExchangesGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/User/exchanges`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @param {LoginRequest} [loginRequest] 
@@ -1169,6 +3750,67 @@ export const UserApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiUserExchangesExchangeDelete(exchange: ExchangeName, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserExchangesExchangeDelete(exchange, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserApi.apiUserExchangesExchangeDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiUserExchangesExchangeGet(exchange: ExchangeName, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExchangeConnectionResponseApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserExchangesExchangeGet(exchange, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserApi.apiUserExchangesExchangeGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {AddExchangeConnectionRequest} [addExchangeConnectionRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiUserExchangesExchangePost(exchange: ExchangeName, addExchangeConnectionRequest?: AddExchangeConnectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExchangeConnectionResponseApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserExchangesExchangePost(exchange, addExchangeConnectionRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserApi.apiUserExchangesExchangePost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {UpdateExchangeConnectionRequest} [updateExchangeConnectionRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiUserExchangesExchangePut(exchange: ExchangeName, updateExchangeConnectionRequest?: UpdateExchangeConnectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExchangeConnectionResponseApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserExchangesExchangePut(exchange, updateExchangeConnectionRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserApi.apiUserExchangesExchangePut']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiUserExchangesGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExchangeNameExchangeConnectionResponseDictionaryApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiUserExchangesGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserApi.apiUserExchangesGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {LoginRequest} [loginRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1226,6 +3868,52 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
     return {
         /**
          * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserExchangesExchangeDelete(exchange: ExchangeName, options?: RawAxiosRequestConfig): AxiosPromise<StringApiResponse> {
+            return localVarFp.apiUserExchangesExchangeDelete(exchange, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserExchangesExchangeGet(exchange: ExchangeName, options?: RawAxiosRequestConfig): AxiosPromise<ExchangeConnectionResponseApiResponse> {
+            return localVarFp.apiUserExchangesExchangeGet(exchange, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {AddExchangeConnectionRequest} [addExchangeConnectionRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserExchangesExchangePost(exchange: ExchangeName, addExchangeConnectionRequest?: AddExchangeConnectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<ExchangeConnectionResponseApiResponse> {
+            return localVarFp.apiUserExchangesExchangePost(exchange, addExchangeConnectionRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ExchangeName} exchange 
+         * @param {UpdateExchangeConnectionRequest} [updateExchangeConnectionRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserExchangesExchangePut(exchange: ExchangeName, updateExchangeConnectionRequest?: UpdateExchangeConnectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<ExchangeConnectionResponseApiResponse> {
+            return localVarFp.apiUserExchangesExchangePut(exchange, updateExchangeConnectionRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiUserExchangesGet(options?: RawAxiosRequestConfig): AxiosPromise<ExchangeNameExchangeConnectionResponseDictionaryApiResponse> {
+            return localVarFp.apiUserExchangesGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {LoginRequest} [loginRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1269,6 +3957,62 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
  * @extends {BaseAPI}
  */
 export class UserApi extends BaseAPI {
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public apiUserExchangesExchangeDelete(exchange: ExchangeName, options?: RawAxiosRequestConfig) {
+        return UserApiFp(this.configuration).apiUserExchangesExchangeDelete(exchange, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public apiUserExchangesExchangeGet(exchange: ExchangeName, options?: RawAxiosRequestConfig) {
+        return UserApiFp(this.configuration).apiUserExchangesExchangeGet(exchange, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {AddExchangeConnectionRequest} [addExchangeConnectionRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public apiUserExchangesExchangePost(exchange: ExchangeName, addExchangeConnectionRequest?: AddExchangeConnectionRequest, options?: RawAxiosRequestConfig) {
+        return UserApiFp(this.configuration).apiUserExchangesExchangePost(exchange, addExchangeConnectionRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ExchangeName} exchange 
+     * @param {UpdateExchangeConnectionRequest} [updateExchangeConnectionRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public apiUserExchangesExchangePut(exchange: ExchangeName, updateExchangeConnectionRequest?: UpdateExchangeConnectionRequest, options?: RawAxiosRequestConfig) {
+        return UserApiFp(this.configuration).apiUserExchangesExchangePut(exchange, updateExchangeConnectionRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApi
+     */
+    public apiUserExchangesGet(options?: RawAxiosRequestConfig) {
+        return UserApiFp(this.configuration).apiUserExchangesGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @param {LoginRequest} [loginRequest] 

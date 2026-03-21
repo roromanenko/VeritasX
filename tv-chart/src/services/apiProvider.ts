@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 import axios from 'axios';
-import { Configuration, DataCollectionApi, TradingApi, UserApi } from '../api';
+import { BotsApi, Configuration, DataCollectionApi, TradingApi, UserApi } from '../api';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
@@ -10,6 +10,8 @@ type ApiProvider = {
   getDataCollectionApi: () => DataCollectionApi;
   getTradingApi: () => TradingApi;
   getJobProgressHub: () => HubConnection;
+  getBotProgressHub: () => HubConnection;
+  getBotsApi: () => BotsApi;
 };
 
 const ApiProvider = (): ApiProvider => {
@@ -62,20 +64,32 @@ const ApiProvider = (): ApiProvider => {
     }
 
     function getJobProgressHub(): HubConnection {
-        const connection = new HubConnectionBuilder()
+        return new HubConnectionBuilder()
             .withUrl(`${config.basePath}/jobProgressHub`, { accessTokenFactory: () => authToken || '' })
             .configureLogging(LogLevel.Information)
             .withAutomaticReconnect()
             .build();
+    }
 
-        return connection;
+    function getBotProgressHub(): HubConnection {
+        return new HubConnectionBuilder()
+            .withUrl(`${config.basePath}/botProgressHub`, { accessTokenFactory: () => authToken || '' })
+            .configureLogging(LogLevel.Information)
+            .withAutomaticReconnect()
+            .build();
+    }
+
+    function getBotsApi(){
+        return new BotsApi(config, config.basePath, getAxiosInstance(config.basePath!));
     }
 
     return {
         getUserApi,
         getDataCollectionApi,
         getTradingApi,
-        getJobProgressHub
+        getJobProgressHub,
+        getBotProgressHub,
+        getBotsApi
     }
 }
 

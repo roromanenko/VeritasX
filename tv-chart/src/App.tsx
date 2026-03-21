@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import { Login } from './pages/Login';
 import { Link } from 'react-router-dom';
 import { Chart } from './pages/Chart';
+import { BotMonitor } from './pages/BotMonitor';
 
 function App() {
 
@@ -28,6 +29,12 @@ function App() {
             element={
               <ProtectedRoute>
                 <Chart />
+              </ProtectedRoute>
+            } />
+          <Route path='bots'
+            element={
+              <ProtectedRoute>
+                <BotMonitor />
               </ProtectedRoute>
             } />
           <Route path='login' element={<Login />} />
@@ -54,6 +61,10 @@ const Navigation = () => {
 
       <div className="nav-group">
         <Link to="/requests">Requests</Link>
+      </div>
+
+      <div className="nav-group">
+        <Link to="/bots">Bots</Link>
       </div>
 
       <div className="nav-group">

@@ -1,0 +1,157 @@
+.bot-monitor {
+  padding: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.bot-monitor-title {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 32px;
+}
+
+.bot-monitor-controls {
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: start;
+}
+
+.bot-monitor-actions {
+  gap: 12px;
+}
+
+.bot-monitor-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.bot-monitor-disconnect {
+  background: linear-gradient(135deg, #636e72 0%, #4a4e52 100%) !important;
+  box-shadow: 0 4px 16px rgba(99, 110, 114, 0.25) !important;
+}
+
+.bot-monitor-disconnect:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4a4e52 0%, #363a3d 100%) !important;
+  box-shadow: 0 6px 24px rgba(99, 110, 114, 0.3) !important;
+}
+
+.bot-monitor-status {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  align-self: start;
+  margin-top: 4px;
+}
+
+.bot-monitor-status--idle {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(224, 230, 237, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bot-monitor-status--connecting {
+  background: rgba(253, 203, 110, 0.1);
+  color: #fdcb6e;
+  border: 1px solid rgba(253, 203, 110, 0.3);
+}
+
+.bot-monitor-status--connected {
+  background: rgba(0, 212, 170, 0.1);
+  color: #00d4aa;
+  border: 1px solid rgba(0, 212, 170, 0.3);
+}
+
+.bot-monitor-status--disconnected {
+  background: rgba(255, 71, 87, 0.1);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+}
+
+.bot-monitor-log {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  height: 420px;
+  overflow-y: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) inset;
+}
+
+.bot-monitor-log::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bot-monitor-log::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px;
+}
+
+.bot-monitor-log::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 170, 0.3);
+  border-radius: 3px;
+}
+
+.bot-monitor-log::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 212, 170, 0.5);
+}
+
+.bot-monitor-log-empty {
+  color: rgba(224, 230, 237, 0.3);
+  text-align: center;
+  margin-top: 180px;
+  font-style: italic;
+}
+
+.bot-monitor-log-entry {
+  display: flex;
+  gap: 10px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.bot-monitor-log-time {
+  color: rgba(224, 230, 237, 0.35);
+  flex-shrink: 0;
+}
+
+.bot-monitor-log-entry--info .bot-monitor-log-message {
+  color: #e0e6ed;
+}
+
+.bot-monitor-log-entry--status .bot-monitor-log-message {
+  color: #fdcb6e;
+}
+
+.bot-monitor-log-entry--trade .bot-monitor-log-message {
+  color: #00cec9;
+}
+
+.bot-monitor-log-entry--error .bot-monitor-log-message {
+  color: #ff4757;
+}
+
+@media (max-width: 768px) {
+  .bot-monitor {
+    padding: 20px;
+  }
+
+  .bot-monitor-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .bot-monitor-buttons {
+    flex-direction: column;
+  }
+}

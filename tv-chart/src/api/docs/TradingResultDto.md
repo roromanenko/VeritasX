@@ -9,6 +9,8 @@ Name | Type | Description | Notes
 **endTotalInBaseline** | **number** |  | [optional] [default to undefined]
 **profitInBaseline** | **number** |  | [optional] [default to undefined]
 **justHoldTotalInBaseline** | **number** |  | [optional] [default to undefined]
+**sharpeStrategy** | **number** |  | [optional] [default to undefined]
+**sharpeHold** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -20,6 +22,8 @@ const instance: TradingResultDto = {
     endTotalInBaseline,
     profitInBaseline,
     justHoldTotalInBaseline,
+    sharpeStrategy,
+    sharpeHold,
 };
 ```
 

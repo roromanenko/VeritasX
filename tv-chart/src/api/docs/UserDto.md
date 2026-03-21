@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **id** | **string** |  | [optional] [default to undefined]
 **username** | **string** |  | [optional] [default to undefined]
 **roles** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
+**connectedExchanges** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -18,6 +19,7 @@ const instance: UserDto = {
     id,
     username,
     roles,
+    connectedExchanges,
 };
 ```
 
