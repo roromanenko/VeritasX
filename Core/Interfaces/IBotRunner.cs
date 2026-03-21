@@ -1,6 +1,6 @@
 ﻿namespace Core.Interfaces;
 
-public interface IBotRunner
+public interface IBotRunner : IAsyncDisposable
 {
 	string BotId { get; }
 	Task StartAsync(CancellationToken ct);

@@ -5,7 +5,6 @@ using Core.Domain;
 using Core.Exceptions;
 using Infrastructure.Exchanges.Binance.Factory;
 using Infrastructure.Exchanges.Binance.Helpers;
-using Microsoft.Extensions.Options;
 using BinanceNet = Binance.Net;
 
 namespace Infrastructure.Exchanges.Binance.Services;
@@ -29,7 +28,7 @@ public class BinanceService : Core.Interfaces.IExchangeService
 	/// </returns>
 	public async Task<bool> TestConnectivity(ExchangeConnection connection, CancellationToken cancellationToken = default)
 	{
-		var client = _clientFactory.CreateClient(connection);
+		var client = CreateClient(connection);
 		var result = await client.SpotApi.ExchangeData.PingAsync(cancellationToken);
 		return result.Success;
 	}
@@ -42,7 +41,7 @@ public class BinanceService : Core.Interfaces.IExchangeService
 	/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to return server time.</exception>
 	public async Task<long> GetServerTime(ExchangeConnection connection, CancellationToken cancellationToken = default)
 	{
-		var client = _clientFactory.CreateClient(connection);
+		var client = CreateClient(connection);
 		var result = await client.SpotApi.ExchangeData.GetServerTimeAsync(cancellationToken);
 
 		if (!result.Success)
@@ -64,7 +63,7 @@ public class BinanceService : Core.Interfaces.IExchangeService
 	/// <exception cref="TradingPairNotFoundException">Thrown when the specified symbol does not exist on Binance.</exception>
 	public async Task<TradingPair?> GetTradingPairInfo(string symbol, ExchangeConnection connection, CancellationToken cancellationToken = default)
 	{
-		var client = _clientFactory.CreateClient(connection);
+		var client = CreateClient(connection);
 		var result = await client.SpotApi.ExchangeData.GetExchangeInfoAsync(symbol, ct: cancellationToken);
 
 		if (!result.Success)
@@ -73,24 +72,7 @@ public class BinanceService : Core.Interfaces.IExchangeService
 		if (result.Data.Symbols.Length == 0)
 			throw new TradingPairNotFoundException($"Trading pair '{symbol}' not found on Binance.");
 
-		var binanceSymbol = result.Data.Symbols[0];
-
-		return new TradingPair
-		{
-			Exchange = ExchangeName.Binance,
-			Symbol = binanceSymbol.Name,
-			BaseAsset = binanceSymbol.BaseAsset,
-			QuoteAsset = binanceSymbol.QuoteAsset,
-			MinQuantity = BinanceHelpers.GetMinQuantity(binanceSymbol),
-			MaxQuantity = BinanceHelpers.GetMaxQuantity(binanceSymbol),
-			QuantityStepSize = BinanceHelpers.GetStepSize(binanceSymbol),
-			MinNotional = BinanceHelpers.GetMinNotional(binanceSymbol),
-			MinPrice = BinanceHelpers.GetMinPrice(binanceSymbol),
-			MaxPrice = BinanceHelpers.GetMaxPrice(binanceSymbol),
-			PriceTickSize = BinanceHelpers.GetTickSize(binanceSymbol),
-			IsActive = binanceSymbol.Status == BinanceNet.Enums.SymbolStatus.Trading,
-			UpdatedAt = DateTimeOffset.UtcNow
-		};
+		return MapTradingPair(result.Data.Symbols[0]);
 	}
 
 	/// <summary>
@@ -102,7 +84,7 @@ public class BinanceService : Core.Interfaces.IExchangeService
 	/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to return ticker data.</exception>
 	public async Task<Price> GetPrice(string symbol, ExchangeConnection connection, CancellationToken cancellationToken = default)
 	{
-		var client = _clientFactory.CreateClient(connection);
+		var client = CreateClient(connection);
 		var result = await client.SpotApi.ExchangeData.GetTickerAsync(symbol, cancellationToken);
 
 		if (!result.Success)
@@ -128,7 +110,7 @@ public class BinanceService : Core.Interfaces.IExchangeService
 	/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to return account info.</exception>
 	public async Task<Portfolio> GetPortfolio(string userId, ExchangeConnection connection, CancellationToken cancellationToken = default)
 	{
-		var client = _clientFactory.CreateClient(connection);
+		var client = CreateClient(connection);
 		var result = await client.SpotApi.Account.GetAccountInfoAsync(ct: cancellationToken);
 
 		if (!result.Success)
@@ -141,13 +123,13 @@ public class BinanceService : Core.Interfaces.IExchangeService
 			IsTestnet = connection.IsTestnet,
 			UpdatedAt = DateTimeOffset.UtcNow,
 			Balances = [.. result.Data.Balances
-			.Where(b => b.Available > 0 || b.Locked > 0)
-			.Select(b => new Balance
-			{
-				Asset = b.Asset,
-				Free = b.Available,
-				Locked = b.Locked
-			})]
+				.Where(b => b.Available > 0 || b.Locked > 0)
+				.Select(b => new Balance
+				{
+					Asset = b.Asset,
+					Free = b.Available,
+					Locked = b.Locked
+				})]
 		};
 	}
 
@@ -166,59 +148,25 @@ public class BinanceService : Core.Interfaces.IExchangeService
 	/// <exception cref="TradingPairNotFoundException">Thrown when the specified symbol does not exist on Binance.</exception>
 	public async Task<Order> PlaceOrder(Order order, ExchangeConnection connection, CancellationToken cancellationToken = default)
 	{
-		var client = _clientFactory.CreateClient(connection);
+		var client = CreateClient(connection);
 		var binanceSymbol = await GetBinanceSymbol(order.Symbol, client, cancellationToken);
 
-		if (!BinanceHelpers.ValidateQuantity(order.Quantity, binanceSymbol))
-			throw new ArgumentException(
-				$"Invalid quantity {order.Quantity} for symbol '{order.Symbol}'. " +
-				$"Min: {BinanceHelpers.GetMinQuantity(binanceSymbol)}, " +
-				$"Max: {BinanceHelpers.GetMaxQuantity(binanceSymbol)}, " +
-				$"Step: {BinanceHelpers.GetStepSize(binanceSymbol)}",
-				nameof(order));
-
-		if (order.Type == OrderType.Limit)
-		{
-			if (!order.Price.HasValue)
-				throw new ArgumentException("Price has no value. Price is required.", nameof(order));
-
-			if (!BinanceHelpers.ValidatePrice(order.Price.Value, binanceSymbol))
-				throw new ArgumentException(
-					$"Invalid price {order.Price.Value} for symbol '{order.Symbol}'. " +
-					$"Min: {BinanceHelpers.GetMinPrice(binanceSymbol)}, " +
-					$"Max: {BinanceHelpers.GetMaxPrice(binanceSymbol)}, " +
-					$"Tick: {BinanceHelpers.GetTickSize(binanceSymbol)}",
-					nameof(order));
-
-			if (!BinanceHelpers.ValidateNotional(order.Price.Value, order.Quantity, binanceSymbol, false))
-			{
-				var minNotional = BinanceHelpers.GetMinNotional(binanceSymbol);
-				throw new ArgumentException(
-					$"Order notional value ({order.Price.Value * order.Quantity:F8}) does not meet minimum requirements ({minNotional}) for '{order.Symbol}'.",
-					nameof(order));
-			}
-		}
-
-		var binanceOrderSide = BinanceHelpers.ToBinanceSide(order.Side);
-		var binanceOrderType = BinanceHelpers.ToBinanceOrderType(order.Type);
+		ValidateOrder(order, binanceSymbol);
 
 		var result = await client.SpotApi.Trading.PlaceOrderAsync(
 			symbol: order.Symbol,
-			side: binanceOrderSide,
-			type: binanceOrderType,
+			side: BinanceHelpers.ToBinanceSide(order.Side),
+			type: BinanceHelpers.ToBinanceOrderType(order.Type),
 			quantity: order.Quantity,
 			price: order.Price,
-			timeInForce: binanceOrderType == BinanceNet.Enums.SpotOrderType.Limit ? BinanceNet.Enums.TimeInForce.GoodTillCanceled : null,
+			timeInForce: order.Type == OrderType.Limit ? BinanceNet.Enums.TimeInForce.GoodTillCanceled : null,
 			ct: cancellationToken
 		);
 
 		if (!result.Success)
 			throw new InvalidOperationException($"Binance rejected the order: {result.Error?.Message}");
 
-		var mappedOrder = _mapper.Map<Order>(result.Data);
-		mappedOrder.UserId = order.UserId;
-		mappedOrder.IsTestnet = connection.IsTestnet;
-		return mappedOrder;
+		return MapOrder(result.Data, connection, userId: order.UserId);
 	}
 
 	/// <summary>
@@ -231,15 +179,13 @@ public class BinanceService : Core.Interfaces.IExchangeService
 	/// <exception cref="InvalidOperationException">Thrown when the Binance API returns an unexpected error.</exception>
 	public async Task<Order> GetOrder(string symbol, long orderId, ExchangeConnection connection, CancellationToken cancellationToken = default)
 	{
-		var client = _clientFactory.CreateClient(connection);
+		var client = CreateClient(connection);
 		var result = await client.SpotApi.Trading.GetOrderAsync(symbol, orderId, ct: cancellationToken);
 
 		if (!result.Success)
 			throw new InvalidOperationException($"Failed to retrieve order {orderId}: {result.Error?.Message}");
 
-		var mappedOrder = _mapper.Map<Order>(result.Data);
-		mappedOrder.IsTestnet = connection.IsTestnet;
-		return mappedOrder;
+		return MapOrder(result.Data, connection);
 	}
 
 	/// <summary>
@@ -252,15 +198,13 @@ public class BinanceService : Core.Interfaces.IExchangeService
 	/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to cancel the order.</exception>
 	public async Task<Order> CancelOrder(string symbol, long orderId, ExchangeConnection connection, CancellationToken cancellationToken = default)
 	{
-		var client = _clientFactory.CreateClient(connection);
+		var client = CreateClient(connection);
 		var result = await client.SpotApi.Trading.CancelOrderAsync(symbol, orderId, ct: cancellationToken);
 
 		if (!result.Success)
 			throw new InvalidOperationException($"Failed to cancel order {orderId}: {result.Error?.Message}");
 
-		var mappedOrder = _mapper.Map<Order>(result.Data);
-		mappedOrder.IsTestnet = connection.IsTestnet;
-		return mappedOrder;
+		return MapOrder(result.Data, connection);
 	}
 
 	/// <summary>
@@ -272,18 +216,13 @@ public class BinanceService : Core.Interfaces.IExchangeService
 	/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to return open orders.</exception>
 	public async Task<List<Order>> GetOpenOrders(string? symbol, ExchangeConnection connection, CancellationToken cancellationToken = default)
 	{
-		var client = _clientFactory.CreateClient(connection);
+		var client = CreateClient(connection);
 		var result = await client.SpotApi.Trading.GetOpenOrdersAsync(symbol, ct: cancellationToken);
 
 		if (!result.Success)
 			throw new InvalidOperationException($"Failed to retrieve open orders: {result.Error?.Message}");
 
-		return [.. result.Data.Select(o =>
-	{
-		var mappedOrder = _mapper.Map<Order>(o);
-		mappedOrder.IsTestnet = connection.IsTestnet;
-		return mappedOrder;
-	})];
+		return [.. result.Data.Select(o => MapOrder(o, connection))];
 	}
 
 	/// <summary>
@@ -300,7 +239,7 @@ public class BinanceService : Core.Interfaces.IExchangeService
 	/// <exception cref="InvalidOperationException">Thrown when the Binance API fails to return trade history.</exception>
 	public async Task<List<Trade>> GetTrades(string symbol, ExchangeConnection connection, string? userId = null, long? orderId = null, DateTime? startTime = null, DateTime? endTime = null, int limit = 500, CancellationToken cancellationToken = default)
 	{
-		var client = _clientFactory.CreateClient(connection);
+		var client = CreateClient(connection);
 		var result = await client.SpotApi.Trading.GetUserTradesAsync(
 			symbol: symbol,
 			orderId: orderId,
@@ -313,13 +252,97 @@ public class BinanceService : Core.Interfaces.IExchangeService
 		if (!result.Success)
 			throw new InvalidOperationException($"Failed to retrieve trades for '{symbol}': {result.Error?.Message}");
 
-		return [.. result.Data.Select(t =>
+		return [.. result.Data.Select(t => MapTrade(t, connection, userId))];
+	}
+
+	#region Private helpers
+
+	private IBinanceRestClient CreateClient(ExchangeConnection connection)
+		=> _clientFactory.CreateClient(connection);
+
+	/// <summary>
+	/// Maps an AutoMapper-supported Binance order response to the domain <see cref="Order"/>,
+	/// setting testnet flag and optional user ID.
+	/// </summary>
+	private Order MapOrder<T>(T source, ExchangeConnection connection, string? userId = null)
 	{
-		var mappedTrade = _mapper.Map<Trade>(t);
-		mappedTrade.UserId = userId;
-		mappedTrade.IsTestnet = connection.IsTestnet;
-		return mappedTrade;
-	})];
+		var order = _mapper.Map<Order>(source);
+		order.IsTestnet = connection.IsTestnet;
+
+		if (userId is not null)
+			order.UserId = userId;
+
+		return order;
+	}
+
+	/// <summary>
+	/// Maps a Binance trade response to the domain <see cref="Trade"/>,
+	/// setting testnet flag and optional user ID.
+	/// </summary>
+	private Trade MapTrade<T>(T source, ExchangeConnection connection, string? userId)
+	{
+		var trade = _mapper.Map<Trade>(source);
+		trade.UserId = userId;
+		trade.IsTestnet = connection.IsTestnet;
+		return trade;
+	}
+
+	/// <summary>
+	/// Maps raw Binance symbol metadata to the domain <see cref="TradingPair"/>.
+	/// </summary>
+	private static TradingPair MapTradingPair(BinanceSymbol binanceSymbol) =>
+		new()
+		{
+			Exchange = ExchangeName.Binance,
+			Symbol = binanceSymbol.Name,
+			BaseAsset = binanceSymbol.BaseAsset,
+			QuoteAsset = binanceSymbol.QuoteAsset,
+			MinQuantity = BinanceHelpers.GetMinQuantity(binanceSymbol),
+			MaxQuantity = BinanceHelpers.GetMaxQuantity(binanceSymbol),
+			QuantityStepSize = BinanceHelpers.GetStepSize(binanceSymbol),
+			MinNotional = BinanceHelpers.GetMinNotional(binanceSymbol),
+			MinPrice = BinanceHelpers.GetMinPrice(binanceSymbol),
+			MaxPrice = BinanceHelpers.GetMaxPrice(binanceSymbol),
+			PriceTickSize = BinanceHelpers.GetTickSize(binanceSymbol),
+			IsActive = binanceSymbol.Status == BinanceNet.Enums.SymbolStatus.Trading,
+			UpdatedAt = DateTimeOffset.UtcNow
+		};
+
+	/// <summary>
+	/// Validates order quantity, price, and notional value against symbol constraints.
+	/// </summary>
+	/// <exception cref="ArgumentException">Thrown when any constraint is violated.</exception>
+	private static void ValidateOrder(Order order, BinanceSymbol binanceSymbol)
+	{
+		if (!BinanceHelpers.ValidateQuantity(order.Quantity, binanceSymbol))
+			throw new ArgumentException(
+				$"Invalid quantity {order.Quantity} for symbol '{order.Symbol}'. " +
+				$"Min: {BinanceHelpers.GetMinQuantity(binanceSymbol)}, " +
+				$"Max: {BinanceHelpers.GetMaxQuantity(binanceSymbol)}, " +
+				$"Step: {BinanceHelpers.GetStepSize(binanceSymbol)}",
+				nameof(order));
+
+		if (order.Type != OrderType.Limit)
+			return;
+
+		if (!order.Price.HasValue)
+			throw new ArgumentException("Price has no value. Price is required.", nameof(order));
+
+		if (!BinanceHelpers.ValidatePrice(order.Price.Value, binanceSymbol))
+			throw new ArgumentException(
+				$"Invalid price {order.Price.Value} for symbol '{order.Symbol}'. " +
+				$"Min: {BinanceHelpers.GetMinPrice(binanceSymbol)}, " +
+				$"Max: {BinanceHelpers.GetMaxPrice(binanceSymbol)}, " +
+				$"Tick: {BinanceHelpers.GetTickSize(binanceSymbol)}",
+				nameof(order));
+
+		if (!BinanceHelpers.ValidateNotional(order.Price.Value, order.Quantity, binanceSymbol, false))
+		{
+			var minNotional = BinanceHelpers.GetMinNotional(binanceSymbol);
+			throw new ArgumentException(
+				$"Order notional value ({order.Price.Value * order.Quantity:F8}) does not meet minimum requirements ({minNotional}) for '{order.Symbol}'.",
+				nameof(order));
+		}
 	}
 
 	/// <summary>
@@ -342,4 +365,6 @@ public class BinanceService : Core.Interfaces.IExchangeService
 
 		return result.Data.Symbols[0];
 	}
+
+	#endregion
 }

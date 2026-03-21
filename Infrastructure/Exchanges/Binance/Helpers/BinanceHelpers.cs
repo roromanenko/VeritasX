@@ -8,31 +8,48 @@ namespace Infrastructure.Exchanges.Binance.Helpers;
 
 public static class BinanceHelpers
 {
-	//Order side conversions
-	public static Core.Domain.OrderSide ToDomainSide(BinanceNet.Enums.OrderSide side)
-	{
-		return side switch
+	#region Order side conversions
+
+	/// <summary>
+	/// Converts a Binance order side to the domain <see cref="Core.Domain.OrderSide"/>.
+	/// </summary>
+	/// <param name="side">Binance order side enum value.</param>
+	/// <returns>Corresponding <see cref="Core.Domain.OrderSide"/></returns>
+	/// <exception cref="ArgumentException">Thrown when the Binance order side is not supported.</exception>
+	public static Core.Domain.OrderSide ToDomainSide(BinanceNet.Enums.OrderSide side) =>
+		side switch
 		{
 			BinanceNet.Enums.OrderSide.Buy => Core.Domain.OrderSide.Buy,
 			BinanceNet.Enums.OrderSide.Sell => Core.Domain.OrderSide.Sell,
 			_ => throw new ArgumentException($"Unknown Binance order side: {side}")
 		};
-	}
 
-	public static BinanceNet.Enums.OrderSide ToBinanceSide(Core.Domain.OrderSide side)
-	{
-		return side switch
+	/// <summary>
+	/// Converts a domain <see cref="Core.Domain.OrderSide"/> to the Binance order side.
+	/// </summary>
+	/// <param name="side">Domain order side enum value.</param>
+	/// <returns>Corresponding <see cref="BinanceNet.Enums.OrderSide"/>.</returns>
+	/// <exception cref="ArgumentException">Thrown when the domain order side is not supported.</exception>
+	public static BinanceNet.Enums.OrderSide ToBinanceSide(Core.Domain.OrderSide side) =>
+		side switch
 		{
 			Core.Domain.OrderSide.Buy => BinanceNet.Enums.OrderSide.Buy,
 			Core.Domain.OrderSide.Sell => BinanceNet.Enums.OrderSide.Sell,
 			_ => throw new ArgumentException($"Unknown order side: {side}")
 		};
-	}
 
-	//Order type conversions
-	public static Core.Domain.OrderType ToDomainOrderType(SpotOrderType type)
-	{
-		return type switch
+	#endregion
+
+	#region Order type conversions
+
+	/// <summary>
+	/// Converts a Binance order type to the domain <see cref="Core.Domain.OrderType"/>.
+	/// </summary>
+	/// <param name="type">Binance spot order type enum value.</param>
+	/// <returns>Corresponding domain order type.</returns>
+	/// <exception cref="ArgumentException">Thrown when the Binance order type is not supported.</exception>
+	public static Core.Domain.OrderType ToDomainOrderType(SpotOrderType type) =>
+		type switch
 		{
 			SpotOrderType.Market => OrderType.Market,
 			SpotOrderType.Limit => OrderType.Limit,
@@ -40,11 +57,15 @@ public static class BinanceHelpers
 			SpotOrderType.StopLossLimit => OrderType.StopLimit,
 			_ => throw new ArgumentException($"Unknown Binance order type: {type}")
 		};
-	}
 
-	public static SpotOrderType ToBinanceOrderType(Core.Domain.OrderType type)
-	{
-		return type switch
+	/// <summary>
+	/// Converts a domain <see cref="Core.Domain.OrderType"/> to the Binance order type.
+	/// </summary>
+	/// <param name="type">Domain order type enum value.</param>
+	/// <returns>Corresponding Binance order type.</returns>
+	/// <exception cref="ArgumentException">Thrown when the domain order type is not supported.</exception>
+	public static SpotOrderType ToBinanceOrderType(Core.Domain.OrderType type) =>
+		type switch
 		{
 			OrderType.Market => SpotOrderType.Market,
 			OrderType.Limit => SpotOrderType.Limit,
@@ -52,12 +73,24 @@ public static class BinanceHelpers
 			OrderType.StopLimit => SpotOrderType.StopLossLimit,
 			_ => throw new ArgumentException($"Unknown order type: {type}")
 		};
-	}
 
-	// Order status conversions
-	public static Core.Domain.OrderStatus ToDomainStatus(BinanceNet.Enums.OrderStatus status)
-	{
-		return status switch
+	#endregion
+
+	#region Order status conversions
+
+	/// <summary>
+	/// Converts a Binance order status to the domain <see cref="Core.Domain.OrderStatus"/>.
+	/// </summary>
+	/// <remarks>
+	/// <see cref="BinanceNet.Enums.OrderStatus.PendingCancel"/> and
+	/// <see cref="BinanceNet.Enums.OrderStatus.Expired"/> are both mapped to
+	/// <see cref="Core.Domain.OrderStatus.Canceled"/>.
+	/// </remarks>
+	/// <param name="status">Binance order status enum value.</param>
+	/// <returns>Corresponding domain order status.</returns>
+	/// <exception cref="ArgumentException">Thrown when the Binance order status is not supported.</exception>
+	public static Core.Domain.OrderStatus ToDomainStatus(BinanceNet.Enums.OrderStatus status) =>
+		status switch
 		{
 			BinanceNet.Enums.OrderStatus.New => Core.Domain.OrderStatus.New,
 			BinanceNet.Enums.OrderStatus.PartiallyFilled => Core.Domain.OrderStatus.PartiallyFilled,
@@ -68,51 +101,61 @@ public static class BinanceHelpers
 			BinanceNet.Enums.OrderStatus.Expired => Core.Domain.OrderStatus.Canceled,
 			_ => throw new ArgumentException($"Unknown Binance status: {status}")
 		};
-	}
 
-	//Symbol filter helpers
-	public static decimal GetMinQuantity(BinanceSymbol symbol)
-	{
-		var lotSize = symbol.LotSizeFilter;
-		return lotSize?.MinQuantity ?? 0m;
-	}
+	#endregion
 
-	public static decimal GetMaxQuantity(BinanceSymbol symbol)
-	{
-		var lotSize = symbol.LotSizeFilter;
-		return lotSize?.MaxQuantity ?? decimal.MaxValue;
-	}
+	#region Symbol filter helpers
+
+	/// <summary>
+	/// Gets the minimum allowed quantity for the trading pair.
+	/// Returns <c>0</c> if the lot size filter is not defined.
+	/// </summary>
+	public static decimal GetMinQuantity(BinanceSymbol symbol) =>
+		GetLotSizeFilter(symbol)?.MinQuantity ?? 0m;
+
+	/// <summary>
+	/// Gets the maximum allowed quantity for the trading pair.
+	/// Returns <see cref="decimal.MaxValue"/> if the lot size filter is not defined.
+	/// </summary>
+	public static decimal GetMaxQuantity(BinanceSymbol symbol) =>
+		GetLotSizeFilter(symbol)?.MaxQuantity ?? decimal.MaxValue;
 
 	/// <summary>
 	/// Gets the quantity step size (increment) for the trading pair.
+	/// Returns <c>0</c> if the lot size filter is not defined.
 	/// </summary>
-	public static decimal GetStepSize(BinanceSymbol symbol)
-	{
-		var lotSize = symbol.LotSizeFilter;
-		return lotSize?.StepSize ?? 0m;
-	}
+	public static decimal GetStepSize(BinanceSymbol symbol) =>
+		GetLotSizeFilter(symbol)?.StepSize ?? 0m;
 
-	public static decimal GetMinPrice(BinanceSymbol symbol)
-	{
-		var priceFilter = symbol.PriceFilter;
-		return priceFilter?.MinPrice ?? 0m;
-	}
+	/// <summary>
+	/// Gets the minimum allowed price for the trading pair.
+	/// Returns <c>0</c> if the price filter is not defined.
+	/// </summary>
+	public static decimal GetMinPrice(BinanceSymbol symbol) =>
+		GetPriceFilter(symbol)?.MinPrice ?? 0m;
 
-	public static decimal GetMaxPrice(BinanceSymbol symbol)
-	{
-		var priceFilter = symbol.PriceFilter;
-		return priceFilter?.MaxPrice ?? decimal.MaxValue;
-	}
+	/// Gets the maximum allowed price for the trading pair.
+	/// Returns <see cref="decimal.MaxValue"/> if the price filter is not defined.
+	/// </summary>
+	public static decimal GetMaxPrice(BinanceSymbol symbol) =>
+		GetPriceFilter(symbol)?.MaxPrice ?? decimal.MaxValue;
 
 	/// <summary>
 	/// Gets the price tick size (increment) for the trading pair.
+	/// Returns <c>0</c> if the price filter is not defined.
 	/// </summary>
-	public static decimal GetTickSize(BinanceSymbol symbol)
-	{
-		var priceFilter = symbol.PriceFilter;
-		return priceFilter?.TickSize ?? 0m;
-	}
+	public static decimal GetTickSize(BinanceSymbol symbol) =>
+		GetPriceFilter(symbol)?.TickSize ?? 0m;
 
+	/// <summary>
+	/// Gets the minimum notional value (price × quantity) for the trading pair.
+	/// Returns <c>0</c> if the notional filter is not defined, or if
+	/// <paramref name="isMarket"/> is <see langword="true"/> and the filter does not apply to market orders.
+	/// </summary>
+	/// <param name="symbol">Binance symbol with exchange filters.</param>
+	/// <param name="isMarket">
+	/// When <see langword="true"/>, checks whether the notional filter applies to market orders.
+	/// </param>
 	public static decimal GetMinNotional(BinanceSymbol symbol, bool isMarket = false)
 	{
 		var notional = symbol.MinNotionalFilter;
@@ -125,7 +168,10 @@ public static class BinanceHelpers
 		return notional.MinNotional;
 	}
 
-	//Precision helpers
+	#endregion
+
+	#region Precision helpers
+
 	/// <summary>
 	/// Calculates decimal precision (number of digits after decimal point) from step size.
 	/// </summary>
@@ -136,88 +182,105 @@ public static class BinanceHelpers
 		if (decimalIndex == -1)
 			return 0;
 
-		var afterDecimal = str.Substring(decimalIndex + 1).TrimEnd('0');
-		return afterDecimal.Length;
+		return str[(decimalIndex + 1)..].TrimEnd('0').Length;
 	}
 
-	//Quantity/Price rounding
+	#endregion
+
+	#region Quantity / Price rounding
+
 	/// <summary>
 	/// Rounds quantity down to the nearest valid value according to step size.
+	/// Returns <paramref name="quantity"/> unchanged if <paramref name="stepSize"/> is <c>0</c>.
 	/// </summary>
+	/// <param name="quantity">Raw quantity to round.</param>
+	/// <param name="stepSize">Lot size step from the exchange filter.</param>
 	public static decimal RoundQuantity(decimal quantity, decimal stepSize)
 	{
 		if (stepSize == 0) return quantity;
 
 		var precision = GetPrecision(stepSize);
-		var rounded = Math.Floor(quantity / stepSize) * stepSize;
-		return Math.Round(rounded, precision);
+		return Math.Round(Math.Floor(quantity / stepSize) * stepSize, precision);
 	}
 
 	/// <summary>
 	/// Rounds price down to the nearest valid value according to tick size.
+	/// Returns <paramref name="price"/> unchanged if <paramref name="tickSize"/> is <c>0</c>.
 	/// </summary>
+	/// <param name="price">Raw price to round.</param>
+	/// <param name="tickSize">Price tick size from the exchange filter.</param>
 	public static decimal RoundPrice(decimal price, decimal tickSize)
 	{
 		if (tickSize == 0) return price;
 
 		var precision = GetPrecision(tickSize);
-		var rounded = Math.Floor(price / tickSize) * tickSize;
-		return Math.Round(rounded, precision);
+		return Math.Round(Math.Floor(price / tickSize) * tickSize, precision);
 	}
 
-	// Validation
+	#endregion
+
+	#region Validation
+
+	/// <summary>
+	/// Validates that <paramref name="quantity"/> is within the allowed range
+	/// and aligned to the lot size step for the given symbol.
+	/// </summary>
+	/// <param name="quantity">Quantity to validate.</param>
+	/// <param name="symbol">Binance symbol with exchange filters.</param>
+	/// <returns>
+	/// <see langword="true"/> if the quantity is valid; otherwise <see langword="false"/>.
+	/// </returns>
 	public static bool ValidateQuantity(decimal quantity, BinanceSymbol symbol)
 	{
-		var minQty = GetMinQuantity(symbol);
-		var maxQty = GetMaxQuantity(symbol);
 		var stepSize = GetStepSize(symbol);
-
-		if (quantity < minQty || quantity > maxQty)
-			return false;
-
-		if (stepSize > 0)
-		{
-			var rounded = RoundQuantity(quantity, stepSize);
-			var precision = GetPrecision(stepSize);
-
-			if (Math.Round(quantity, precision) != rounded)
-				return false;
-		}
-
-		return true;
+		return IsInRange(quantity, GetMinQuantity(symbol), GetMaxQuantity(symbol))
+			&& IsAlignedToStep(quantity, stepSize, RoundQuantity(quantity, stepSize));
 	}
 
+	/// <summary>
+	/// Validates that <paramref name="price"/> is within the allowed range
+	/// and aligned to the tick size for the given symbol.
+	/// </summary>
+	/// <param name="price">Price to validate.</param>
+	/// <param name="symbol">Binance symbol with exchange filters.</param>
+	/// <returns>
+	/// <see langword="true"/> if the price is valid; otherwise <see langword="false"/>.
+	/// </returns>
 	public static bool ValidatePrice(decimal price, BinanceSymbol symbol)
 	{
-		var minPrice = GetMinPrice(symbol);
-		var maxPrice = GetMaxPrice(symbol);
 		var tickSize = GetTickSize(symbol);
-
-		if (price < minPrice || price > maxPrice)
-			return false;
-
-		if (tickSize > 0)
-		{
-			var rounded = RoundPrice(price, tickSize);
-			var precision = GetPrecision(tickSize);
-
-			if (Math.Round(price, precision) != rounded)
-				return false;
-		}
-
-		return true;
+		return IsInRange(price, GetMinPrice(symbol), GetMaxPrice(symbol))
+			&& IsAlignedToStep(price, tickSize, RoundPrice(price, tickSize));
 	}
 
-	public static bool ValidateNotional(decimal price, decimal quantity, BinanceSymbol symbol, bool isMarket = false)
-	{
-		var minNotional = GetMinNotional(symbol, isMarket);
-		var notional = price * quantity;
-		return notional >= minNotional;
-	}
+	/// <summary>
+	/// Validates that the order notional value (price × quantity) meets
+	/// the minimum notional requirement for the given symbol.
+	/// </summary>
+	/// <param name="price">Order price.</param>
+	/// <param name="quantity">Order quantity.</param>
+	/// <param name="symbol">Binance symbol with exchange filters.</param>
+	/// <param name="isMarket">
+	/// When <see langword="true"/>, checks whether the notional filter applies to market orders.
+	/// </param>
+	/// <returns>
+	/// <see langword="true"/> if the notional value meets the minimum; otherwise <see langword="false"/>.
+	/// </returns>
+	public static bool ValidateNotional(decimal price, decimal quantity, BinanceSymbol symbol, bool isMarket = false) =>
+		price * quantity >= GetMinNotional(symbol, isMarket);
 
-	public static KlineInterval ToKlineInterval(TimeSpan interval)
-	{
-		return interval.TotalMinutes switch
+	#endregion
+
+	#region Kline interval conversions
+
+	/// <summary>
+	/// Converts a <see cref="TimeSpan"/> to the corresponding Binance <see cref="KlineInterval"/>.
+	/// </summary>
+	/// <param name="interval">Time span representing the candle interval.</param>
+	/// <returns>Corresponding Binance kline interval.</returns>
+	/// <exception cref="ArgumentException">Thrown when the time span does not map to a supported Binance interval.</exception>
+	public static KlineInterval ToKlineInterval(TimeSpan interval) =>
+		interval.TotalMinutes switch
 		{
 			1 => KlineInterval.OneMinute,
 			3 => KlineInterval.ThreeMinutes,
@@ -236,28 +299,62 @@ public static class BinanceHelpers
 			43200 => KlineInterval.OneMonth,
 			_ => throw new ArgumentException($"Unsupported interval: {interval}")
 		};
-	}
 
-	public static KlineInterval ParseInterval(string interval)
-	{
-		return interval switch
+	/// <summary>
+	/// Parses a Binance interval string (e.g. <c>"1m"</c>, <c>"4h"</c>, <c>"1d"</c>)
+	/// into the corresponding <see cref="KlineInterval"/>.
+	/// </summary>
+	/// <param name="interval">Binance interval string.</param>
+	/// <returns>Corresponding Binance kline interval.</returns>
+	/// <exception cref="ArgumentException">Thrown when the interval string is not recognised.</exception>
+	public static KlineInterval ParseInterval(string interval) =>
+		interval switch
 		{
-			"1m" => ToKlineInterval(TimeSpan.FromMinutes(1)),
-			"3m" => ToKlineInterval(TimeSpan.FromMinutes(3)),
-			"5m" => ToKlineInterval(TimeSpan.FromMinutes(5)),
-			"15m" => ToKlineInterval(TimeSpan.FromMinutes(15)),
-			"30m" => ToKlineInterval(TimeSpan.FromMinutes(30)),
-			"1h" => ToKlineInterval(TimeSpan.FromHours(1)),
-			"2h" => ToKlineInterval(TimeSpan.FromHours(2)),
-			"4h" => ToKlineInterval(TimeSpan.FromHours(4)),
-			"6h" => ToKlineInterval(TimeSpan.FromHours(6)),
-			"8h" => ToKlineInterval(TimeSpan.FromHours(8)),
-			"12h" => ToKlineInterval(TimeSpan.FromHours(12)),
-			"1d" => ToKlineInterval(TimeSpan.FromDays(1)),
-			"3d" => ToKlineInterval(TimeSpan.FromDays(3)),
-			"1w" => ToKlineInterval(TimeSpan.FromDays(7)),
-			"1M" => ToKlineInterval(TimeSpan.FromDays(30)),
+			"1m" => KlineInterval.OneMinute,
+			"3m" => KlineInterval.ThreeMinutes,
+			"5m" => KlineInterval.FiveMinutes,
+			"15m" => KlineInterval.FifteenMinutes,
+			"30m" => KlineInterval.ThirtyMinutes,
+			"1h" => KlineInterval.OneHour,
+			"2h" => KlineInterval.TwoHour,
+			"4h" => KlineInterval.FourHour,
+			"6h" => KlineInterval.SixHour,
+			"8h" => KlineInterval.EightHour,
+			"12h" => KlineInterval.TwelveHour,
+			"1d" => KlineInterval.OneDay,
+			"3d" => KlineInterval.ThreeDay,
+			"1w" => KlineInterval.OneWeek,
+			"1M" => KlineInterval.OneMonth,
 			_ => throw new ArgumentException($"Unknown interval: {interval}")
 		};
+
+	#endregion
+
+	#region Private helpers
+
+	private static BinanceSymbolLotSizeFilter? GetLotSizeFilter(BinanceSymbol symbol) =>
+		symbol.LotSizeFilter;
+
+	private static BinanceSymbolPriceFilter? GetPriceFilter(BinanceSymbol symbol) =>
+		symbol.PriceFilter;
+
+	/// <summary>
+	/// Returns true if <paramref name="value"/> is within [min, max].
+	/// </summary>
+	private static bool IsInRange(decimal value, decimal min, decimal max) =>
+		value >= min && value <= max;
+
+	/// <summary>
+	/// Returns true if <paramref name="value"/> is already aligned to the given step,
+	/// i.e. rounding down produces the same value.
+	/// </summary>
+	private static bool IsAlignedToStep(decimal value, decimal step, decimal rounded)
+	{
+		if (step == 0) return true;
+
+		var precision = GetPrecision(step);
+		return Math.Round(value, precision) == rounded;
 	}
+
+	#endregion
 }

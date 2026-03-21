@@ -21,7 +21,7 @@ public class BotConfigurationDocument
 	public BotStatus Status { get; set; } = BotStatus.Stopped;
 	[BsonIgnoreIfNull]
 	public string? ErrorMessage { get; set; }
-	public DateTimeOffset CreatedAt { get; set; }
+	public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 	[BsonIgnoreIfNull]
 	public DateTimeOffset? StartedAt { get; set; }
 	[BsonIgnoreIfNull]

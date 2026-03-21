@@ -2,6 +2,7 @@
 using Core.Domain;
 using Core.Interfaces;
 using CryptoExchange.Net.Authentication;
+using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Objects.Sockets;
 using Infrastructure.Exchanges.Binance.Helpers;
 using Microsoft.Extensions.Logging;
@@ -45,21 +46,11 @@ public class BinanceMarketDataStream : IMarketDataStream
 	{
 		var result = await _socketClient.SpotApi.ExchangeData
 			.SubscribeToMiniTickerUpdatesAsync(symbol, async data =>
-			{
-				try
-				{
-					await onPrice(data.Data.LastPrice);
-				}
-				catch (Exception ex)
-				{
-					_logger.LogError(ex, $"[BinanceMarketDataStream] Ticker callback error for {symbol}");
-				}
-			});
+				await InvokeCallbackSafe(
+					() => onPrice(data.Data.LastPrice),
+					context: $"Ticker callback error for {symbol}"));
 
-		if (!result.Success)
-			throw new InvalidOperationException($"Failed to subscribe to ticker for {symbol}: {result.Error}");
-
-		_subscriptions[symbol] = result.Data;
+		RegisterSubscription(result, symbol, errorMessage: $"Failed to subscribe to ticker for {symbol}");
 	}
 
 	/// <summary>
@@ -78,30 +69,20 @@ public class BinanceMarketDataStream : IMarketDataStream
 		var result = await _socketClient.SpotApi.ExchangeData
 			.SubscribeToKlineUpdatesAsync(symbol, binanceInterval, async data =>
 			{
-				var k = data.Data;
-				if (!k.Data.Final) return;
+				if (!data.Data.Data.Final) return;
 
-				try
-				{
-					await onCandle(new Candle(
-						k.Data.OpenTime,
-						k.Data.OpenPrice,
-						k.Data.HighPrice,
-						k.Data.LowPrice,
-						k.Data.ClosePrice,
-						k.Data.Volume
-					));
-				}
-				catch (Exception ex)
-				{
-					_logger.LogError(ex, $"[BinanceMarketDataStream] Kline callback error for {symbol}");
-				}
+				await InvokeCallbackSafe(
+					() => onCandle(new Candle(
+						data.Data.Data.OpenTime,
+						data.Data.Data.OpenPrice,
+						data.Data.Data.HighPrice,
+						data.Data.Data.LowPrice,
+						data.Data.Data.ClosePrice,
+						data.Data.Data.Volume)),
+					context: $"Kline callback error for {symbol}");
 			});
 
-		if (!result.Success)
-			throw new InvalidOperationException($"Failed to subscribe to ticker for {symbol}: {result.Error}");
-
-		_subscriptions[symbol] = result.Data;
+		RegisterSubscription(result, symbol, errorMessage: $"Failed to subscribe to kline for {symbol}");
 	}
 
 	/// <summary>
@@ -127,4 +108,36 @@ public class BinanceMarketDataStream : IMarketDataStream
 		_subscriptions.Clear();
 		_socketClient.Dispose();
 	}
+
+	#region Private helpers
+
+	/// <summary>
+	/// Invokes <paramref name="callback"/> and logs any exception without rethrowing,
+	/// preventing stream errors from propagating to the Binance.Net socket handler.
+	/// </summary>
+	private async Task InvokeCallbackSafe(Func<Task> callback, string context)
+	{
+		try
+		{
+			await callback();
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "[BinanceMarketDataStream] {Context}", context);
+		}
+	}
+
+	/// <summary>
+	/// Throws <see cref="InvalidOperationException"/> if the subscription failed,
+	/// otherwise stores the subscription under <paramref name="symbol"/>.
+	/// </summary>
+	private void RegisterSubscription(CallResult<UpdateSubscription> result, string symbol, string errorMessage)
+	{
+		if (!result.Success)
+			throw new InvalidOperationException($"{errorMessage}: {result.Error}");
+
+		_subscriptions[symbol] = result.Data;
+	}
+
+	#endregion
 }

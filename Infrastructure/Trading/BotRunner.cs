@@ -13,7 +13,7 @@ using Trading.Strategies;
 
 namespace Infrastructure.Trading;
 
-public class BotRunner : IBotRunner, IAsyncDisposable
+public class BotRunner : IBotRunner
 {
 	public string BotId => _bot.Id;
 
@@ -29,6 +29,7 @@ public class BotRunner : IBotRunner, IAsyncDisposable
 	private readonly IHubContext<BotProgressHub> _hub;
 	private readonly IMapper _mapper;
 	private readonly ILogger<BotRunner> _logger;
+	private readonly SemaphoreSlim _tickSemaphore = new(1, 1);
 
 	private IMarketDataStream? _stream;
 	private CancellationTokenSource? _cts;
@@ -138,6 +139,7 @@ public class BotRunner : IBotRunner, IAsyncDisposable
 	public async ValueTask DisposeAsync()
 	{
 		_scope.Dispose();
+		_tickSemaphore.Dispose();
 	}
 
 	private async Task OnTickAsync(
@@ -149,6 +151,12 @@ public class BotRunner : IBotRunner, IAsyncDisposable
 	{
 		if (ct.IsCancellationRequested)
 			return;
+
+		if (!await _tickSemaphore.WaitAsync(0, ct))
+		{
+			_logger.LogInformation("Bot with Id {BotId} skip tick processing", BotId);
+			return;
+		}
 
 		try
 		{
@@ -185,6 +193,10 @@ public class BotRunner : IBotRunner, IAsyncDisposable
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, "Bot {BotId} error on tick.", BotId);
+		}
+		finally
+		{
+			_tickSemaphore.Release();
 		}
 	}
 
