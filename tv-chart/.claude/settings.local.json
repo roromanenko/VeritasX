@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__figma-remote-mcp__get_metadata",
+      "mcp__figma-remote-mcp__get_design_context",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "figma-remote-mcp",
+    "context7"
+  ]
+}

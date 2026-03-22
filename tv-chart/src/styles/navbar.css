@@ -1,47 +1,207 @@
 .navbar {
-    margin-top: 30px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    
-    align-items: center;
-    padding: 0 24px;
-    flex-wrap: wrap;
+    padding: 12px 32px;
+    margin: 0;          /* override app.css: header { margin-bottom: 60px } */
+    text-align: left;   /* override app.css: header { text-align: center } */
+    background: rgba(26, 26, 26, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-border);
 }
 
-.nav-group {
+/* Prevent app.css header::before / header::after decorators from bleeding in */
+.navbar::before,
+.navbar::after {
+    content: none;
+}
+
+/* Brand */
+.nav-brand {
     display: flex;
     align-items: center;
-    gap: 24px;
-}
-
-.navbar a {
-    color: rgba(224, 230, 237, 0.8);
+    gap: 12px;
     text-decoration: none;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
-.navbar a:hover {
-    color: #00d4aa;
-    text-shadow: 0 0 8px rgba(0, 212, 170, 0.3);
+.nav-brand-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--color-primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.nav-brand-icon svg {
+    width: 20px;
+    height: 20px;
+    color: #0A0A0A;
+}
+
+.nav-brand-name {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.nav-brand-subtitle {
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+/* Nav links */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.nav-link {
+    position: relative;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    color: var(--color-text-primary);
+}
+
+.nav-link.active {
+    color: var(--color-text-primary);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 8px;
+    right: 8px;
+    height: 2px;
+    background: var(--color-primary);
+    border-radius: 9999px;
+}
+
+/* Actions */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-bell-btn {
+    padding: 8px;
+    background: var(--color-surface-primary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s;
+}
+
+.nav-bell-btn:hover {
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.nav-bell-btn svg {
+    width: 16px;
+    height: 16px;
+    color: var(--color-text-secondary);
+}
+
+/* User avatar button */
+.nav-user-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.nav-user-btn:hover {
+    border-color: rgba(16, 185, 129, 0.6);
+}
+
+.nav-user-initials {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-primary);
+}
+
+/* User dropdown */
+.nav-user-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    min-width: 140px;
+    background: var(--color-surface-primary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    z-index: 50;
+}
+
+.nav-user-dropdown button {
+    width: 100%;
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 14px;
+    font-family: var(--font-sans);
+    color: var(--color-danger);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.nav-user-dropdown button:hover {
+    background: var(--color-danger-glow);
 }
 
 @media (max-width: 768px) {
     .navbar {
-        flex-direction: column;
-        align-items: center;
-        gap: 16px;
+        padding: 12px 16px;
+        gap: 12px;
+        flex-wrap: wrap;
     }
 
-    .nav-group {
-        justify-content: center;
-        width: 100%;
-        gap: 16px;
+    .nav-brand-subtitle {
+        display: none;
     }
 
-    .navbar a {
-        font-size: 0.95rem;
+    .nav-links {
+        gap: 0;
+    }
+
+    .nav-link {
+        padding: 8px 10px;
+        font-size: 13px;
     }
 }

@@ -1,56 +1,54 @@
 import { CollectionState, DataCollectionJobDto } from "../api";
-import SpotlightCard from "../reactbits/Components/SpotlightCard/SpotlightCard";
-import { useEffect, useRef, useState } from "react";
-import { HubConnection, HubConnectionState } from '@microsoft/signalr';
+import { useEffect, useState } from "react";
+import { HubConnectionState } from '@microsoft/signalr';
 import { useApiProvider } from "../services/apiProvider";
+import { Database, BarChart3, Clock } from 'lucide-react';
 
 type RequestItemProps = {
     request: DataCollectionJobDto;
+    onViewResults?: (id: string) => void;
 };
 
+const statusConfig: Record<string, { label: string; className: string }> = {
+    [CollectionState.Completed]:  { label: 'COMPLETED',   className: 'completed'  },
+    [CollectionState.InProgress]: { label: 'PROCESSING',  className: 'in-progress' },
+    [CollectionState.Pending]:    { label: 'PENDING',     className: 'pending'    },
+    [CollectionState.Failed]:     { label: 'FAILED',      className: 'failed'     },
+    [CollectionState.Cancelled]:  { label: 'CANCELLED',   className: 'cancelled'  },
+};
 
-export const RequestItem = ({ request }: RequestItemProps) => {
+function StatusBadge({ state }: { state: CollectionState | undefined }) {
+    const cfg = state ? statusConfig[state] : statusConfig[CollectionState.Pending];
+    return (
+        <span className={`status-badge ${cfg.className}`}>
+            <span className="status-dot" />
+            {cfg.label}
+        </span>
+    );
+}
+
+function formatDate(iso: string | undefined): string {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString(undefined, {
+        year: 'numeric', month: 'short', day: 'numeric'
+    });
+}
+
+export const RequestItem = ({ request, onViewResults }: RequestItemProps) => {
     const [requestItem, setRequestItem] = useState<DataCollectionJobDto>(request);
 
-    const formatDate = (iso: string | undefined): string => {
-        if (!iso)
-            return '';
-
-        return new Date(iso).toLocaleDateString(undefined, {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    }
-
-    const resolveStateColor = (state: CollectionState | undefined): string => {
-        switch (state) {
-            case CollectionState.Completed:
-                return 'green'
-            case CollectionState.Failed:
-                return 'red'
-            case CollectionState.InProgress:
-                return 'yellow'
-            default:
-                return 'inherit'
-        }
-    }
     const connection = useApiProvider().getJobProgressHub();
+
     useEffect(() => {
         const startConnection = async () => {
             try {
                 await connection.start();
                 console.log('SignalR Connected');
-
-                // Join the job group
                 await connection.invoke('JoinGroup', requestItem.id);
-
-                // Listen for job updates
                 connection.on('JobProgress', (update) => {
                     const newJobStatus = update as DataCollectionJobDto;
                     setRequestItem(newJobStatus);
                 });
-
             } catch (err) {
                 console.error('SignalR Connection Error: ', err);
             }
@@ -68,21 +66,92 @@ export const RequestItem = ({ request }: RequestItemProps) => {
         };
     }, [requestItem.id]);
 
+    const isCompleted = requestItem.state === CollectionState.Completed;
+    const isInProgress = requestItem.state === CollectionState.InProgress;
+    const isFailed = requestItem.state === CollectionState.Failed;
+
+    const progressPct = requestItem.totalChunks && requestItem.totalChunks > 0
+        ? Math.round(((requestItem.completedChunks ?? 0) / requestItem.totalChunks) * 100)
+        : 0;
+
     return (
-        <>
-            <SpotlightCard className="request-card" spotlightColor="rgba(0, 212, 170, 0.33)">
-                <div className="request-row">
-                    <div><strong>Symbol:</strong> {requestItem.symbol}</div>
-                    <div><strong>Interval:</strong> {requestItem.interval}</div>
-                    <div><strong>State:</strong> <span style={{ color: resolveStateColor(requestItem.state) }}>{requestItem.state}</span></div>
+        <div className={`request-container ${!isCompleted ? 'not-clickable' : ''}`}>
+            {/* Header */}
+            <div className="request-card-header">
+                <div className="request-card-header-top">
+                    <div>
+                        <div className="request-pair-row">
+                            <span className="pair-name">{requestItem.symbol}</span>
+                            <span className="exchange-badge">Binance</span>
+                        </div>
+                        <p className="date-range">
+                            {formatDate(requestItem.fromUtc)} — {formatDate(requestItem.toUtc)}
+                        </p>
+                    </div>
+                    <StatusBadge state={requestItem.state} />
                 </div>
-                <div className="request-row">
-                    <div><strong>Created:</strong> {formatDate(requestItem.createdAt)}</div>
-                    <div><strong>Date Range:</strong> {formatDate(requestItem.fromUtc)} — {formatDate(requestItem.toUtc)}</div>
-                    <div><strong>Chunks:</strong> {requestItem.completedChunks}/{requestItem.totalChunks}</div>
+                <div className="request-card-stats">
+                    <span className="stat-item">
+                        <Database />
+                        {((requestItem.totalChunks ?? 0)).toLocaleString()} chunks
+                    </span>
+                    <span className="stat-item">
+                        <BarChart3 />
+                        {requestItem.interval}
+                    </span>
+                    <span className="stat-item">
+                        <Clock />
+                        {formatDate(requestItem.createdAt)}
+                    </span>
                 </div>
-                {requestItem.errorMessage && <div><div className="error request-error">Error: {requestItem.errorMessage}</div></div>}
-            </SpotlightCard>
-        </>
-    )
-}
+            </div>
+
+            {/* Footer: completed */}
+            {isCompleted && (
+                <div className="request-card-footer">
+                    <div className="footer-completed">
+                        <div className="strategies-count">
+                            <p>Chunks Loaded</p>
+                            <p className="count-value">
+                                {requestItem.completedChunks ?? 0}/{requestItem.totalChunks ?? 0}
+                            </p>
+                        </div>
+                        {onViewResults && requestItem.id && (
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={(e) => { e.stopPropagation(); onViewResults(requestItem.id!); }}
+                            >
+                                View Results
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Footer: in progress */}
+            {isInProgress && (
+                <div className="request-card-footer">
+                    <div className="progress-wrapper">
+                        <div className="progress-track">
+                            <div className="progress-fill" style={{ width: `${progressPct}%` }} />
+                        </div>
+                        <span className="progress-label">{progressPct}%</span>
+                    </div>
+                    <p className="progress-hint">Loading historical data...</p>
+                </div>
+            )}
+
+            {/* Footer: failed */}
+            {isFailed && (
+                <div className="request-card-footer footer-failed">
+                    <p className="error-message">
+                        {requestItem.errorMessage
+                            ? `Error: ${requestItem.errorMessage}`
+                            : 'Failed to load data. Please try again.'}
+                    </p>
+                    <button className="btn btn-secondary btn-sm">Retry</button>
+                </div>
+            )}
+        </div>
+    );
+};
