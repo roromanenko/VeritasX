@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import { Login } from './pages/Login';
 import { Chart } from './pages/Chart';
 import { BotMonitor } from './pages/BotMonitor';
+import { BotDetail } from './pages/BotDetail';
 
 function App() {
   return (
@@ -35,6 +36,12 @@ function App() {
             element={
               <ProtectedRoute>
                 <BotMonitor />
+              </ProtectedRoute>
+            } />
+          <Route path='bots/:id'
+            element={
+              <ProtectedRoute>
+                <BotDetail />
               </ProtectedRoute>
             } />
           <Route path='login' element={<Login />} />

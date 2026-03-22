@@ -4,7 +4,7 @@ import { CandleDto } from '../api';
 
 interface CandlestickChartProps {
     candles: CandleDto[];
-    symbol?: string;
+    symbol?: string | null | undefined;
 }
 
 interface TooltipPayload {

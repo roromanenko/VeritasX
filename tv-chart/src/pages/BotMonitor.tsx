@@ -1,162 +1,120 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Bot } from 'lucide-react';
 import { HubConnection, HubConnectionState } from '@microsoft/signalr';
+
 import { useApiProvider } from '../services/apiProvider';
-
-type LogEntry = {
-    id: number;
-    timestamp: string;
-    message: string;
-    type: 'status' | 'trade' | 'error' | 'info';
-};
-
-type ConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected';
+import { BotCard } from '../components/BotCard';
+import type { BotDto, BotStatus } from '../api';
 
 export const BotMonitor = () => {
-    const [botId, setBotId] = useState('');
-    const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
-    const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('idle');
-    const connectionRef = useRef<HubConnection | null>(null);
-    const logEndRef = useRef<HTMLDivElement>(null);
-    const logIdRef = useRef(0);
+    const [bots, setBots] = useState<BotDto[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
     const apiProvider = useApiProvider();
 
-    const addLog = (message: string, type: LogEntry['type'] = 'info') => {
-        const entry: LogEntry = {
-            id: ++logIdRef.current,
-            timestamp: new Date().toLocaleTimeString(),
-            message,
-            type,
-        };
-        setLogEntries(prev => [...prev, entry]);
-    };
+    const connectionRef = useRef<HubConnection | null>(null);
+    const joinedGroupsRef = useRef<string[]>([]);
 
     useEffect(() => {
-        logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [logEntries]);
-
-    useEffect(() => {
-        return () => {
-            if (connectionRef.current?.state === HubConnectionState.Connected) {
-                connectionRef.current.stop();
-            }
-        };
+        fetchBots();
+        connectHub();
+        return () => { teardownHub(); };
     }, []);
 
-    const connect = async () => {
-        if (!botId.trim()) {
-            addLog('Enter a Bot ID before connecting.', 'error');
-            return;
-        }
+    async function fetchBots() {
+        setLoading(true);
+        try {
+            const response = await apiProvider.getBotsApi().apiBotsGet();
+            const data = (response.data as unknown as { data: BotDto[] }).data ?? [];
+            setBots(data);
 
+            const ids = data.map(b => b.id).filter(Boolean) as string[];
+            joinedGroupsRef.current = ids;
+
+            const conn = connectionRef.current;
+            if (conn?.state === HubConnectionState.Connected) {
+                await Promise.all(ids.map(id => conn.invoke('JoinGroup', id)));
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function connectHub() {
         const connection = apiProvider.getBotProgressHub();
         connectionRef.current = connection;
 
-        connection.onreconnecting(() => {
-            setConnectionStatus('connecting');
-            addLog('Reconnecting...', 'error');
+        connection.on('BotStatusChanged', (data: { botId?: string; status: string; error?: string }) => {
+            if (!data.botId) return;
+            setBots(prev => prev.map(b =>
+                b.id === data.botId
+                    ? { ...b, status: data.status as BotStatus, errorMessage: data.error }
+                    : b
+            ));
         });
-        connection.onreconnected(() => {
-            setConnectionStatus('connected');
-            addLog('Reconnected.', 'status');
-        });
-        connection.onclose(() => {
-            setConnectionStatus('disconnected');
-            addLog('Connection closed.', 'error');
-        });
-
-        connection.on('BotStatusChanged', (data: { status: string; error?: string }) => {
-            const msg = `STATUS: ${data.status}${data.error ? ` | Error: ${data.error}` : ''}`;
-            addLog(msg, 'status');
-        });
-
-        connection.on('TradeExecuted', (data: { side: string; quantity: number; symbol: string; price: number; reason: string }) => {
-            addLog(`TRADE: ${data.side} ${data.quantity} ${data.symbol} @ ${data.price} | ${data.reason}`, 'trade');
-        });
-
-        setConnectionStatus('connecting');
-        addLog(`Connecting to bot ${botId}...`, 'info');
 
         try {
             await connection.start();
-            await connection.invoke('JoinGroup', botId);
-            setConnectionStatus('connected');
-            addLog(`Connected and joined group for bot ${botId}.`, 'status');
-        } catch (err) {
-            setConnectionStatus('disconnected');
-            addLog(`Connection failed: ${err}`, 'error');
+            if (joinedGroupsRef.current.length > 0) {
+                await Promise.all(joinedGroupsRef.current.map(id => connection.invoke('JoinGroup', id)));
+            }
+        } catch {
+            // non-critical — cards still work without live updates
         }
-    };
+    }
 
-    const disconnect = async () => {
+    async function teardownHub() {
         const connection = connectionRef.current;
         if (connection?.state === HubConnectionState.Connected) {
-            await connection.invoke('LeaveGroup', botId);
-            await connection.stop();
+            try {
+                await Promise.all(joinedGroupsRef.current.map(id => connection.invoke('LeaveGroup', id)));
+                await connection.stop();
+            } catch {
+                // ignore on unmount
+            }
         }
-        setConnectionStatus('disconnected');
-        addLog('Disconnected.', 'info');
-    };
+        connectionRef.current = null;
+    }
 
-    const isConnected = connectionStatus === 'connected';
-    const isConnecting = connectionStatus === 'connecting';
+    async function handleStart(id: string) {
+        await apiProvider.getBotsApi().apiBotsIdStartPost(id);
+    }
+
+    async function handleStop(id: string) {
+        await apiProvider.getBotsApi().apiBotsIdStopPost(id);
+    }
 
     return (
-        <div className="bot-monitor">
-            <h2 className="bot-monitor-title">Bot Monitor</h2>
-
-            <div className="controls bot-monitor-controls">
-                <div className="control-group">
-                    <label htmlFor="botId">Bot ID</label>
-                    <input
-                        id="botId"
-                        type="text"
-                        placeholder="Enter Bot ID"
-                        value={botId}
-                        onChange={e => setBotId(e.target.value)}
-                        disabled={isConnected || isConnecting}
-                    />
-                </div>
-
-                <div className="control-group bot-monitor-actions">
-                    <label>Connection</label>
-                    <div className="bot-monitor-buttons">
-                        <button
-                            className="primary-button fetch-button"
-                            onClick={connect}
-                            disabled={isConnected || isConnecting}
-                        >
-                            {isConnecting ? 'Connecting...' : 'Connect'}
-                        </button>
-                        <button
-                            className="primary-button fetch-button bot-monitor-disconnect"
-                            onClick={disconnect}
-                            disabled={!isConnected && !isConnecting}
-                        >
-                            Disconnect
-                        </button>
-                    </div>
-                </div>
-
-                <div className="control-group">
-                    <label>Status</label>
-                    <span className={`bot-monitor-status bot-monitor-status--${connectionStatus}`}>
-                        {connectionStatus.charAt(0).toUpperCase() + connectionStatus.slice(1)}
-                    </span>
+        <main>
+            <div className="page-header">
+                <div className="page-header-text">
+                    <h1>Trading Bots</h1>
+                    <p>Monitor and manage your algorithmic trading bots</p>
                 </div>
             </div>
 
-            <div className="bot-monitor-log">
-                {logEntries.length === 0 && (
-                    <div className="bot-monitor-log-empty">No activity yet. Connect to a bot to start monitoring.</div>
-                )}
-                {logEntries.map(entry => (
-                    <div key={entry.id} className={`bot-monitor-log-entry bot-monitor-log-entry--${entry.type}`}>
-                        <span className="bot-monitor-log-time">[{entry.timestamp}]</span>
-                        <span className="bot-monitor-log-message">{entry.message}</span>
+            {bots.length > 0 ? (
+                <div className="request-grid">
+                    {bots.map(bot => (
+                        <BotCard
+                            key={bot.id}
+                            bot={bot}
+                            onClick={(id) => navigate(`/bots/${id}`)}
+                            onStart={handleStart}
+                            onStop={handleStop}
+                        />
+                    ))}
+                </div>
+            ) : (
+                !loading && (
+                    <div className="empty-state">
+                        <Bot />
+                        <p>No bots configured yet</p>
                     </div>
-                ))}
-                <div ref={logEndRef} />
-            </div>
-        </div>
+                )
+            )}
+        </main>
     );
 };

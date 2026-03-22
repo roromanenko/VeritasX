@@ -1,123 +1,166 @@
-.bot-monitor {
-  padding: 32px;
-  max-width: 1000px;
-  margin: 0 auto;
-  animation: fadeInUp 0.4s ease-out;
+/* ── BotStatus badge modifiers ────────────────────────────── */
+/* Complements request-item.css which handles: completed, pending, failed, in-progress, cancelled */
+
+.status-badge.active {
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
-.bot-monitor-title {
-  font-size: 28px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 32px;
+.status-badge.active .status-dot {
+  background: #10B981;
+  animation: pulse-dot 2s ease-in-out infinite;
 }
 
-.bot-monitor-controls {
-  grid-template-columns: 1fr 1fr 1fr;
+.status-badge.stopped {
+  color: var(--color-text-tertiary);
+  background: rgba(75, 85, 99, 0.1);
+  border: 1px solid rgba(75, 85, 99, 0.25);
+}
+
+.status-badge.stopped .status-dot {
+  background: var(--color-text-tertiary);
+}
+
+.status-badge.error {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.status-badge.error .status-dot {
+  background: #EF4444;
+}
+
+/* ── BotDetail layout ─────────────────────────────────────── */
+
+.bot-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
   align-items: start;
 }
 
-.bot-monitor-actions {
-  gap: 12px;
-}
-
-.bot-monitor-buttons {
+.bot-detail-left {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.bot-monitor-disconnect {
-  background: linear-gradient(135deg, #636e72 0%, #4a4e52 100%) !important;
-  box-shadow: 0 4px 16px rgba(99, 110, 114, 0.25) !important;
+.bot-detail-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.bot-monitor-disconnect:hover:not(:disabled) {
-  background: linear-gradient(135deg, #4a4e52 0%, #363a3d 100%) !important;
-  box-shadow: 0 6px 24px rgba(99, 110, 114, 0.3) !important;
+/* ── Parameters grid inside cards ────────────────────────── */
+
+.bot-detail-params-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 20px;
 }
 
-.bot-monitor-status {
+/* ── Trade rows ──────────────────────────────────────────── */
+
+.trade-side {
   display: inline-block;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  align-self: start;
-  margin-top: 4px;
+  flex-shrink: 0;
 }
 
-.bot-monitor-status--idle {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(224, 230, 237, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.trade-side--buy {
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.1);
 }
 
-.bot-monitor-status--connecting {
-  background: rgba(253, 203, 110, 0.1);
-  color: #fdcb6e;
-  border: 1px solid rgba(253, 203, 110, 0.3);
+.trade-side--sell {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.1);
 }
 
-.bot-monitor-status--connected {
-  background: rgba(0, 212, 170, 0.1);
-  color: #00d4aa;
-  border: 1px solid rgba(0, 212, 170, 0.3);
+.bot-trade-list {
+  display: flex;
+  flex-direction: column;
 }
 
-.bot-monitor-status--disconnected {
-  background: rgba(255, 71, 87, 0.1);
-  color: #ff4757;
-  border: 1px solid rgba(255, 71, 87, 0.3);
+.bot-trade-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13px;
 }
+
+.bot-trade-row:last-child {
+  border-bottom: none;
+}
+
+.bot-trade-amount {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-primary);
+}
+
+.bot-trade-row-meta {
+  margin-left: auto;
+  text-align: right;
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+}
+
+/* ── Live activity log ───────────────────────────────────── */
 
 .bot-monitor-log {
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 20px;
-  height: 420px;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 16px 20px;
+  height: 320px;
   overflow-y: auto;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 13px;
+  font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
+  font-size: 12px;
   line-height: 1.6;
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) inset;
 }
 
 .bot-monitor-log::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .bot-monitor-log::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.03);
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 .bot-monitor-log::-webkit-scrollbar-thumb {
-  background: rgba(0, 212, 170, 0.3);
-  border-radius: 3px;
+  background: rgba(16, 185, 129, 0.3);
+  border-radius: 2px;
 }
 
 .bot-monitor-log::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 212, 170, 0.5);
+  background: rgba(16, 185, 129, 0.5);
 }
 
 .bot-monitor-log-empty {
   color: rgba(224, 230, 237, 0.3);
   text-align: center;
-  margin-top: 180px;
+  margin-top: 120px;
   font-style: italic;
 }
 
 .bot-monitor-log-entry {
   display: flex;
   gap: 10px;
-  padding: 3px 0;
+  padding: 2px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
@@ -142,16 +185,61 @@
   color: #ff4757;
 }
 
-@media (max-width: 768px) {
-  .bot-monitor {
-    padding: 20px;
-  }
+/* ── Connection status pill (in log card header) ─────────── */
 
-  .bot-monitor-controls {
+.bot-connection-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.bot-connection-pill--idle {
+  color: rgba(224, 230, 237, 0.4);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bot-connection-pill--connecting {
+  color: #fdcb6e;
+  background: rgba(253, 203, 110, 0.1);
+  border: 1px solid rgba(253, 203, 110, 0.25);
+}
+
+.bot-connection-pill--connected {
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.bot-connection-pill--disconnected {
+  color: #ff4757;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.25);
+}
+
+.bot-connection-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+.bot-connection-pill--connecting .bot-connection-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .bot-detail-layout {
     grid-template-columns: 1fr;
-  }
-
-  .bot-monitor-buttons {
-    flex-direction: column;
   }
 }
