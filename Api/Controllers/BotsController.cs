@@ -169,6 +169,42 @@ public class BotsController : BaseController
 	}
 
 	/// <summary>
+	/// Edits a stopped bot's configuration.
+	/// </summary>
+	[HttpPut("{id}")]
+	[ProducesResponseType(typeof(ApiResponse<BotDto>), StatusCodes.Status200OK)]
+	public async Task<ActionResult<ApiResponse<BotDto>>> EditBot(string id, [FromBody] UpdateBotRequest request)
+	{
+		try
+		{
+			var bot = await _botService.GetBot(id, UserId!);
+
+			if (bot.Status is BotStatus.Active or BotStatus.Pending)
+				return Ok(new ApiResponse<BotDto>(false, "Bot must be stopped before editing"));
+
+			bot.Name = request.Name;
+			bot.RiskParameters = _mapper.Map<RiskParameters>(request.RiskParameters);
+			bot.Strategy.Parameters.Clear();
+			foreach (var (k, v) in request.StrategyParameters)
+				bot.Strategy.Parameters[k] = v;
+
+			await _botService.UpdateBot(bot);
+
+			var updated = await _botService.GetBot(id, UserId!);
+			return Ok(new ApiResponse<BotDto>(true, "Bot updated successfully", _mapper.Map<BotDto>(updated)));
+		}
+		catch (KeyNotFoundException ex)
+		{
+			return Ok(new ApiResponse<BotDto>(false, ex.Message));
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Error editing bot {BotId}", id);
+			return StatusCode(500, new ApiResponse<BotDto>(false, "Internal server error"));
+		}
+	}
+
+	/// <summary>
 	/// Gets trade history for a bot.
 	/// </summary>
 	[HttpGet("{id}/trades")]

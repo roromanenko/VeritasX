@@ -12,6 +12,12 @@ public record CreateBotRequest(
 	RiskParametersDto RiskParameters
 );
 
+public record UpdateBotRequest(
+	string Name,
+	Dictionary<string, string> StrategyParameters,
+	RiskParametersDto RiskParameters
+);
+
 public record StrategyDefinitionDto(
 	StrategyType Type,
 	Dictionary<string, string> Parameters
