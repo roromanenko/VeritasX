@@ -46,7 +46,7 @@ function App() {
 
 const navLinks = [
   { to: '/',         label: 'Dashboard',        end: true  },
-  { to: '/requests', label: 'Backtest Library',  end: false },
+  { to: '/requests', label: 'Backtests',  end: false },
   { to: '/bots',     label: 'Bots',              end: false },
 ]
 

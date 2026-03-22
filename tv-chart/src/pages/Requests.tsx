@@ -1,13 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Plus, Database } from 'lucide-react'
 
-import 'react-date-range/dist/styles.css'
-import 'react-date-range/dist/theme/default.css'
 import { useApiProvider } from '../services/apiProvider'
 
 import type { DataCollectionJobDto } from '../api'
 import { RequestItem } from '../components/RequestItem'
-import { CustomDateRange, useCustomDateRange } from '../components/CustomDateRange'
 import { useNavigate } from 'react-router-dom'
 
 const INTERVALS = [
@@ -26,7 +23,11 @@ export const Requests = () => {
     const [loadingRequests, setLoadingRequests] = useState(false)
     const [requests, setRequests] = useState<DataCollectionJobDto[]>([])
     const [showCreateForm, setShowCreateForm] = useState(false)
-    const { dateRange, onDateRangeChange } = useCustomDateRange()
+    const today = new Date()
+    const sevenDaysAgo = new Date(today)
+    sevenDaysAgo.setDate(today.getDate() - 7)
+    const [startDate, setStartDate] = useState(sevenDaysAgo.toISOString().split('T')[0])
+    const [endDate, setEndDate] = useState(today.toISOString().split('T')[0])
 
     const navigate = useNavigate()
     const dataCollectionApi = useApiProvider().getDataCollectionApi()
@@ -44,8 +45,8 @@ export const Requests = () => {
 
     async function handleFetchData() {
         setLoadingRequests(true)
-        const fromDate = dateRange.startDate.toISOString()
-        const toDate = dateRange.endDate.toISOString()
+        const fromDate = new Date(startDate).toISOString()
+        const toDate = new Date(endDate).toISOString()
         const postResponse = await dataCollectionApi.apiDataCollectionQueuePost({
             symbol,
             fromUtc: fromDate,
@@ -110,10 +111,19 @@ export const Requests = () => {
                             </select>
                         </div>
                         <div className="control-group">
-                            <label>Date Range</label>
-                            <CustomDateRange
-                                dateRange={dateRange}
-                                onDateRangeChange={onDateRangeChange}
+                            <label>Start Date</label>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="control-group">
+                            <label>End Date</label>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
                             />
                         </div>
                     </div>
@@ -131,6 +141,7 @@ export const Requests = () => {
                         >
                             Cancel
                         </button>
+                        <span className="form-hint">Estimated candles vary by interval</span>
                     </div>
                 </div>
             )}
