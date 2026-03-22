@@ -16,7 +16,7 @@
   animation: fadeInUp 0.3s ease-out both;
 }
 
-.request-container:hover {
+.request-container:not(.not-clickable):hover {
   border-color: rgba(16, 185, 129, 0.3);
 }
 

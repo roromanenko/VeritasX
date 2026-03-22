@@ -93,7 +93,7 @@ export const RequestItem = ({ request, onViewResults }: RequestItemProps) => {
                 <div className="request-card-stats">
                     <span className="stat-item">
                         <Database />
-                        {((requestItem.totalChunks ?? 0)).toLocaleString()} chunks
+                        {((requestItem.totalChunks ?? 0)).toLocaleString()} candles
                     </span>
                     <span className="stat-item">
                         <BarChart3 />
@@ -111,9 +111,9 @@ export const RequestItem = ({ request, onViewResults }: RequestItemProps) => {
                 <div className="request-card-footer">
                     <div className="footer-completed">
                         <div className="strategies-count">
-                            <p>Chunks Loaded</p>
+                            <p>Candles Loaded</p>
                             <p className="count-value">
-                                {requestItem.completedChunks ?? 0}/{requestItem.totalChunks ?? 0}
+                                {(requestItem.totalChunks ?? 0).toLocaleString()}
                             </p>
                         </div>
                         {onViewResults && requestItem.id && (
