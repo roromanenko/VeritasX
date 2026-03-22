@@ -86,7 +86,7 @@
 }
 
 .chart-body {
-  min-height: 500px;
+  min-height: 350px;
   position: relative;
   display: flex;
   align-items: center;

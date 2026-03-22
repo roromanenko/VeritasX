@@ -4,7 +4,9 @@
       "mcp__figma-remote-mcp__get_metadata",
       "mcp__figma-remote-mcp__get_design_context",
       "Bash(npm install:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node_modules/.bin/tsc --noEmit)"
     ]
   },
   "enabledMcpjsonServers": [
