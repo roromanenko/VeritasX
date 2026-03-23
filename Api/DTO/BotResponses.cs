@@ -12,6 +12,7 @@ public record BotDto(
 	BotStatus Status,
 	StrategyDefinitionDto Strategy,
 	RiskParametersDto RiskParameters,
+	int MaxConsecutiveErrors,
 	DateTimeOffset CreatedAt,
 	DateTimeOffset? StartedAt,
 	DateTimeOffset? StoppedAt,

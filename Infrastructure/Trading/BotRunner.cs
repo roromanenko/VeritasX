@@ -31,6 +31,8 @@ public class BotRunner : IBotRunner
 	private readonly ILogger<BotRunner> _logger;
 	private readonly SemaphoreSlim _tickSemaphore = new(1, 1);
 
+	private int _consecutiveErrors;
+
 	private IMarketDataStream? _stream;
 	private CancellationTokenSource? _cts;
 
@@ -158,6 +160,7 @@ public class BotRunner : IBotRunner
 			return;
 		}
 
+		var tickSucceeded = false;
 		try
 		{
 			var exchangeService = _exchangeServiceFactory.Create(_bot.Exchange);
@@ -174,11 +177,17 @@ public class BotRunner : IBotRunner
 			var solution = await strategy.CalculateNextStep(context, tick, ct);
 
 			if (solution.Type == SolutionType.Hold)
+			{
+				tickSucceeded = true;
 				return;
+			}
 
 			var record = await _tradeExecutor.ExecuteAsync(solution, _bot, ct);
 			if (record is null)
+			{
+				tickSucceeded = true;
 				return;
+			}
 
 			var tradeDoc = _mapper.Map<BotTradeRecordDocument>(record);
 			await _botTradeRepository.CreateTradeRecord(tradeDoc);
@@ -188,14 +197,28 @@ public class BotRunner : IBotRunner
 			_logger.LogInformation(
 				"Bot {BotId} executed {Side} {Qty} {Asset} at {Price}. Reason: {Reason}",
 				BotId, record.Side, record.Quantity, _bot.BaseAsset, record.Price, record.Reason);
+
+			tickSucceeded = true;
 		}
 		catch (OperationCanceledException) { }
 		catch (Exception ex)
 		{
-			_logger.LogError(ex, "Bot {BotId} error on tick.", BotId);
+			_consecutiveErrors++;
+			_logger.LogError(ex, "Bot {BotId} error on tick ({Count}/{Max}).", BotId, _consecutiveErrors, _bot.MaxConsecutiveErrors);
+
+			if (_consecutiveErrors >= _bot.MaxConsecutiveErrors)
+			{
+				_logger.LogCritical(
+					"Bot {BotId} exceeded {Max} consecutive tick errors. Stopping bot.",
+					BotId, _bot.MaxConsecutiveErrors);
+				await SetStatusAsync(BotStatus.Error, ex.Message);
+				await NotifyStatusAsync(BotStatus.Error, ex.Message);
+				await StopAsync();
+			}
 		}
 		finally
 		{
+			if (tickSucceeded) _consecutiveErrors = 0;
 			_tickSemaphore.Release();
 		}
 	}

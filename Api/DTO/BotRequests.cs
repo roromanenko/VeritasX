@@ -1,4 +1,5 @@
-﻿using Core.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+using Core.Domain;
 
 namespace Api.DTO;
 
@@ -9,13 +10,15 @@ public record CreateBotRequest(
 	string BaseAsset,
 	string QuoteAsset,
 	StrategyDefinitionDto Strategy,
-	RiskParametersDto RiskParameters
+	RiskParametersDto RiskParameters,
+	[property: Range(1, 100)] int MaxConsecutiveErrors = 5
 );
 
 public record UpdateBotRequest(
 	string Name,
 	Dictionary<string, string> StrategyParameters,
-	RiskParametersDto RiskParameters
+	RiskParametersDto RiskParameters,
+	[property: Range(1, 100)] int MaxConsecutiveErrors = 5
 );
 
 public record StrategyDefinitionDto(

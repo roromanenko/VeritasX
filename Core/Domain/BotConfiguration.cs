@@ -13,6 +13,11 @@ public class BotConfiguration
 	public required RiskParameters RiskParameters { get; set; }
 	public BotStatus Status { get; set; } = BotStatus.Stopped;
 	public string? ErrorMessage { get; set; }
+	/// <summary>
+	/// Number of consecutive tick errors before the bot self-stops. Default: 5.
+	/// Minimum of 1 prevents misconfiguration where a bot never stops on errors.
+	/// </summary>
+	public int MaxConsecutiveErrors { get; set; } = 5;
 	public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 	public DateTimeOffset? StartedAt { get; set; }
 	public DateTimeOffset? StoppedAt { get; set; }

@@ -183,6 +183,7 @@ public class BotsController : BaseController
 				return Ok(new ApiResponse<BotDto>(false, "Bot must be stopped before editing"));
 
 			bot.Name = request.Name;
+			bot.MaxConsecutiveErrors = request.MaxConsecutiveErrors;
 			bot.RiskParameters = _mapper.Map<RiskParameters>(request.RiskParameters);
 			bot.Strategy.Parameters.Clear();
 			foreach (var (k, v) in request.StrategyParameters)

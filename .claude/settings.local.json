@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find D:PROGRAMINGProjectsVeritasXInfrastructure.Tests -type f -name *.cs)",
+      "Bash(find D:PROGRAMINGProjectsVeritasXCoreDomain -type f -name *.cs)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)"
+    ]
+  }
+}

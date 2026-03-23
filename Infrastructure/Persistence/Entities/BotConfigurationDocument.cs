@@ -21,6 +21,9 @@ public class BotConfigurationDocument
 	public BotStatus Status { get; set; } = BotStatus.Stopped;
 	[BsonIgnoreIfNull]
 	public string? ErrorMessage { get; set; }
+	/// <summary>Number of consecutive tick errors before the bot self-stops. Default: 5.</summary>
+	[BsonIgnoreIfDefault]
+	public int MaxConsecutiveErrors { get; set; } = 5;
 	public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 	[BsonIgnoreIfNull]
 	public DateTimeOffset? StartedAt { get; set; }
