@@ -16,7 +16,10 @@ public class BotConfigurationDocument
 	public string Symbol { get; set; } = string.Empty;
 	public string BaseAsset { get; set; } = string.Empty;
 	public string QuoteAsset { get; set; } = string.Empty;
-	public StrategyDefinitionDocument Strategy { get; set; } = null!;
+	public string StrategyId { get; set; } = string.Empty;
+	public string StrategySnapshot { get; set; } = string.Empty;
+	public int StrategyVersion { get; set; }
+	public Dictionary<string, string> ParameterOverrides { get; set; } = new();
 	public RiskParametersDocument RiskParameters { get; set; } = null!;
 	public BotStatus Status { get; set; } = BotStatus.Stopped;
 	[BsonIgnoreIfNull]
@@ -29,12 +32,6 @@ public class BotConfigurationDocument
 	public DateTimeOffset? StartedAt { get; set; }
 	[BsonIgnoreIfNull]
 	public DateTimeOffset? StoppedAt { get; set; }
-}
-
-public class StrategyDefinitionDocument
-{
-	public StrategyType Type { get; set; }
-	public Dictionary<string, string> Parameters { get; set; } = [];
 }
 
 public class RiskParametersDocument

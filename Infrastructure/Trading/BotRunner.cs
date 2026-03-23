@@ -25,7 +25,7 @@ public class BotRunner : IBotRunner
 	private readonly IMarketDataStreamFactory _streamFactory;
 	private readonly ITradeExecutor _tradeExecutor;
 	private readonly IExchangeServiceFactory _exchangeServiceFactory;
-	private readonly IStrategyFactory _strategyFactory;
+	private readonly IDslStrategyInterpreter _dslInterpreter;
 	private readonly IHubContext<BotProgressHub> _hub;
 	private readonly IMapper _mapper;
 	private readonly ILogger<BotRunner> _logger;
@@ -45,7 +45,7 @@ public class BotRunner : IBotRunner
 		IMarketDataStreamFactory streamFactory,
 		ITradeExecutor tradeExecutor,
 		IExchangeServiceFactory exchangeServiceFactory,
-		IStrategyFactory strategyFactory,
+		IDslStrategyInterpreter dslInterpreter,
 		IHubContext<BotProgressHub> hub,
 		IMapper mapper,
 		ILogger<BotRunner> logger)
@@ -58,7 +58,7 @@ public class BotRunner : IBotRunner
 		_streamFactory = streamFactory;
 		_tradeExecutor = tradeExecutor;
 		_exchangeServiceFactory = exchangeServiceFactory;
-		_strategyFactory = strategyFactory;
+		_dslInterpreter = dslInterpreter;
 		_hub = hub;
 		_mapper = mapper;
 		_logger = logger;
@@ -72,7 +72,7 @@ public class BotRunner : IBotRunner
 		try
 		{
 			var connection = await _userService.GetExchangeConnection(_bot.UserId, _bot.Exchange);
-			var strategy = _strategyFactory.Create(_bot.Strategy);
+			var strategy = _dslInterpreter.Build(_bot.StrategySnapshot);
 			var context = new TradingContext(new AccountContext(_bot.QuoteAsset));
 
 			_stream = _streamFactory.Create(_bot.Exchange, connection);
@@ -82,7 +82,7 @@ public class BotRunner : IBotRunner
 
 			_logger.LogInformation(
 				"Bot {BotId} started. Strategy: {Strategy}, Symbol: {Symbol}",
-				BotId, _bot.Strategy.Type, _bot.Symbol);
+				BotId, _bot.StrategyId, _bot.Symbol);
 
 			if (strategy.DataRequirement == DataRequirement.Ticker)
 			{
@@ -99,7 +99,7 @@ public class BotRunner : IBotRunner
 			}
 			else
 			{
-				var interval = GetKlineInterval(_bot.Strategy);
+				var interval = _dslInterpreter.GetMetadata(_bot.StrategySnapshot).Interval ?? TimeSpan.FromHours(1);
 				await _stream.SubscribeToKline(_bot.Symbol, interval, async candle =>
 				{
 					var tick = new MarketTick
@@ -292,14 +292,5 @@ public class BotRunner : IBotRunner
 			record.Reason,
 			record.ExecutedAt
 		});
-	}
-
-	private static TimeSpan GetKlineInterval(StrategyDefinition strategy)
-	{
-		if (strategy.Parameters.TryGetValue("interval", out var raw)
-			&& TimeSpan.TryParse(raw, out var interval))
-			return interval;
-
-		return TimeSpan.FromHours(1);
 	}
 }

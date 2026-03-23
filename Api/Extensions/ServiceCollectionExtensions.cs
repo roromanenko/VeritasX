@@ -21,6 +21,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using Trading;
 using Trading.Strategies;
 using VeritasX.Api.Extensions;
 
@@ -106,6 +107,7 @@ public static class ServiceCollectionExtensions
 			cfg.AddProfile<BotProfile>();
 			cfg.AddProfile<BotDtoProfile>();
 			cfg.AddProfile<TradeProfile>();
+			cfg.AddProfile<StrategyProfile>();
 		});
 
 		services.AddSignalR()
@@ -137,7 +139,10 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<ITradeRepository, TradeRepository>();
 		services.AddScoped<IBotRepository, BotRepository>();
 		services.AddScoped<IBotTradeRepository, BotTradeRepository>();
+		services.AddScoped<IStrategyRepository, StrategyRepository>();
+		services.AddScoped<IUserStrategyLibraryRepository, UserStrategyLibraryRepository>();
 		services.AddScoped<IDatabaseCleanupRepository, DatabaseCleanupRepository>();
+		services.AddHostedService<MongoIndexInitializer>();
 
 		return services;
 	}
@@ -151,7 +156,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IExchangeServiceFactory, ExchangeServiceFactory>();
 		services.AddSingleton<IMarketDataStreamFactory, MarketDataStreamFactory>();
 		services.AddScoped<ITradeExecutor, TradeExecutor>();
-		services.AddScoped<IStrategyFactory, StrategyFactory>();
+		services.AddSingleton<IDslStrategyInterpreter, BuiltinStrategyInterpreter>();
 
 		services.AddBinance();
 

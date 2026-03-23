@@ -9,7 +9,10 @@ public class BotConfiguration
 	public required string Symbol { get; init; }
 	public required string BaseAsset { get; init; }
 	public required string QuoteAsset { get; init; }
-	public required StrategyDefinition Strategy { get; init; }
+	public required string StrategyId { get; init; }
+	public required string StrategySnapshot { get; set; }
+	public int StrategyVersion { get; set; }
+	public Dictionary<string, string> ParameterOverrides { get; set; } = new();
 	public required RiskParameters RiskParameters { get; set; }
 	public BotStatus Status { get; set; } = BotStatus.Stopped;
 	public string? ErrorMessage { get; set; }
@@ -29,12 +32,6 @@ public enum BotStatus
 	Pending,
 	Stopped,
 	Error
-}
-
-public class StrategyDefinition
-{
-	public required StrategyType Type { get; init; }
-	public required Dictionary<string, string> Parameters { get; init; }
 }
 
 public class RiskParameters

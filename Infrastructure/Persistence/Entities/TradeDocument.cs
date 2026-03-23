@@ -2,7 +2,6 @@
 using Core.Domain;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-
 namespace Infrastructure.Persistence.Entities;
 
 [Table("trades")]
@@ -32,4 +31,10 @@ public class TradeDocument
 	public decimal Fee { get; set; }
 	public string FeeAsset { get; set; } = string.Empty;
 	public DateTimeOffset ExecutedAt { get; set; }
+
+	[BsonIgnoreIfNull]
+	public string? Source { get; set; }
+
+	[BsonIgnoreIfNull]
+	public ObjectId? BotId { get; set; }
 }

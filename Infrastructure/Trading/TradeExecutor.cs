@@ -99,7 +99,9 @@ public class TradeExecutor : ITradeExecutor
 			Side = side,
 			Price = placedOrder.AverageFillPrice ?? 0,
 			Quantity = placedOrder.FilledQuantity,
-			ExecutedAt = placedOrder.ExecutedAt ?? DateTimeOffset.UtcNow
+			ExecutedAt = placedOrder.ExecutedAt ?? DateTimeOffset.UtcNow,
+			Source = "Bot",
+			BotId = ObjectId.Parse(bot.Id)
 		};
 
 		var savedTrade = await _tradeRepository.CreateTrade(tradeDocument);
@@ -109,6 +111,7 @@ public class TradeExecutor : ITradeExecutor
 			Id = ObjectId.GenerateNewId().ToString(),
 			BotId = bot.Id,
 			UserId = bot.UserId,
+			Exchange = bot.Exchange,
 			Symbol = bot.Symbol,
 			Side = side,
 			Price = placedOrder.AverageFillPrice ?? 0,

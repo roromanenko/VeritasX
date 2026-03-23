@@ -26,7 +26,7 @@ public class BotRunnerTests
 	private readonly Mock<ITradeExecutor> _tradeExecutorMock = new();
 	private readonly Mock<IExchangeServiceFactory> _exchangeServiceFactoryMock = new();
 	private readonly Mock<IExchangeService> _exchangeServiceMock = new();
-	private readonly Mock<IStrategyFactory> _strategyFactoryMock = new();
+	private readonly Mock<IDslStrategyInterpreter> _dslInterpreterMock = new();
 	private readonly Mock<ITradingStrategy> _strategyMock = new();
 	private readonly Mock<IHubContext<BotProgressHub>> _hubContextMock = new();
 	private readonly Mock<IHubClients> _hubClientsMock = new();
@@ -50,11 +50,9 @@ public class BotRunnerTests
 			Symbol = "BTCUSDT",
 			BaseAsset = "BTC",
 			QuoteAsset = "USDT",
-			Strategy = new StrategyDefinition
-			{
-				Type = StrategyType.DeltaRebalancing,
-				Parameters = []
-			},
+			StrategyId = ObjectId.GenerateNewId().ToString(),
+			StrategySnapshot = """{"strategyType":"builtin:rebalance","dataRequirement":"Ticker","config":{"asset":"BTC","targetWeight":0.5,"threshold":0.1}}""",
+			StrategyVersion = 1,
 			RiskParameters = new RiskParameters { PositionSize = 0.1m }
 		};
 
@@ -84,9 +82,12 @@ public class BotRunnerTests
 			.Setup(s => s.CalculateNextStep(
 				It.IsAny<TradingContext>(), It.IsAny<MarketTick>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync(new TradingSolution { Asset = "BTC", Type = SolutionType.Hold });
-		_strategyFactoryMock
-			.Setup(f => f.Create(It.IsAny<StrategyDefinition>()))
+		_dslInterpreterMock
+			.Setup(f => f.Build(It.IsAny<string>()))
 			.Returns(_strategyMock.Object);
+		_dslInterpreterMock
+			.Setup(f => f.GetMetadata(It.IsAny<string>()))
+			.Returns(new StrategyMetadata { DataRequirement = DataRequirement.Ticker });
 
 		// User service
 		_userServiceMock
@@ -111,7 +112,7 @@ public class BotRunnerTests
 		_streamFactoryMock.Object,
 		_tradeExecutorMock.Object,
 		_exchangeServiceFactoryMock.Object,
-		_strategyFactoryMock.Object,
+		_dslInterpreterMock.Object,
 		_hubContextMock.Object,
 		_mapperMock.Object,
 		_loggerMock.Object);

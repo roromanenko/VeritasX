@@ -185,9 +185,8 @@ public class BotsController : BaseController
 			bot.Name = request.Name;
 			bot.MaxConsecutiveErrors = request.MaxConsecutiveErrors;
 			bot.RiskParameters = _mapper.Map<RiskParameters>(request.RiskParameters);
-			bot.Strategy.Parameters.Clear();
-			foreach (var (k, v) in request.StrategyParameters)
-				bot.Strategy.Parameters[k] = v;
+			if (request.ParameterOverrides is not null)
+				bot.ParameterOverrides = request.ParameterOverrides;
 
 			await _botService.UpdateBot(bot);
 

@@ -78,10 +78,16 @@ Api/           → ASP.NET Core controllers, DTOs, DI wiring, SignalR hubs
 - **SignalR Hubs** — real-time progress updates at `/jobProgressHub` (data collection) and `/botProgressHub` (bot execution)
 - **Encryption** — AES-256-GCM via `EncryptionService`; used to store exchange API keys
 - **JWT Auth** — 24h tokens; `[Authorize]` on all protected endpoints
+- **Strategy Marketplace** — two MongoDB collections support strategy sharing and reuse:
+  - `strategies` — marketplace entries (`Strategy` domain model); can be official or user-created, public or private, optionally priced; stores DSL text and/or graph JSON with versioning
+  - `user_strategy_library` — per-user saved copies (`UserStrategyLibrary` domain model); captures a DSL/graph snapshot at save time along with user-specific `ParameterOverrides`; indexed on `(UserId, StrategyId)`
 
 ### Trading Layer
 
-- Currently contains strategy abstractions (`ITradingStrategy`, `IStrategyFactory`) and `RebalanceToTargetStrategy`
+- Strategy abstractions (`ITradingStrategy`, `IStrategyFactory`) and `RebalanceToTargetStrategy`
+- **`IDslStrategyInterpreter`** — interface that builds an `ITradingStrategy` from a JSON snapshot string and extracts `StrategyMetadata` (data requirement, tick interval)
+- **`BuiltinStrategyInterpreter`** — the default interpreter; deserializes a snapshot JSON document containing `strategyType`, `dataRequirement`, `interval`, `config`, and optional `overrides`. Currently supports `builtin:rebalance`. Parameter overrides are merged into the config before building the strategy
+- **Snapshot format** — JSON document stored in `BotConfiguration.StrategySnapshot` and `UserStrategyLibrary.SavedDslSnapshot`; see `docs/strategy-snapshot-format.md` for the full spec
 - **Upcoming major feature: Strategy DSL Editor** — first a text-based internal pseudo-language (DSL), then a visual editor built on Blockly, allowing users to define strategies without writing C#
 - When working in `Trading/`, design all abstractions with DSL-driven strategy execution in mind — strategies should be describable as data/configuration, not just code
 
@@ -105,7 +111,9 @@ Api/           → ASP.NET Core controllers, DTOs, DI wiring, SignalR hubs
 
 ### Domain Models (Core/Domain/)
 
-Central entities: `BotConfiguration`, `Candle`, `Trade`, `Order`, `Portfolio`, `User`, `ExchangeConnection`, `DataCollectionJob`. These are plain C# classes with no framework dependencies.
+Central entities: `BotConfiguration`, `Candle`, `Trade`, `Order`, `Portfolio`, `User`, `ExchangeConnection`, `DataCollectionJob`, `Strategy`, `UserStrategyLibrary`. These are plain C# classes with no framework dependencies.
+
+`BotConfiguration` links to a strategy via `StrategyId`, `StrategySnapshot` (the JSON snapshot consumed by `IDslStrategyInterpreter`), `StrategyVersion`, and `ParameterOverrides` (user-specific config merged at build time).
 
 ## Code Style
 
@@ -128,6 +136,7 @@ These areas require special care:
 - **`EncryptionService` and JWT logic** — sensitive security code; do not modify without explicit user instruction
 - **`BotManagerBackgroundService`** — controls live bot execution; changes here can affect running bots in production; proceed with extra caution
 - **`tv-chart/src/api/`** — auto-generated; never edit manually, run `npm run generate-api` instead
+- **`IDslStrategyInterpreter` and the snapshot format** — core extensibility points for the strategy system; do not refactor without discussion
 
 ## Development Notes
 

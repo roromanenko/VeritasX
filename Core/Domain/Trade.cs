@@ -25,4 +25,7 @@ public sealed class Trade
 	public string FeeAsset { get; set; } = string.Empty;
 
 	public DateTimeOffset ExecutedAt { get; set; }
+
+	public TradeSource Source { get; set; } = TradeSource.Manual;
+	public string? BotId { get; set; }
 }

@@ -12,6 +12,7 @@ public class BotTradeRecordDocument
 	public ObjectId Id { get; set; }
 	public ObjectId BotId { get; set; }
 	public ObjectId UserId { get; set; }
+	public string Exchange { get; set; } = string.Empty;
 	public string Symbol { get; set; } = string.Empty;
 	public OrderSide Side { get; set; }
 	public decimal Price { get; set; }

@@ -10,7 +10,9 @@ public record BotDto(
 	string BaseAsset,
 	string QuoteAsset,
 	BotStatus Status,
-	StrategyDefinitionDto Strategy,
+	string StrategyId,
+	string StrategySnapshot,
+	int StrategyVersion,
 	RiskParametersDto RiskParameters,
 	int MaxConsecutiveErrors,
 	DateTimeOffset CreatedAt,
@@ -22,6 +24,7 @@ public record BotDto(
 public record BotTradeRecordDto(
 	string Id,
 	string BotId,
+	string Exchange,
 	string Symbol,
 	OrderSide Side,
 	decimal Price,

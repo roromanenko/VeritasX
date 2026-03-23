@@ -9,21 +9,18 @@ public record CreateBotRequest(
 	string Symbol,
 	string BaseAsset,
 	string QuoteAsset,
-	StrategyDefinitionDto Strategy,
+	string StrategyId,
+	Dictionary<string, string>? ParameterOverrides,
 	RiskParametersDto RiskParameters,
 	[property: Range(1, 100)] int MaxConsecutiveErrors = 5
 );
 
 public record UpdateBotRequest(
 	string Name,
-	Dictionary<string, string> StrategyParameters,
+	string? StrategyId,
+	Dictionary<string, string>? ParameterOverrides,
 	RiskParametersDto RiskParameters,
 	[property: Range(1, 100)] int MaxConsecutiveErrors = 5
-);
-
-public record StrategyDefinitionDto(
-	StrategyType Type,
-	Dictionary<string, string> Parameters
 );
 
 public record RiskParametersDto(

@@ -4,7 +4,9 @@
       "Bash(find D:PROGRAMINGProjectsVeritasXInfrastructure.Tests -type f -name *.cs)",
       "Bash(find D:PROGRAMINGProjectsVeritasXCoreDomain -type f -name *.cs)",
       "Bash(dotnet build:*)",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "Bash(grep -r \"class StrategyDefinition\\\\|StrategyDefinition {\" /d/PROGRAMING/Projects/VeritasX --include=*.cs)",
+      "Bash(grep -r \"IStrategyFactory\\\\|StrategyFactory\\\\|StrategyType\" /d/PROGRAMING/Projects/VeritasX --include=*.cs)"
     ]
   }
 }

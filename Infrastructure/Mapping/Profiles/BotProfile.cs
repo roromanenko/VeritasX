@@ -18,7 +18,6 @@ public class BotProfile : Profile
 			.ForMember(d => d.Id, o => o.MapFrom(s => s.Id.ToString()))
 			.ForMember(d => d.UserId, o => o.MapFrom(s => s.UserId.ToString()));
 
-		CreateMap<StrategyDefinition, StrategyDefinitionDocument>().ReverseMap();
 		CreateMap<RiskParameters, RiskParametersDocument>().ReverseMap();
 
 		CreateMap<BotTradeRecord, BotTradeRecordDocument>()
@@ -26,6 +25,7 @@ public class BotProfile : Profile
 				string.IsNullOrWhiteSpace(s.Id) ? ObjectId.GenerateNewId() : ObjectId.Parse(s.Id)))
 			.ForMember(d => d.BotId, o => o.MapFrom(s => ObjectId.Parse(s.BotId)))
 			.ForMember(d => d.UserId, o => o.MapFrom(s => ObjectId.Parse(s.UserId)))
+			.ForMember(d => d.Exchange, o => o.MapFrom(s => s.Exchange.ToString()))
 			.ForMember(d => d.TradeId, o => o.MapFrom(s =>
 				string.IsNullOrWhiteSpace(s.TradeId) ? (ObjectId?)null : ObjectId.Parse(s.TradeId)));
 
@@ -33,6 +33,7 @@ public class BotProfile : Profile
 			.ForMember(d => d.Id, o => o.MapFrom(s => s.Id.ToString()))
 			.ForMember(d => d.BotId, o => o.MapFrom(s => s.BotId.ToString()))
 			.ForMember(d => d.UserId, o => o.MapFrom(s => s.UserId.ToString()))
+			.ForMember(d => d.Exchange, o => o.MapFrom(s => Enum.Parse<ExchangeName>(s.Exchange)))
 			.ForMember(d => d.TradeId, o => o.MapFrom(s =>
 				s.TradeId.HasValue ? s.TradeId.Value.ToString() : null));
 	}

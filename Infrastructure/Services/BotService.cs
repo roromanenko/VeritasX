@@ -11,29 +11,44 @@ public class BotService : IBotService
 {
 	private readonly IBotRepository _botRepository;
 	private readonly IBotTradeRepository _botTradeRepository;
+	private readonly IUserStrategyLibraryRepository _userStrategyLibraryRepository;
 	private readonly IMapper _mapper;
 
-	public BotService(IBotRepository botRepository, IBotTradeRepository botTradeRepository, IMapper mapper)
+	public BotService(
+		IBotRepository botRepository,
+		IBotTradeRepository botTradeRepository,
+		IUserStrategyLibraryRepository userStrategyLibraryRepository,
+		IMapper mapper)
 	{
 		_botRepository = botRepository;
 		_botTradeRepository = botTradeRepository;
+		_userStrategyLibraryRepository = userStrategyLibraryRepository;
 		_mapper = mapper;
 	}
 
 	public async Task<BotConfiguration> CreateBot(string userId, BotConfiguration config)
 	{
-		if (!ObjectId.TryParse(userId, out _))
+		if (!ObjectId.TryParse(userId, out var userObjectId))
 			throw new ArgumentException("Invalid user ID");
+
+		var libraryEntry = await _userStrategyLibraryRepository
+			.GetByUserAndStrategy(userObjectId, ObjectId.Parse(config.StrategyId));
+
+		var snapshot = libraryEntry?.SavedDslSnapshot
+			?? throw new KeyNotFoundException($"Strategy '{config.StrategyId}' not found in user's library");
 
 		var document = new BotConfigurationDocument
 		{
-			UserId = ObjectId.Parse(userId),
+			UserId = userObjectId,
 			Name = config.Name,
 			Exchange = config.Exchange,
 			Symbol = config.Symbol,
 			BaseAsset = config.BaseAsset,
 			QuoteAsset = config.QuoteAsset,
-			Strategy = _mapper.Map<StrategyDefinitionDocument>(config.Strategy),
+			StrategyId = config.StrategyId,
+			StrategySnapshot = snapshot,
+			StrategyVersion = libraryEntry.SavedVersion,
+			ParameterOverrides = config.ParameterOverrides ?? new(),
 			RiskParameters = _mapper.Map<RiskParametersDocument>(config.RiskParameters)
 		};
 
@@ -66,6 +81,9 @@ public class BotService : IBotService
 
 	public async Task UpdateBot(BotConfiguration bot)
 	{
+		if (bot.Status is BotStatus.Active or BotStatus.Pending)
+			throw new InvalidOperationException("Cannot update a bot that is active or pending");
+
 		var document = _mapper.Map<BotConfigurationDocument>(bot);
 		await _botRepository.UpdateBot(document);
 	}
@@ -90,7 +108,8 @@ public class BotService : IBotService
 
 		bot.Status = BotStatus.Pending;
 		bot.ErrorMessage = null;
-		await UpdateBot(bot);
+		var document = _mapper.Map<BotConfigurationDocument>(bot);
+		await _botRepository.UpdateBot(document);
 	}
 
 	public async Task StopBot(string botId, string userId)
@@ -102,7 +121,8 @@ public class BotService : IBotService
 
 		bot.Status = BotStatus.Stopped;
 		bot.StoppedAt = DateTimeOffset.UtcNow;
-		await UpdateBot(bot);
+		var document = _mapper.Map<BotConfigurationDocument>(bot);
+		await _botRepository.UpdateBot(document);
 	}
 
 	public async Task<IEnumerable<BotTradeRecord>> GetTradeHistory(string botId, string userId, int limit = 100)
