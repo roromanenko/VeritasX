@@ -236,6 +236,42 @@
   animation: pulse-dot 1.5s ease-in-out infinite;
 }
 
+/* ── Inline edit panel ───────────────────────────────────── */
+
+.bot-edit-panel {
+  background: var(--color-surface-primary);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 0 20px var(--color-primary-glow);
+  animation: fadeInDown 0.2s ease-out;
+}
+
+.bot-edit-section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 12px;
+}
+
+.bot-edit-params-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.bot-edit-strategy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
 /* ── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 900px) {

@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { HubConnection, HubConnectionState } from '@microsoft/signalr';
 
 import { useApiProvider } from '../services/apiProvider';
-import type { BotDto, BotTradeRecordDto, BotStatus, OrderSide } from '../api';
+import type { BotDto, BotTradeRecordDto, BotStatus, OrderSide, UpdateBotRequest } from '../api';
 
 type LogEntry = {
     id: number;
@@ -57,6 +57,14 @@ export const BotDetail = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
     const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('idle');
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState<{
+        name: string;
+        positionSize: string;
+        stopLoss: string;
+        takeProfit: string;
+        strategyParameters: Record<string, string>;
+    }>({ name: '', positionSize: '', stopLoss: '', takeProfit: '', strategyParameters: {} });
 
     const connectionRef = useRef<HubConnection | null>(null);
     const logEndRef = useRef<HTMLDivElement>(null);
@@ -182,6 +190,50 @@ export const BotDetail = () => {
         }
     }
 
+    function handleEdit() {
+        if (!bot) return;
+        setEditForm({
+            name: bot.name ?? '',
+            positionSize: bot.riskParameters?.positionSize != null ? String(bot.riskParameters.positionSize) : '',
+            stopLoss: bot.riskParameters?.stopLoss != null ? String(bot.riskParameters.stopLoss) : '',
+            takeProfit: bot.riskParameters?.takeProfit != null ? String(bot.riskParameters.takeProfit) : '',
+            strategyParameters: bot.strategy?.parameters
+                ? Object.fromEntries(Object.entries(bot.strategy.parameters).map(([k, v]) => [k, String(v)]))
+                : {},
+        });
+        setIsEditing(true);
+    }
+
+    function handleCancelEdit() {
+        setIsEditing(false);
+    }
+
+    async function handleSave() {
+        setActionLoading(true);
+        try {
+            const request: UpdateBotRequest = {
+                name: editForm.name || undefined,
+                riskParameters: {
+                    positionSize: editForm.positionSize !== '' ? parseFloat(editForm.positionSize) : undefined,
+                    stopLoss: editForm.stopLoss !== '' ? parseFloat(editForm.stopLoss) : null,
+                    takeProfit: editForm.takeProfit !== '' ? parseFloat(editForm.takeProfit) : null,
+                },
+                strategyParameters: Object.keys(editForm.strategyParameters).length > 0
+                    ? editForm.strategyParameters
+                    : undefined,
+            };
+            const res = await apiProvider.getBotsApi().apiBotsIdPut(id!, request);
+            const updated = (res.data as unknown as { data: BotDto }).data;
+            if (updated) setBot(updated);
+            setIsEditing(false);
+            addLog('Bot configuration updated.', 'status');
+        } catch (err) {
+            addLog(`Update failed: ${err}`, 'error');
+        } finally {
+            setActionLoading(false);
+        }
+    }
+
     async function teardownHub() {
         const connection = connectionRef.current;
         if (connection?.state === HubConnectionState.Connected) {
@@ -228,6 +280,15 @@ export const BotDetail = () => {
                             {actionLoading ? 'Stopping…' : 'Stop'}
                         </button>
                     )}
+                    {bot && (
+                        <button
+                            className="btn btn-sm btn-secondary"
+                            disabled={actionLoading || bot.status === 'Active' || bot.status === 'Pending'}
+                            onClick={isEditing ? handleCancelEdit : handleEdit}
+                        >
+                            {isEditing ? 'Cancel' : 'Edit'}
+                        </button>
+                    )}
                 </div>
                 <p className="chart-subtitle">
                     {[bot?.exchange, bot?.symbol, bot?.strategy?.type].filter(Boolean).join(' · ')}
@@ -236,6 +297,98 @@ export const BotDetail = () => {
 
             {loading && !bot && (
                 <div className="chart-loading" style={{ padding: '40px 0' }}>Loading bot details…</div>
+            )}
+
+            {bot && isEditing && (
+                <div className="bot-edit-panel">
+                    {/* Name */}
+                    <div className="control-group" style={{ marginBottom: '20px' }}>
+                        <label>Bot Name</label>
+                        <input
+                            type="text"
+                            value={editForm.name}
+                            onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                            placeholder="Bot name"
+                        />
+                    </div>
+
+                    {/* Risk Parameters */}
+                    <p className="bot-edit-section-label">Risk Parameters</p>
+                    <div className="bot-edit-params-grid">
+                        <div className="control-group">
+                            <label>Position Size</label>
+                            <input
+                                type="number"
+                                value={editForm.positionSize}
+                                onChange={e => setEditForm(f => ({ ...f, positionSize: e.target.value }))}
+                                placeholder="e.g. 0.01"
+                                min="0"
+                                step="any"
+                            />
+                        </div>
+                        <div className="control-group">
+                            <label>Stop Loss</label>
+                            <input
+                                type="number"
+                                value={editForm.stopLoss}
+                                onChange={e => setEditForm(f => ({ ...f, stopLoss: e.target.value }))}
+                                placeholder="e.g. 0.02"
+                                min="0"
+                                step="any"
+                            />
+                        </div>
+                        <div className="control-group">
+                            <label>Take Profit</label>
+                            <input
+                                type="number"
+                                value={editForm.takeProfit}
+                                onChange={e => setEditForm(f => ({ ...f, takeProfit: e.target.value }))}
+                                placeholder="e.g. 0.04"
+                                min="0"
+                                step="any"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Strategy Parameters */}
+                    {Object.keys(editForm.strategyParameters).length > 0 && (
+                        <>
+                            <p className="bot-edit-section-label">Strategy Parameters</p>
+                            <div className="bot-edit-strategy-grid">
+                                {Object.entries(editForm.strategyParameters).map(([key, value]) => (
+                                    <div key={key} className="control-group">
+                                        <label>{key}</label>
+                                        <input
+                                            type="text"
+                                            value={value}
+                                            onChange={e => setEditForm(f => ({
+                                                ...f,
+                                                strategyParameters: { ...f.strategyParameters, [key]: e.target.value },
+                                            }))}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+
+                    <div className="form-actions">
+                        <button
+                            className="btn btn-primary btn-sm"
+                            disabled={actionLoading}
+                            onClick={handleSave}
+                        >
+                            {actionLoading ? 'Saving…' : 'Save Changes'}
+                        </button>
+                        <button
+                            className="btn btn-secondary btn-sm"
+                            disabled={actionLoading}
+                            onClick={handleCancelEdit}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
             )}
 
             {bot && (

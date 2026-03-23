@@ -7,6 +7,7 @@ All URIs are relative to *http://localhost*
 |[**apiBotsGet**](#apibotsget) | **GET** /api/Bots | |
 |[**apiBotsIdDelete**](#apibotsiddelete) | **DELETE** /api/Bots/{id} | |
 |[**apiBotsIdGet**](#apibotsidget) | **GET** /api/Bots/{id} | |
+|[**apiBotsIdPut**](#apibotsidput) | **PUT** /api/Bots/{id} | |
 |[**apiBotsIdStartPost**](#apibotsidstartpost) | **POST** /api/Bots/{id}/start | |
 |[**apiBotsIdStopPost**](#apibotsidstoppost) | **POST** /api/Bots/{id}/stop | |
 |[**apiBotsIdTradesGet**](#apibotsidtradesget) | **GET** /api/Bots/{id}/trades | |
@@ -145,6 +146,60 @@ const { status, data } = await apiInstance.apiBotsIdGet(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
+ - **Accept**: text/plain, application/json, text/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **apiBotsIdPut**
+> BotDtoApiResponse apiBotsIdPut()
+
+
+### Example
+
+```typescript
+import {
+    BotsApi,
+    Configuration,
+    UpdateBotRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new BotsApi(configuration);
+
+let id: string; // (default to undefined)
+let updateBotRequest: UpdateBotRequest; // (optional)
+
+const { status, data } = await apiInstance.apiBotsIdPut(
+    id,
+    updateBotRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateBotRequest** | **UpdateBotRequest**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**BotDtoApiResponse**
+
+### Authorization
+
+[Bearer](../README.md#Bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json, text/json, application/*+json
  - **Accept**: text/plain, application/json, text/json
 
 

@@ -51,6 +51,7 @@ docs/TradesResponse.md
 docs/TradingApi.md
 docs/TradingPairDto.md
 docs/TradingResultDto.md
+docs/UpdateBotRequest.md
 docs/UpdateExchangeConnectionRequest.md
 docs/UserApi.md
 docs/UserDto.md
