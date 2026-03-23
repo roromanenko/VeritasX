@@ -1,0 +1,289 @@
+/* ── Layout ─────────────────────────────────────────────────── */
+.settings-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ── Tabs ───────────────────────────────────────────────────── */
+.settings-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 32px;
+}
+
+.settings-tab-btn {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+}
+
+.settings-tab-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.settings-tab-btn.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* ── Section cards ──────────────────────────────────────────── */
+.settings-section {
+  background: var(--color-surface-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.settings-section-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-section-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.settings-section-body {
+  padding: 24px;
+}
+
+/* ── Read-only profile fields ───────────────────────────────── */
+.settings-field {
+  margin-bottom: 20px;
+}
+
+.settings-field:last-child {
+  margin-bottom: 0;
+}
+
+.settings-field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.settings-field-value {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.settings-roles-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.settings-role-badge {
+  padding: 3px 10px;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+/* ── Password form ──────────────────────────────────────────── */
+.settings-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* ── Eye toggle wrapper (password & secret key) ─────────────── */
+.settings-key-wrap {
+  position: relative;
+}
+
+.settings-key-wrap input {
+  padding-right: 40px;
+}
+
+.settings-key-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.settings-key-eye:hover {
+  color: var(--color-text-primary);
+}
+
+.settings-key-eye svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Feedback messages ──────────────────────────────────────── */
+.settings-feedback {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.settings-feedback.success {
+  background: var(--color-primary-glow);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--color-primary);
+}
+
+.settings-feedback.error {
+  background: var(--color-danger-glow);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--color-danger);
+}
+
+/* ── Exchange list ──────────────────────────────────────────── */
+.settings-exchange-row {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.settings-exchange-row + .settings-exchange-row {
+  border-top: 1px solid var(--color-border);
+}
+
+.settings-exchange-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.settings-exchange-info {
+  flex: 1;
+}
+
+.settings-exchange-name {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.settings-exchange-meta {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.settings-exchange-connected {
+  color: var(--color-primary);
+}
+
+.settings-exchange-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── Inline exchange form ───────────────────────────────────── */
+.settings-exchange-form {
+  padding: 20px 24px;
+  border-top: 1px solid var(--color-border);
+  background: rgba(16, 185, 129, 0.02);
+  animation: fadeInDown 0.2s ease-out;
+}
+
+.settings-exchange-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.settings-testnet-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.settings-testnet-cb {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.settings-testnet-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+/* ── Danger button ──────────────────────────────────────────── */
+.btn-danger {
+  background: var(--color-danger-glow);
+  color: var(--color-danger);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 20px var(--color-danger-glow);
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 16px;
+  }
+
+  .settings-form-grid,
+  .settings-exchange-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-exchange-row {
+    flex-wrap: wrap;
+  }
+
+  .settings-exchange-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

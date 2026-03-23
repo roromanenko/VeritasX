@@ -2,7 +2,7 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { useState, useRef, useEffect } from 'react'
 import { Route, Routes, useNavigate, NavLink, Link } from 'react-router-dom'
-import { Bell, Zap } from 'lucide-react'
+import { Bell, Zap, Settings as SettingsIcon } from 'lucide-react'
 import { Landing } from './pages/Landing'
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { Requests } from './pages/Requests';
@@ -11,6 +11,7 @@ import { Login } from './pages/Login';
 import { Chart } from './pages/Chart';
 import { BotMonitor } from './pages/BotMonitor';
 import { BotDetail } from './pages/BotDetail';
+import { Settings } from './pages/Settings';
 
 function App() {
   return (
@@ -44,6 +45,12 @@ function App() {
                 <BotDetail />
               </ProtectedRoute>
             } />
+          <Route path='settings'
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
           <Route path='login' element={<Login />} />
         </Routes>
       </div>
@@ -62,6 +69,7 @@ type UserMenuProps = { onLogout: () => void }
 function UserMenu({ onLogout }: UserMenuProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -80,7 +88,18 @@ function UserMenu({ onLogout }: UserMenuProps) {
       </button>
       {open && (
         <div className="nav-user-dropdown">
-          <button onClick={() => { onLogout(); setOpen(false) }}>Logout</button>
+          <button
+            className="nav-user-dropdown-item"
+            onClick={() => { navigate('/settings'); setOpen(false) }}
+          >
+            <SettingsIcon size={14} /> Settings
+          </button>
+          <button
+            className="nav-user-dropdown-item nav-user-dropdown-item--danger"
+            onClick={() => { onLogout(); setOpen(false) }}
+          >
+            Logout
+          </button>
         </div>
       )}
     </div>
