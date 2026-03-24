@@ -3,11 +3,12 @@ import 'react-date-range/dist/theme/default.css';
 import { useState, useRef, useEffect } from 'react'
 import { Route, Routes, useNavigate, NavLink, Link } from 'react-router-dom'
 import { Bell, Zap, Settings as SettingsIcon } from 'lucide-react'
-import { Landing } from './pages/Landing'
+import { Dashboard } from './pages/Dashboard'
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { Requests } from './pages/Requests';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { Login } from './pages/Login';
+import { Landing } from './pages/Landing';
 import { Chart } from './pages/Chart';
 import { BotMonitor } from './pages/BotMonitor';
 import { BotDetail } from './pages/BotDetail';
@@ -20,7 +21,11 @@ function App() {
 
       <div className="app">
         <Routes>
-          <Route index element={<Landing />} />
+          <Route index element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
           <Route path='requests'
             element={
               <ProtectedRoute>
@@ -52,6 +57,7 @@ function App() {
               </ProtectedRoute>
             } />
           <Route path='login' element={<Login />} />
+          <Route path='landing' element={<Landing />} />
         </Routes>
       </div>
     </AuthProvider>
@@ -117,7 +123,7 @@ const Navigation = () => {
 
   return (
     <header className="navbar">
-      <Link to="/" className="nav-brand">
+      <Link to="/landing" className="nav-brand">
         <div className="nav-brand-icon">
           <Zap />
         </div>

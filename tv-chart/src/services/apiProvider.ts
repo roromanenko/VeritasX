@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 import axios from 'axios';
-import { BotsApi, Configuration, DataCollectionApi, TradingApi, UserApi } from '../api';
+import { BotsApi, Configuration, DataCollectionApi, StatisticsApi, TradingApi, UserApi } from '../api';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
@@ -12,6 +12,7 @@ type ApiProvider = {
   getJobProgressHub: () => HubConnection;
   getBotProgressHub: () => HubConnection;
   getBotsApi: () => BotsApi;
+  getStatisticsApi: () => StatisticsApi;
 };
 
 const ApiProvider = (): ApiProvider => {
@@ -83,13 +84,18 @@ const ApiProvider = (): ApiProvider => {
         return new BotsApi(config, config.basePath, getAxiosInstance(config.basePath!));
     }
 
+    function getStatisticsApi(){
+        return new StatisticsApi(config, config.basePath, getAxiosInstance(config.basePath!));
+    }
+
     return {
         getUserApi,
         getDataCollectionApi,
         getTradingApi,
         getJobProgressHub,
         getBotProgressHub,
-        getBotsApi
+        getBotsApi,
+        getStatisticsApi,
     }
 }
 

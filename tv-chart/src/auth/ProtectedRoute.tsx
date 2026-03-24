@@ -12,5 +12,5 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
     return token
     ? children
-    : <Navigate to="/login" replace state={{from: location}} />;
+    : <Navigate to="/landing" replace state={{from: location}} />;
 }

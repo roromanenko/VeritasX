@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { HubConnection, HubConnectionState } from '@microsoft/signalr';
 
 import { useApiProvider } from '../services/apiProvider';
-import type { BotDto, BotTradeRecordDto, BotStatus, OrderSide, UpdateBotRequest } from '../api';
+import type { BotDto, BotTradeRecordDto, BotStatus, GetBotStatisticsResponse, OrderSide, UpdateBotRequest } from '../api';
 
 type LogEntry = {
     id: number;
@@ -40,6 +40,16 @@ function formatDate(iso: string | null | undefined): string {
     });
 }
 
+function formatPct(n: number | null | undefined): string {
+    if (n == null) return '—';
+    return `${(n * 100).toFixed(2)}%`;
+}
+
+function formatNum(n: number | null | undefined, decimals = 4): string {
+    if (n == null) return '—';
+    return n.toFixed(decimals);
+}
+
 function formatTime(iso: string | null | undefined): string {
     if (!iso) return '—';
     return new Date(iso).toLocaleString(undefined, {
@@ -53,6 +63,7 @@ export const BotDetail = () => {
 
     const [bot, setBot] = useState<BotDto | null>(null);
     const [trades, setTrades] = useState<BotTradeRecordDto[]>([]);
+    const [stats, setStats] = useState<GetBotStatisticsResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
     const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
@@ -96,14 +107,19 @@ export const BotDetail = () => {
     async function fetchData() {
         setLoading(true);
         try {
-            const [botRes, tradesRes] = await Promise.all([
+            const [botRes, tradesRes, statsRes] = await Promise.all([
                 apiProvider.getBotsApi().apiBotsIdGet(id!),
                 apiProvider.getBotsApi().apiBotsIdTradesGet(id!, 5),
+                apiProvider.getStatisticsApi().apiStatisticsBotsBotIdGet(id!).catch(() => null),
             ]);
             const botData = (botRes.data as unknown as { data: BotDto }).data;
             const tradesData = (tradesRes.data as unknown as { data: BotTradeRecordDto[] }).data ?? [];
             if (botData) setBot(botData);
             setTrades(tradesData);
+            if (statsRes) {
+                const statsData = (statsRes.data as unknown as { data: GetBotStatisticsResponse }).data;
+                if (statsData) setStats(statsData);
+            }
         } finally {
             setLoading(false);
         }
@@ -387,6 +403,99 @@ export const BotDetail = () => {
                         >
                             Cancel
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {bot && stats && (
+                <div className="chart-card">
+                    <div className="chart-card-header">
+                        <span className="section-label">Statistics</span>
+                    </div>
+
+                    <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+                        {/* P&L */}
+                        <div>
+                            <p className="bot-edit-section-label" style={{ margin: '0 0 12px' }}>P&amp;L &amp; Performance</p>
+                            <div className="bot-detail-params-grid">
+                                <div>
+                                    <p className="metric-label">Current Equity</p>
+                                    <p className="metric-value neutral">{formatNum(stats.currentEquity, 2)}</p>
+                                </div>
+                                <div>
+                                    <p className="metric-label">Realized P&amp;L</p>
+                                    <p className={`metric-value${stats.totalRealizedPnl != null && stats.totalRealizedPnl < 0 ? ' negative' : ''}`}>
+                                        {formatNum(stats.totalRealizedPnl, 2)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="metric-label">Total Fees</p>
+                                    <p className="metric-value neutral">{formatNum(stats.totalFees, 4)}</p>
+                                </div>
+                                <div>
+                                    <p className="metric-label">Profit Factor</p>
+                                    <p className="metric-value neutral">{formatNum(stats.profitFactor, 2)}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Trade Stats */}
+                        <div>
+                            <p className="bot-edit-section-label" style={{ margin: '0 0 12px' }}>Trade Stats</p>
+                            <div className="bot-detail-params-grid">
+                                <div>
+                                    <p className="metric-label">Win Rate</p>
+                                    <p className={`metric-value${stats.winRate != null && stats.winRate < 0.5 ? ' negative' : ''}`}>
+                                        {formatPct(stats.winRate)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="metric-label">Trade Count</p>
+                                    <p className="metric-value neutral">{stats.tradeCount ?? '—'}</p>
+                                </div>
+                                <div>
+                                    <p className="metric-label">Round Trips</p>
+                                    <p className="metric-value neutral">{stats.totalRoundTrips ?? '—'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Risk Metrics */}
+                        <div>
+                            <p className="bot-edit-section-label" style={{ margin: '0 0 12px' }}>Risk Metrics</p>
+                            <div className="bot-detail-params-grid">
+                                <div>
+                                    <p className="metric-label">Max Drawdown</p>
+                                    <p className={`metric-value${stats.maxDrawdownPercent != null && stats.maxDrawdownPercent > 0 ? ' negative' : ''}`}>
+                                        {formatPct(stats.maxDrawdownPercent)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="metric-label">Volatility</p>
+                                    <p className="metric-value neutral">{formatPct(stats.volatility)}</p>
+                                </div>
+                                <div>
+                                    <p className="metric-label">Sharpe</p>
+                                    <p className={`metric-value${stats.sharpe != null && stats.sharpe < 0 ? ' negative' : ' neutral'}`}>
+                                        {formatNum(stats.sharpe, 2)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="metric-label">Sortino</p>
+                                    <p className={`metric-value${stats.sortino != null && stats.sortino < 0 ? ' negative' : ' neutral'}`}>
+                                        {formatNum(stats.sortino, 2)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="metric-label">Calmar</p>
+                                    <p className={`metric-value${stats.calmar != null && stats.calmar < 0 ? ' negative' : ' neutral'}`}>
+                                        {formatNum(stats.calmar, 2)}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             )}
