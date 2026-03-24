@@ -13,15 +13,18 @@ namespace Api.Controllers;
 public class StatisticsController : BaseController
 {
 	private readonly IBotStatisticsService _statisticsService;
+	private readonly IPortfolioSnapshotService _portfolioSnapshotService;
 	private readonly IMapper _mapper;
 	private readonly ILogger<StatisticsController> _logger;
 
 	public StatisticsController(
 		IBotStatisticsService statisticsService,
+		IPortfolioSnapshotService portfolioSnapshotService,
 		IMapper mapper,
 		ILogger<StatisticsController> logger)
 	{
 		_statisticsService = statisticsService;
+		_portfolioSnapshotService = portfolioSnapshotService;
 		_mapper = mapper;
 		_logger = logger;
 	}
@@ -82,6 +85,29 @@ public class StatisticsController : BaseController
 		{
 			_logger.LogError(ex, "Error getting account statistics for user {UserId}", UserId);
 			return StatusCode(500, new ApiResponse<GetAccountStatisticsResponse>(false, "Internal server error"));
+		}
+	}
+
+	/// <summary>
+	/// Gets a full portfolio snapshot across all exchanges for the current user.
+	/// </summary>
+	[HttpGet("portfolio")]
+	[ProducesResponseType(typeof(ApiResponse<GetPortfolioSnapshotResponse>), StatusCodes.Status200OK)]
+	public async Task<ActionResult<ApiResponse<GetPortfolioSnapshotResponse>>> GetPortfolioSnapshot(CancellationToken ct)
+	{
+		try
+		{
+			var snapshots = await _portfolioSnapshotService.GetPortfolioSnapshotAsync(UserId!, ct);
+			var totalEquityUsd = snapshots.Sum(s => s.EquityUsd);
+			var response = new GetPortfolioSnapshotResponse(
+				TotalEquityUsd: totalEquityUsd,
+				ByExchange: _mapper.Map<List<ExchangePortfolioDto>>(snapshots));
+			return Ok(new ApiResponse<GetPortfolioSnapshotResponse>(true, "Portfolio retrieved successfully", response));
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Error getting portfolio snapshot for user {UserId}", UserId);
+			return StatusCode(500, new ApiResponse<GetPortfolioSnapshotResponse>(false, "Internal server error"));
 		}
 	}
 }

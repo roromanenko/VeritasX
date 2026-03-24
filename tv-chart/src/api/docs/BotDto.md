@@ -12,8 +12,11 @@ Name | Type | Description | Notes
 **baseAsset** | **string** |  | [optional] [default to undefined]
 **quoteAsset** | **string** |  | [optional] [default to undefined]
 **status** | [**BotStatus**](BotStatus.md) |  | [optional] [default to undefined]
-**strategy** | [**StrategyDefinitionDto**](StrategyDefinitionDto.md) |  | [optional] [default to undefined]
+**strategyId** | **string** |  | [optional] [default to undefined]
+**strategySnapshot** | **string** |  | [optional] [default to undefined]
+**strategyVersion** | **number** |  | [optional] [default to undefined]
 **riskParameters** | [**RiskParametersDto**](RiskParametersDto.md) |  | [optional] [default to undefined]
+**maxConsecutiveErrors** | **number** |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [optional] [default to undefined]
 **startedAt** | **string** |  | [optional] [default to undefined]
 **stoppedAt** | **string** |  | [optional] [default to undefined]
@@ -32,8 +35,11 @@ const instance: BotDto = {
     baseAsset,
     quoteAsset,
     status,
-    strategy,
+    strategyId,
+    strategySnapshot,
+    strategyVersion,
     riskParameters,
+    maxConsecutiveErrors,
     createdAt,
     startedAt,
     stoppedAt,

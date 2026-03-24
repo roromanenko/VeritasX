@@ -6,8 +6,10 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **string** |  | [optional] [default to undefined]
-**strategyParameters** | **{ [key: string]: string; }** |  | [optional] [default to undefined]
+**strategyId** | **string** |  | [optional] [default to undefined]
+**parameterOverrides** | **{ [key: string]: string; }** |  | [optional] [default to undefined]
 **riskParameters** | [**RiskParametersDto**](RiskParametersDto.md) |  | [optional] [default to undefined]
+**maxConsecutiveErrors** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -16,8 +18,10 @@ import { UpdateBotRequest } from './api';
 
 const instance: UpdateBotRequest = {
     name,
-    strategyParameters,
+    strategyId,
+    parameterOverrides,
     riskParameters,
+    maxConsecutiveErrors,
 };
 ```
 

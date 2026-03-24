@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [optional] [default to undefined]
 **botId** | **string** |  | [optional] [default to undefined]
+**exchange** | **string** |  | [optional] [default to undefined]
 **symbol** | **string** |  | [optional] [default to undefined]
 **side** | [**OrderSide**](OrderSide.md) |  | [optional] [default to undefined]
 **price** | **number** |  | [optional] [default to undefined]
@@ -22,6 +23,7 @@ import { BotTradeRecordDto } from './api';
 const instance: BotTradeRecordDto = {
     id,
     botId,
+    exchange,
     symbol,
     side,
     price,

@@ -18,6 +18,8 @@ public class BotDailyStatisticsDocument
 	public decimal ClosingEquity { get; set; }
 	public decimal LastPrice { get; set; }
 	public DateTimeOffset LastUpdatedAt { get; set; }
+	public string Exchange { get; set; } = string.Empty;
+	public string QuoteAsset { get; set; } = string.Empty;
 
 	// P&L — incremented atomically
 	public decimal RealizedPnl { get; set; }

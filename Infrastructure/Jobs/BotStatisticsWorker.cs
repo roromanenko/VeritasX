@@ -67,7 +67,9 @@ public class BotStatisticsWorker : BackgroundService
 						today,
 						evt.Equity,
 						evt.Price,
-						now);
+						now,
+						evt.Exchange,
+						evt.QuoteAsset);
 
 					await _cache.SetAsync(lastUpsertKey, (DateTimeOffset?)now, LastUpsertCacheTtl, ct);
 				}
@@ -135,7 +137,9 @@ public class BotStatisticsWorker : BackgroundService
 					botId, userId, today,
 					evt.EquityAfterTrade, evt.Price,
 					realizedPnl, evt.Fee,
-					isWin, roundTripPnl);
+					isWin, roundTripPnl,
+					evt.Exchange,
+					evt.QuoteAsset);
 
 				await _cache.InvalidateAsync($"stats:botstats:{evt.BotId}", ct);
 				await _cache.InvalidateAsync($"stats:accountstats:{evt.UserId}", ct);

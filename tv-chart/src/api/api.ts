@@ -51,6 +51,43 @@ export interface AddExchangeConnectionRequest {
 /**
  * 
  * @export
+ * @interface AssetPositionDto
+ */
+export interface AssetPositionDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof AssetPositionDto
+     */
+    'asset'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof AssetPositionDto
+     */
+    'free'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof AssetPositionDto
+     */
+    'locked'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof AssetPositionDto
+     */
+    'total'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof AssetPositionDto
+     */
+    'usdValue'?: number;
+}
+/**
+ * 
+ * @export
  * @interface BalanceDto
  */
 export interface BalanceDto {
@@ -129,16 +166,34 @@ export interface BotDto {
     'status'?: BotStatus;
     /**
      * 
-     * @type {StrategyDefinitionDto}
+     * @type {string}
      * @memberof BotDto
      */
-    'strategy'?: StrategyDefinitionDto;
+    'strategyId'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotDto
+     */
+    'strategySnapshot'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof BotDto
+     */
+    'strategyVersion'?: number;
     /**
      * 
      * @type {RiskParametersDto}
      * @memberof BotDto
      */
     'riskParameters'?: RiskParametersDto;
+    /**
+     * 
+     * @type {number}
+     * @memberof BotDto
+     */
+    'maxConsecutiveErrors'?: number;
     /**
      * 
      * @type {string}
@@ -219,6 +274,67 @@ export interface BotDtoIEnumerableApiResponse {
 /**
  * 
  * @export
+ * @interface BotStatisticsSummaryDto
+ */
+export interface BotStatisticsSummaryDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof BotStatisticsSummaryDto
+     */
+    'botId'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotStatisticsSummaryDto
+     */
+    'symbol'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotStatisticsSummaryDto
+     */
+    'exchange'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotStatisticsSummaryDto
+     */
+    'quoteAsset'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof BotStatisticsSummaryDto
+     */
+    'currentEquity'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BotStatisticsSummaryDto
+     */
+    'currentEquityUsd'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BotStatisticsSummaryDto
+     */
+    'realizedPnl'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BotStatisticsSummaryDto
+     */
+    'winRate'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof BotStatisticsSummaryDto
+     */
+    'tradeCount'?: number;
+}
+/**
+ * 
+ * @export
  * @enum {string}
  */
 
@@ -250,6 +366,12 @@ export interface BotTradeRecordDto {
      * @memberof BotTradeRecordDto
      */
     'botId'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof BotTradeRecordDto
+     */
+    'exchange'?: string | null;
     /**
      * 
      * @type {string}
@@ -456,16 +578,28 @@ export interface CreateBotRequest {
     'quoteAsset'?: string | null;
     /**
      * 
-     * @type {StrategyDefinitionDto}
+     * @type {string}
      * @memberof CreateBotRequest
      */
-    'strategy'?: StrategyDefinitionDto;
+    'strategyId'?: string | null;
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof CreateBotRequest
+     */
+    'parameterOverrides'?: { [key: string]: string; } | null;
     /**
      * 
      * @type {RiskParametersDto}
      * @memberof CreateBotRequest
      */
     'riskParameters'?: RiskParametersDto;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateBotRequest
+     */
+    'maxConsecutiveErrors'?: number;
 }
 
 
@@ -550,6 +684,31 @@ export interface DataCollectionJobDto {
 }
 
 
+/**
+ * 
+ * @export
+ * @interface EquityPointDto
+ */
+export interface EquityPointDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof EquityPointDto
+     */
+    'date'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof EquityPointDto
+     */
+    'equity'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof EquityPointDto
+     */
+    'dailyReturn'?: number;
+}
 /**
  * 
  * @export
@@ -672,6 +831,296 @@ export interface ExchangeNameExchangeConnectionResponseDictionaryApiResponseData
      * @memberof ExchangeNameExchangeConnectionResponseDictionaryApiResponseData
      */
     'Bybit'?: ExchangeConnectionResponse;
+}
+/**
+ * 
+ * @export
+ * @interface ExchangePortfolioDto
+ */
+export interface ExchangePortfolioDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ExchangePortfolioDto
+     */
+    'exchange'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof ExchangePortfolioDto
+     */
+    'equityUsd'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ExchangePortfolioDto
+     */
+    'allocationPercent'?: number;
+    /**
+     * 
+     * @type {Array<AssetPositionDto>}
+     * @memberof ExchangePortfolioDto
+     */
+    'assets'?: Array<AssetPositionDto> | null;
+}
+/**
+ * 
+ * @export
+ * @interface ExchangeSummaryDto
+ */
+export interface ExchangeSummaryDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof ExchangeSummaryDto
+     */
+    'exchange'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof ExchangeSummaryDto
+     */
+    'equityUsd'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ExchangeSummaryDto
+     */
+    'allocationPercent'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ExchangeSummaryDto
+     */
+    'botCount'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ExchangeSummaryDto
+     */
+    'activeBotCount'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface GetAccountStatisticsResponse
+ */
+export interface GetAccountStatisticsResponse {
+    /**
+     * 
+     * @type {number}
+     * @memberof GetAccountStatisticsResponse
+     */
+    'totalEquityUsd'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetAccountStatisticsResponse
+     */
+    'totalRealizedPnl'?: number;
+    /**
+     * 
+     * @type {Array<ExchangeSummaryDto>}
+     * @memberof GetAccountStatisticsResponse
+     */
+    'byExchange'?: Array<ExchangeSummaryDto> | null;
+    /**
+     * 
+     * @type {Array<BotStatisticsSummaryDto>}
+     * @memberof GetAccountStatisticsResponse
+     */
+    'bots'?: Array<BotStatisticsSummaryDto> | null;
+}
+/**
+ * 
+ * @export
+ * @interface GetAccountStatisticsResponseApiResponse
+ */
+export interface GetAccountStatisticsResponseApiResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof GetAccountStatisticsResponseApiResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof GetAccountStatisticsResponseApiResponse
+     */
+    'message'?: string | null;
+    /**
+     * 
+     * @type {GetAccountStatisticsResponse}
+     * @memberof GetAccountStatisticsResponseApiResponse
+     */
+    'data'?: GetAccountStatisticsResponse;
+}
+/**
+ * 
+ * @export
+ * @interface GetBotStatisticsResponse
+ */
+export interface GetBotStatisticsResponse {
+    /**
+     * 
+     * @type {string}
+     * @memberof GetBotStatisticsResponse
+     */
+    'botId'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof GetBotStatisticsResponse
+     */
+    'symbol'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'currentEquity'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'sharpe'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'sortino'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'calmar'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'maxDrawdownPercent'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'volatility'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'winRate'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'profitFactor'?: number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'tradeCount'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'totalRoundTrips'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'totalRealizedPnl'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetBotStatisticsResponse
+     */
+    'totalFees'?: number;
+    /**
+     * 
+     * @type {Array<EquityPointDto>}
+     * @memberof GetBotStatisticsResponse
+     */
+    'equityCurve'?: Array<EquityPointDto> | null;
+}
+/**
+ * 
+ * @export
+ * @interface GetBotStatisticsResponseApiResponse
+ */
+export interface GetBotStatisticsResponseApiResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof GetBotStatisticsResponseApiResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof GetBotStatisticsResponseApiResponse
+     */
+    'message'?: string | null;
+    /**
+     * 
+     * @type {GetBotStatisticsResponse}
+     * @memberof GetBotStatisticsResponseApiResponse
+     */
+    'data'?: GetBotStatisticsResponse;
+}
+/**
+ * 
+ * @export
+ * @interface GetPortfolioSnapshotResponse
+ */
+export interface GetPortfolioSnapshotResponse {
+    /**
+     * 
+     * @type {number}
+     * @memberof GetPortfolioSnapshotResponse
+     */
+    'totalEquityUsd'?: number;
+    /**
+     * 
+     * @type {Array<ExchangePortfolioDto>}
+     * @memberof GetPortfolioSnapshotResponse
+     */
+    'byExchange'?: Array<ExchangePortfolioDto> | null;
+}
+/**
+ * 
+ * @export
+ * @interface GetPortfolioSnapshotResponseApiResponse
+ */
+export interface GetPortfolioSnapshotResponseApiResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof GetPortfolioSnapshotResponseApiResponse
+     */
+    'success'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof GetPortfolioSnapshotResponseApiResponse
+     */
+    'message'?: string | null;
+    /**
+     * 
+     * @type {GetPortfolioSnapshotResponse}
+     * @memberof GetPortfolioSnapshotResponseApiResponse
+     */
+    'data'?: GetPortfolioSnapshotResponse;
 }
 /**
  * 
@@ -1144,40 +1593,6 @@ export interface ServerTimeResponse {
 /**
  * 
  * @export
- * @interface StrategyDefinitionDto
- */
-export interface StrategyDefinitionDto {
-    /**
-     * 
-     * @type {StrategyType}
-     * @memberof StrategyDefinitionDto
-     */
-    'type'?: StrategyType;
-    /**
-     * 
-     * @type {{ [key: string]: string; }}
-     * @memberof StrategyDefinitionDto
-     */
-    'parameters'?: { [key: string]: string; } | null;
-}
-
-
-/**
- * 
- * @export
- * @enum {string}
- */
-
-export const StrategyType = {
-    DeltaRebalancing: 'DeltaRebalancing'
-} as const;
-
-export type StrategyType = typeof StrategyType[keyof typeof StrategyType];
-
-
-/**
- * 
- * @export
  * @interface StringApiResponse
  */
 export interface StringApiResponse {
@@ -1465,16 +1880,28 @@ export interface UpdateBotRequest {
     'name'?: string | null;
     /**
      * 
+     * @type {string}
+     * @memberof UpdateBotRequest
+     */
+    'strategyId'?: string | null;
+    /**
+     * 
      * @type {{ [key: string]: string; }}
      * @memberof UpdateBotRequest
      */
-    'strategyParameters'?: { [key: string]: string; } | null;
+    'parameterOverrides'?: { [key: string]: string; } | null;
     /**
      * 
      * @type {RiskParametersDto}
      * @memberof UpdateBotRequest
      */
     'riskParameters'?: RiskParametersDto;
+    /**
+     * 
+     * @type {number}
+     * @memberof UpdateBotRequest
+     */
+    'maxConsecutiveErrors'?: number;
 }
 /**
  * 
@@ -3396,6 +3823,275 @@ export class ExchangeApi extends BaseAPI {
      */
     public apiExchangeExchangeTradesSymbolGet(exchange: ExchangeName, symbol: string, orderId?: number, startTime?: string, endTime?: string, limit?: number, options?: RawAxiosRequestConfig) {
         return ExchangeApiFp(this.configuration).apiExchangeExchangeTradesSymbolGet(exchange, symbol, orderId, startTime, endTime, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * StatisticsApi - axios parameter creator
+ * @export
+ */
+export const StatisticsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {string} [from] 
+         * @param {string} [to] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsAccountGet: async (from?: string, to?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/Statistics/account`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+            if (from !== undefined) {
+                localVarQueryParameter['from'] = (from as any instanceof Date) ?
+                    (from as any).toISOString().substring(0,10) :
+                    from;
+            }
+
+            if (to !== undefined) {
+                localVarQueryParameter['to'] = (to as any instanceof Date) ?
+                    (to as any).toISOString().substring(0,10) :
+                    to;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} botId 
+         * @param {string} [from] 
+         * @param {string} [to] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsBotsBotIdGet: async (botId: string, from?: string, to?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'botId' is not null or undefined
+            assertParamExists('apiStatisticsBotsBotIdGet', 'botId', botId)
+            const localVarPath = `/api/Statistics/bots/{botId}`
+                .replace(`{${"botId"}}`, encodeURIComponent(String(botId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+            if (from !== undefined) {
+                localVarQueryParameter['from'] = (from as any instanceof Date) ?
+                    (from as any).toISOString().substring(0,10) :
+                    from;
+            }
+
+            if (to !== undefined) {
+                localVarQueryParameter['to'] = (to as any instanceof Date) ?
+                    (to as any).toISOString().substring(0,10) :
+                    to;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsPortfolioGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/Statistics/portfolio`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * StatisticsApi - functional programming interface
+ * @export
+ */
+export const StatisticsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = StatisticsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {string} [from] 
+         * @param {string} [to] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiStatisticsAccountGet(from?: string, to?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetAccountStatisticsResponseApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiStatisticsAccountGet(from, to, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StatisticsApi.apiStatisticsAccountGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} botId 
+         * @param {string} [from] 
+         * @param {string} [to] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiStatisticsBotsBotIdGet(botId: string, from?: string, to?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetBotStatisticsResponseApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiStatisticsBotsBotIdGet(botId, from, to, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StatisticsApi.apiStatisticsBotsBotIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiStatisticsPortfolioGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetPortfolioSnapshotResponseApiResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiStatisticsPortfolioGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StatisticsApi.apiStatisticsPortfolioGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * StatisticsApi - factory interface
+ * @export
+ */
+export const StatisticsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = StatisticsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {string} [from] 
+         * @param {string} [to] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsAccountGet(from?: string, to?: string, options?: RawAxiosRequestConfig): AxiosPromise<GetAccountStatisticsResponseApiResponse> {
+            return localVarFp.apiStatisticsAccountGet(from, to, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} botId 
+         * @param {string} [from] 
+         * @param {string} [to] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsBotsBotIdGet(botId: string, from?: string, to?: string, options?: RawAxiosRequestConfig): AxiosPromise<GetBotStatisticsResponseApiResponse> {
+            return localVarFp.apiStatisticsBotsBotIdGet(botId, from, to, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsPortfolioGet(options?: RawAxiosRequestConfig): AxiosPromise<GetPortfolioSnapshotResponseApiResponse> {
+            return localVarFp.apiStatisticsPortfolioGet(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * StatisticsApi - object-oriented interface
+ * @export
+ * @class StatisticsApi
+ * @extends {BaseAPI}
+ */
+export class StatisticsApi extends BaseAPI {
+    /**
+     * 
+     * @param {string} [from] 
+     * @param {string} [to] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public apiStatisticsAccountGet(from?: string, to?: string, options?: RawAxiosRequestConfig) {
+        return StatisticsApiFp(this.configuration).apiStatisticsAccountGet(from, to, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} botId 
+     * @param {string} [from] 
+     * @param {string} [to] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public apiStatisticsBotsBotIdGet(botId: string, from?: string, to?: string, options?: RawAxiosRequestConfig) {
+        return StatisticsApiFp(this.configuration).apiStatisticsBotsBotIdGet(botId, from, to, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public apiStatisticsPortfolioGet(options?: RawAxiosRequestConfig) {
+        return StatisticsApiFp(this.configuration).apiStatisticsPortfolioGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

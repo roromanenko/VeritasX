@@ -184,7 +184,9 @@ public class BotRunner : IBotRunner
 			if (solution.Type == SolutionType.Hold)
 			{
 				_statisticsUpdater.OnTick(new MarketTickEvent(
-					_bot.Id, _bot.UserId, tick.Timestamp, tick.Symbol, tick.Price, currentEquity));
+					_bot.Id, _bot.UserId, tick.Timestamp, tick.Symbol,
+				_bot.Exchange.ToString(), _bot.QuoteAsset,
+				tick.Price, currentEquity));
 				tickSucceeded = true;
 				return;
 			}
@@ -204,7 +206,9 @@ public class BotRunner : IBotRunner
 			_statisticsUpdater.OnTrade(new TradeExecutedEvent(
 				_bot.Id, _bot.UserId, record.ExecutedAt,
 				record.TradeId ?? record.Id,
-				record.Symbol, record.Side,
+				record.Symbol,
+				_bot.Exchange.ToString(), _bot.QuoteAsset,
+				record.Side,
 				record.Price, record.Quantity, record.QuoteQuantity,
 				record.Fee, record.FeeAsset,
 				currentEquity));

@@ -165,6 +165,8 @@ public static class ServiceCollectionExtensions
 		services.AddSingleton<IStatisticsCache, BotStatisticsCache>();
 		services.AddScoped<IBotStatisticsService, BotStatisticsService>();
 		services.AddScoped<IBotStatisticsRepository, BotStatisticsRepository>();
+		services.AddScoped<IPortfolioNormalizationService, PortfolioNormalizationService>();
+		services.AddScoped<IPortfolioSnapshotService, PortfolioSnapshotService>();
 
 		services.AddBinance();
 

@@ -13,4 +13,5 @@ public interface IPriceProvider
 		CancellationToken ct = default
 	);
 	Task<decimal> GetPriceAsync(string asset, string baseline, CancellationToken ct = default);
+	Task<Dictionary<string, decimal>> GetAllPricesAsync(string exchange, CancellationToken ct = default);
 }

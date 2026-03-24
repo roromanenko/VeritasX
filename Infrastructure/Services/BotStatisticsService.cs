@@ -11,15 +11,18 @@ public class BotStatisticsService : IBotStatisticsService
 	private readonly IBotStatisticsRepository _statisticsRepository;
 	private readonly IBotRepository _botRepository;
 	private readonly IStatisticsCache _cache;
+	private readonly IPortfolioNormalizationService _normalization;
 
 	public BotStatisticsService(
 		IBotStatisticsRepository statisticsRepository,
 		IBotRepository botRepository,
-		IStatisticsCache cache)
+		IStatisticsCache cache,
+		IPortfolioNormalizationService normalization)
 	{
 		_statisticsRepository = statisticsRepository;
 		_botRepository = botRepository;
 		_cache = cache;
+		_normalization = normalization;
 	}
 
 	public async Task<BotStatistics?> GetBotStatisticsAsync(string botId, string userId, DateOnly? from, DateOnly? to, CancellationToken ct = default)
@@ -60,18 +63,23 @@ public class BotStatisticsService : IBotStatisticsService
 		var latestSnapshots = await _statisticsRepository.GetLatestSnapshotPerBotAsync(userObjectId);
 
 		var botDocs = await _botRepository.GetBotsByUserId(userObjectId);
-		var symbolMap = botDocs.ToDictionary(b => b.Id, b => b.Symbol);
+		var botDocMap = botDocs.ToDictionary(b => b.Id);
 
 		var summaries = new List<BotStatisticsSummary>();
-		var totalEquity = 0m;
 		var totalPnl = 0m;
+		var totalEquityUsd = 0m;
+
+		// exchangeName → (equityUsd, list of botIds)
+		var exchangeGroups = new Dictionary<string, (decimal EquityUsd, List<ObjectId> BotIds)>(StringComparer.OrdinalIgnoreCase);
 
 		foreach (var snapshot in latestSnapshots)
 		{
 			var currentEquity = await _cache.GetAsync<decimal?>($"stats:equity:{snapshot.BotId}", ct)
 				?? snapshot.ClosingEquity;
 
-			totalEquity += currentEquity;
+			var equityUsd = await _normalization.ToUsdAsync(currentEquity, snapshot.QuoteAsset, snapshot.Exchange, ct);
+
+			totalEquityUsd += equityUsd;
 			totalPnl += snapshot.RealizedPnl;
 
 			var totalRoundTrips = snapshot.WinCount + snapshot.LossCount;
@@ -80,18 +88,42 @@ public class BotStatisticsService : IBotStatisticsService
 			summaries.Add(new BotStatisticsSummary
 			{
 				BotId = snapshot.BotId.ToString(),
-				Symbol = symbolMap.TryGetValue(snapshot.BotId, out var sym) ? sym : string.Empty,
+				Symbol = botDocMap.TryGetValue(snapshot.BotId, out var doc) ? doc.Symbol : string.Empty,
+				Exchange = snapshot.Exchange,
+				QuoteAsset = snapshot.QuoteAsset,
 				CurrentEquity = currentEquity,
+				CurrentEquityUsd = equityUsd,
 				RealizedPnl = snapshot.RealizedPnl,
 				WinRate = winRate,
 				TradeCount = snapshot.TradeCount
 			});
+
+			var exchangeKey = string.IsNullOrEmpty(snapshot.Exchange) ? "Unknown" : snapshot.Exchange;
+			if (!exchangeGroups.TryGetValue(exchangeKey, out var group))
+				group = (0m, []);
+			exchangeGroups[exchangeKey] = (group.EquityUsd + equityUsd, [.. group.BotIds, snapshot.BotId]);
 		}
+
+		var byExchange = exchangeGroups.Select(kvp =>
+		{
+			var activeBotCount = kvp.Value.BotIds.Count(id =>
+				botDocMap.TryGetValue(id, out var d) && d.Status == Core.Domain.BotStatus.Active);
+			var allocation = totalEquityUsd > 0 ? kvp.Value.EquityUsd / totalEquityUsd * 100 : 0m;
+			return new ExchangeSummary
+			{
+				Exchange = kvp.Key,
+				EquityUsd = kvp.Value.EquityUsd,
+				AllocationPercent = allocation,
+				BotCount = kvp.Value.BotIds.Count,
+				ActiveBotCount = activeBotCount
+			};
+		}).ToList();
 
 		var result = new AccountStatistics
 		{
-			TotalCurrentEquity = totalEquity,
+			TotalEquityUsd = totalEquityUsd,
 			TotalRealizedPnl = totalPnl,
+			ByExchange = byExchange,
 			Bots = summaries
 		};
 

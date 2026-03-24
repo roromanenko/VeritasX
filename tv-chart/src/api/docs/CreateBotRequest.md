@@ -10,8 +10,10 @@ Name | Type | Description | Notes
 **symbol** | **string** |  | [optional] [default to undefined]
 **baseAsset** | **string** |  | [optional] [default to undefined]
 **quoteAsset** | **string** |  | [optional] [default to undefined]
-**strategy** | [**StrategyDefinitionDto**](StrategyDefinitionDto.md) |  | [optional] [default to undefined]
+**strategyId** | **string** |  | [optional] [default to undefined]
+**parameterOverrides** | **{ [key: string]: string; }** |  | [optional] [default to undefined]
 **riskParameters** | [**RiskParametersDto**](RiskParametersDto.md) |  | [optional] [default to undefined]
+**maxConsecutiveErrors** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -24,8 +26,10 @@ const instance: CreateBotRequest = {
     symbol,
     baseAsset,
     quoteAsset,
-    strategy,
+    strategyId,
+    parameterOverrides,
     riskParameters,
+    maxConsecutiveErrors,
 };
 ```
 

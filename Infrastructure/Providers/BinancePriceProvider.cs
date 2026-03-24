@@ -98,6 +98,38 @@ public class BinancePriceProvider : IPriceProvider
 		);
 	}
 
+	/// <summary>
+	/// Fetches current prices for all trading pairs on Binance in a single request.
+	/// </summary>
+	/// <param name="exchange">The exchange name (unused; this provider is Binance-specific).</param>
+	/// <param name="ct">Cancellation token.</param>
+	/// <returns>A dictionary mapping symbol (e.g. <c>BTCUSDT</c>) to its current price.</returns>
+	/// <exception cref="HttpRequestException">Thrown if the request to the Binance API fails.</exception>
+	public async Task<Dictionary<string, decimal>> GetAllPricesAsync(string exchange, CancellationToken ct = default)
+	{
+		const string url = "https://api.binance.com/api/v3/ticker/price";
+		using var resp = await _httpClient.GetAsync(url, ct);
+		resp.EnsureSuccessStatusCode();
+
+		using var doc = await resp.Content.ReadFromJsonAsync<JsonDocument>(ct);
+		if (doc == null) return [];
+
+		var result = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+		foreach (var item in doc.RootElement.EnumerateArray())
+		{
+			var symbol = item.GetProperty("symbol").GetString();
+			var priceStr = item.GetProperty("price").GetString();
+			if (symbol != null && priceStr != null &&
+				decimal.TryParse(priceStr, System.Globalization.NumberStyles.Any,
+					CultureInfo.InvariantCulture, out var price))
+			{
+				result[symbol] = price;
+			}
+		}
+
+		return result;
+	}
+
 	private static string ToIntervalString(TimeSpan interval)
 	{
 		if (interval.TotalSeconds < 60) return $"{(int)interval.TotalSeconds}s";

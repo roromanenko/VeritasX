@@ -16,7 +16,8 @@ public class BotStatisticsRepository : IBotStatisticsRepository
 	}
 
 	public async Task UpsertTickEquityAsync(ObjectId botId, ObjectId userId, DateOnly date,
-		decimal closingEquity, decimal lastPrice, DateTimeOffset updatedAt)
+		decimal closingEquity, decimal lastPrice, DateTimeOffset updatedAt,
+		string exchange, string quoteAsset)
 	{
 		var collection = _dbContext.GetCollection<BotDailyStatisticsDocument>();
 		var filter = Builders<BotDailyStatisticsDocument>.Filter.And(
@@ -30,7 +31,9 @@ public class BotStatisticsRepository : IBotStatisticsRepository
 			.SetOnInsert(d => d.BotId, botId)
 			.SetOnInsert(d => d.UserId, userId)
 			.SetOnInsert(d => d.Date, date)
-			.SetOnInsert(d => d.OpeningEquity, closingEquity);
+			.SetOnInsert(d => d.OpeningEquity, closingEquity)
+			.SetOnInsert(d => d.Exchange, exchange)
+			.SetOnInsert(d => d.QuoteAsset, quoteAsset);
 
 		await collection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
 	}
@@ -38,7 +41,8 @@ public class BotStatisticsRepository : IBotStatisticsRepository
 	public async Task IncrementTradeAsync(ObjectId botId, ObjectId userId, DateOnly date,
 		decimal closingEquity, decimal lastPrice,
 		decimal realizedPnl, decimal fee,
-		bool? isWin, decimal roundTripPnl)
+		bool? isWin, decimal roundTripPnl,
+		string exchange, string quoteAsset)
 	{
 		var collection = _dbContext.GetCollection<BotDailyStatisticsDocument>();
 		var filter = Builders<BotDailyStatisticsDocument>.Filter.And(
@@ -53,6 +57,8 @@ public class BotStatisticsRepository : IBotStatisticsRepository
 			.SetOnInsert(d => d.UserId, userId)
 			.SetOnInsert(d => d.Date, date)
 			.SetOnInsert(d => d.OpeningEquity, closingEquity)
+			.SetOnInsert(d => d.Exchange, exchange)
+			.SetOnInsert(d => d.QuoteAsset, quoteAsset)
 			.Inc(d => d.RealizedPnl, realizedPnl)
 			.Inc(d => d.Fees, fee)
 			.Inc(d => d.TradeCount, 1);

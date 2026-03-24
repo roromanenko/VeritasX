@@ -9,6 +9,8 @@ public record MarketTickEvent(
 	string UserId,
 	DateTimeOffset Timestamp,
 	string Symbol,
+	string Exchange,
+	string QuoteAsset,
 	decimal Price,
 	decimal Equity)
 	: StatisticsEvent(BotId, UserId, Timestamp);
@@ -19,6 +21,8 @@ public record TradeExecutedEvent(
 	DateTimeOffset Timestamp,
 	string TradeId,
 	string Symbol,
+	string Exchange,
+	string QuoteAsset,
 	OrderSide Side,
 	decimal Price,
 	decimal Quantity,

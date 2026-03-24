@@ -16,4 +16,5 @@ public sealed class Balance
 	public decimal Free { get; set; }
 	public decimal Locked { get; set; }
 	public decimal Total => Free + Locked;
+	public decimal UsdValue { get; set; }
 }
