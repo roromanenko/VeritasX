@@ -108,6 +108,7 @@ public static class ServiceCollectionExtensions
 			cfg.AddProfile<BotDtoProfile>();
 			cfg.AddProfile<TradeProfile>();
 			cfg.AddProfile<StrategyProfile>();
+			cfg.AddProfile<StatisticsProfile>();
 		});
 
 		services.AddSignalR()
@@ -157,6 +158,13 @@ public static class ServiceCollectionExtensions
 		services.AddSingleton<IMarketDataStreamFactory, MarketDataStreamFactory>();
 		services.AddScoped<ITradeExecutor, TradeExecutor>();
 		services.AddSingleton<IDslStrategyInterpreter, BuiltinStrategyInterpreter>();
+
+		services.AddSingleton<BotStatisticsUpdater>();
+		services.AddSingleton<IBotStatisticsUpdater>(sp => sp.GetRequiredService<BotStatisticsUpdater>());
+		services.AddHostedService<BotStatisticsWorker>();
+		services.AddSingleton<IStatisticsCache, BotStatisticsCache>();
+		services.AddScoped<IBotStatisticsService, BotStatisticsService>();
+		services.AddScoped<IBotStatisticsRepository, BotStatisticsRepository>();
 
 		services.AddBinance();
 

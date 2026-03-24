@@ -26,6 +26,9 @@ public class MongoIndexInitializer : IHostedService
 
 		await CreateBotTradeRecordIndexes(dbContext, cancellationToken);
 		await CreateUserStrategyLibraryIndexes(dbContext, cancellationToken);
+		await CreateBotDailyStatisticsIndexes(dbContext, cancellationToken);
+		await CreateBotOpenPositionsIndexes(dbContext, cancellationToken);
+		await CreateStatisticsProcessedTradesIndexes(dbContext, cancellationToken);
 	}
 
 	public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
@@ -50,5 +53,47 @@ public class MongoIndexInitializer : IHostedService
 
 		var indexModel = new CreateIndexModel<UserStrategyLibraryDocument>(indexKeys);
 		await collection.Indexes.CreateOneAsync(indexModel, cancellationToken: ct);
+	}
+
+	private static async Task CreateBotDailyStatisticsIndexes(IMongoDbContext dbContext, CancellationToken ct)
+	{
+		var collection = dbContext.GetCollection<BotDailyStatisticsDocument>();
+
+		var uniqueKeys = Builders<BotDailyStatisticsDocument>.IndexKeys
+			.Ascending(d => d.BotId)
+			.Ascending(d => d.Date);
+		await collection.Indexes.CreateOneAsync(
+			new CreateIndexModel<BotDailyStatisticsDocument>(uniqueKeys, new CreateIndexOptions { Unique = true }),
+			cancellationToken: ct);
+
+		var userDateKeys = Builders<BotDailyStatisticsDocument>.IndexKeys
+			.Ascending(d => d.UserId)
+			.Ascending(d => d.Date);
+		await collection.Indexes.CreateOneAsync(
+			new CreateIndexModel<BotDailyStatisticsDocument>(userDateKeys),
+			cancellationToken: ct);
+	}
+
+	private static async Task CreateBotOpenPositionsIndexes(IMongoDbContext dbContext, CancellationToken ct)
+	{
+		var collection = dbContext.GetCollection<BotOpenPositionsDocument>();
+		var indexKeys = Builders<BotOpenPositionsDocument>.IndexKeys
+			.Ascending(d => d.BotId)
+			.Ascending(d => d.Symbol);
+
+		await collection.Indexes.CreateOneAsync(
+			new CreateIndexModel<BotOpenPositionsDocument>(indexKeys, new CreateIndexOptions { Unique = true }),
+			cancellationToken: ct);
+	}
+
+	private static async Task CreateStatisticsProcessedTradesIndexes(IMongoDbContext dbContext, CancellationToken ct)
+	{
+		var collection = dbContext.GetCollection<StatisticsProcessedTradeDocument>();
+		var indexKeys = Builders<StatisticsProcessedTradeDocument>.IndexKeys
+			.Ascending(d => d.TradeId);
+
+		await collection.Indexes.CreateOneAsync(
+			new CreateIndexModel<StatisticsProcessedTradeDocument>(indexKeys, new CreateIndexOptions { Unique = true }),
+			cancellationToken: ct);
 	}
 }

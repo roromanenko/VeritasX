@@ -32,6 +32,7 @@ public class BotRunnerTests
 	private readonly Mock<IHubClients> _hubClientsMock = new();
 	private readonly Mock<IClientProxy> _clientProxyMock = new();
 	private readonly Mock<IMapper> _mapperMock = new();
+	private readonly Mock<IBotStatisticsUpdater> _statisticsUpdaterMock = new();
 	private readonly Mock<ILogger<BotRunner>> _loggerMock = new();
 
 	private readonly BotConfiguration _bot;
@@ -113,6 +114,7 @@ public class BotRunnerTests
 		_tradeExecutorMock.Object,
 		_exchangeServiceFactoryMock.Object,
 		_dslInterpreterMock.Object,
+		_statisticsUpdaterMock.Object,
 		_hubContextMock.Object,
 		_mapperMock.Object,
 		_loggerMock.Object);

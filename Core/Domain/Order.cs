@@ -25,6 +25,9 @@ public sealed class Order
 	public decimal? Price { get; set; }
 	public bool IsTestnet { get; set; }
 
+	public decimal? Fee { get; set; }
+	public string? FeeAsset { get; set; }
+
 	//Status
 	public OrderStatus Status { get; set; }
 	public decimal FilledQuantity { get; set; }

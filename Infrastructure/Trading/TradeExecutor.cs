@@ -118,7 +118,10 @@ public class TradeExecutor : ITradeExecutor
 			Quantity = placedOrder.FilledQuantity,
 			Reason = solution.Reason,
 			TradeId = savedTrade.Id.ToString(),
-			ExecutedAt = placedOrder.ExecutedAt ?? DateTimeOffset.UtcNow
+			ExecutedAt = placedOrder.ExecutedAt ?? DateTimeOffset.UtcNow,
+			QuoteQuantity = placedOrder.QuoteQuantity ?? (placedOrder.AverageFillPrice ?? 0) * placedOrder.FilledQuantity,
+			Fee = placedOrder.Fee ?? 0,
+			FeeAsset = placedOrder.FeeAsset
 		};
 	}
 

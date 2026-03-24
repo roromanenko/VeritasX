@@ -13,4 +13,7 @@ public class BotTradeRecord
 	public required string Reason { get; init; }
 	public string? TradeId { get; init; }
 	public DateTimeOffset ExecutedAt { get; init; } = DateTimeOffset.UtcNow;
+	public decimal QuoteQuantity { get; init; }
+	public decimal Fee { get; init; }
+	public string? FeeAsset { get; init; }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Domain;
+using Core.Domain.Statistics;
 using Core.Interfaces;
 using Infrastructure.Hubs;
 using Infrastructure.Interfaces;
@@ -26,6 +27,7 @@ public class BotRunner : IBotRunner
 	private readonly ITradeExecutor _tradeExecutor;
 	private readonly IExchangeServiceFactory _exchangeServiceFactory;
 	private readonly IDslStrategyInterpreter _dslInterpreter;
+	private readonly IBotStatisticsUpdater _statisticsUpdater;
 	private readonly IHubContext<BotProgressHub> _hub;
 	private readonly IMapper _mapper;
 	private readonly ILogger<BotRunner> _logger;
@@ -46,6 +48,7 @@ public class BotRunner : IBotRunner
 		ITradeExecutor tradeExecutor,
 		IExchangeServiceFactory exchangeServiceFactory,
 		IDslStrategyInterpreter dslInterpreter,
+		IBotStatisticsUpdater statisticsUpdater,
 		IHubContext<BotProgressHub> hub,
 		IMapper mapper,
 		ILogger<BotRunner> logger)
@@ -59,6 +62,7 @@ public class BotRunner : IBotRunner
 		_tradeExecutor = tradeExecutor;
 		_exchangeServiceFactory = exchangeServiceFactory;
 		_dslInterpreter = dslInterpreter;
+		_statisticsUpdater = statisticsUpdater;
 		_hub = hub;
 		_mapper = mapper;
 		_logger = logger;
@@ -174,10 +178,13 @@ public class BotRunner : IBotRunner
 			context.Account.SetBalance(_bot.BaseAsset, baseAsset?.Free ?? 0);
 			context.Account.SetBalance(_bot.QuoteAsset, quoteAsset?.Free ?? 0);
 
+			var currentEquity = context.GetTotalInBaseline(tick.Price);
 			var solution = await strategy.CalculateNextStep(context, tick, ct);
 
 			if (solution.Type == SolutionType.Hold)
 			{
+				_statisticsUpdater.OnTick(new MarketTickEvent(
+					_bot.Id, _bot.UserId, tick.Timestamp, tick.Symbol, tick.Price, currentEquity));
 				tickSucceeded = true;
 				return;
 			}
@@ -193,6 +200,14 @@ public class BotRunner : IBotRunner
 			await _botTradeRepository.CreateTradeRecord(tradeDoc);
 
 			await NotifyTradeAsync(record);
+
+			_statisticsUpdater.OnTrade(new TradeExecutedEvent(
+				_bot.Id, _bot.UserId, record.ExecutedAt,
+				record.TradeId ?? record.Id,
+				record.Symbol, record.Side,
+				record.Price, record.Quantity, record.QuoteQuantity,
+				record.Fee, record.FeeAsset,
+				currentEquity));
 
 			_logger.LogInformation(
 				"Bot {BotId} executed {Side} {Qty} {Asset} at {Price}. Reason: {Reason}",

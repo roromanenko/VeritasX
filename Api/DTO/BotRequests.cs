@@ -12,7 +12,7 @@ public record CreateBotRequest(
 	string StrategyId,
 	Dictionary<string, string>? ParameterOverrides,
 	RiskParametersDto RiskParameters,
-	[property: Range(1, 100)] int MaxConsecutiveErrors = 5
+	[Range(1, 100)] int MaxConsecutiveErrors = 5
 );
 
 public record UpdateBotRequest(
@@ -20,7 +20,7 @@ public record UpdateBotRequest(
 	string? StrategyId,
 	Dictionary<string, string>? ParameterOverrides,
 	RiskParametersDto RiskParameters,
-	[property: Range(1, 100)] int MaxConsecutiveErrors = 5
+	[Range(1, 100)] int MaxConsecutiveErrors = 5
 );
 
 public record RiskParametersDto(
